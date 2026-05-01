@@ -2,13 +2,19 @@
 
 ## Current structure
 
-The runtime is organized around a narrow HAL boundary:
+The runtime is organized around a narrow HAL boundary and ET platform build:
 
 1. Platform headers under `tpa/hal/<platform>/include/tpa/hal/` provide
    compile-time constants and channel placement policy.
 2. `tpa/hal/include/tpa/hal.h` declares callable operations for atomics,
    cache maintenance, fences, hart wake/wait, lifecycle hooks, and tracing.
 3. Core modules under `tpa/lib/` use only the HAL-facing API.
+4. `tpa-device/` configures with the ET RISC-V toolchain and links the real
+   selected HAL against `et-common-libs::cm-umode`.
+5. `tpa-host/` configures against et-platform host packages. The full launcher
+   and demo tooling are explicit follow-up work.
+6. `planner/` provides Python-only offline process metadata extraction,
+   mapping, and planning commands; `machines/` provides mapper topology inputs.
 
 ## Selecting a platform
 
@@ -28,25 +34,34 @@ Include the selected platform header before public core headers. The platform
 header defines `TPA_HAL_NR_HARTS`, `TPA_HAL_CACHELINE_BYTES`, and
 `TPA_HAL_CH_KIND()`, then includes the common `tpa/hal.h` declarations.
 
-## Core concepts
+## Build modes
 
-- Scheduler: `tpa/scheduler.h` owns per-hart run queues and remote-ready bell
-  state. Wake paths mark a slot ready and ring the destination hart only if it
-  is armed.
-- Process: `tpa/process.h` owns process layout, slot registration, mailbox
-  publish/complete helpers, and process wait-state transitions.
-- Channel: `tpa/channel.h` owns channel state transitions. It receives runtime
-  callbacks for process wake/run/wait actions so channel code does not depend
-  on scheduler internals.
+### ET device/host build (primary)
 
-## Examples
+```sh
+cmake -S . -B build-et-erbium -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=erbium
+cmake --build build-et-erbium --target tpa_pipe_demo.elf
 
-- `examples/core_concepts.c` uses fixed host constants to demonstrate the core
-  public headers and data flow without selecting a real platform.
-- `examples/platform_erbium.c` demonstrates Erbium platform selection and
-  compile-time channel policy.
-- `examples/platform_etsoc1.c` demonstrates ET-SoC-1 platform selection and
-  compile-time channel policy.
+cmake -S . -B build-et-etsoc1 -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=etsoc1
+cmake --build build-et-etsoc1 --target tpa_core
+```
+
+The top-level CMake discovers `ProjectFunctions.cmake`, calls
+`DeviceProjectNoInstall(tpa-device ...)`, and calls
+`HostProjectNoInstall(tpa-host ...)`. `tpa-device` fails during configure if the
+ET RISC-V toolchain or required ET CMake packages are unavailable.
+
+### Host smoke-test doubles (not platform validation)
+
+```sh
+cmake -S . -B build-smoke -DTPA_HOST_SMOKE_TEST_DOUBLE=ON
+cmake --build build-smoke
+ctest --test-dir build-smoke --output-on-failure
+```
+
+This mode is for local syntax and unit smoke only. It is intentionally named as
+a test double and defines `TPA_HOST_SMOKE_TEST_DOUBLE=1`; real device builds do
+not silently use host atomic/cache/fence fallbacks.
 
 ## Planner/mapper workflow
 
@@ -68,14 +83,38 @@ The package currently ports the original extract/map/plan Python entry points
 and the machine topology inputs used by the mapper. See `planner/README.md` for
 example mapper commands.
 
-## Limitations
+## Core concepts
 
-The repository is still in the extraction/integration phase. There is not yet a
-single finalized build invocation or complete runtime startup example. The
-examples are intentionally small and are validated with strict syntax checks
-against the current public headers. Full platform execution still requires the
-appropriate Erbium or ET-SoC-1 runtime/toolchain integration.
+- Scheduler: `tpa/scheduler.h` owns per-hart run queues and remote-ready bell
+  state. Wake paths mark a slot ready and ring the destination hart only if it
+  is armed.
+- Process: `tpa/process.h` owns process layout, slot registration, mailbox
+  publish/complete helpers, and process wait-state transitions.
+- Channel: `tpa/channel.h` owns channel state transitions. It receives runtime
+  callbacks for process wake/run/wait actions so channel code does not depend
+  on scheduler internals.
 
-The planner/mapper tooling is Python-only for now. CMake targets that build real
-process objects and extract process JSON metadata have not yet been ported, so a
-full demo still needs the process-build and runtime integration work.
+## Examples
+
+- `examples/core_concepts.c` uses fixed host constants to demonstrate the core
+  public headers and data flow without selecting a real platform.
+- `examples/platform_erbium.c` demonstrates Erbium platform selection and
+  compile-time channel policy.
+- `examples/platform_etsoc1.c` demonstrates ET-SoC-1 platform selection and
+  compile-time channel policy.
+- `tpa-device/examples/tpa_pipe_demo.c` is a minimal ET RISC-V target linked
+  with the selected real HAL while the complete legacy TPA mapper/demo stack is
+  ported.
+
+## Current limitations / follow-up
+
+- The structured host project validates ET host package discovery but does not
+  yet port the original `tpa_launcher` implementation.
+- The full legacy TPA program generator, JSON planner CMake targets, YOLO
+  demos, message tests, and ltfarm experiments still need ordered porting into
+  the structured tree.
+- The Python mapper/planner commands are ported, but CMake targets that build
+  real process objects and extract process JSON metadata have not yet been
+  ported in this structured repository.
+- `tpa_pipe_demo.elf` is currently a minimal real device-link target, not the
+  complete original pipe demo workload.

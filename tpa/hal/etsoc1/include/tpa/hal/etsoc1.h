@@ -30,13 +30,19 @@
 #endif
 
 #ifndef SOC_MINIONS_PER_SHIRE
-/* Host syntax-check fallback. Real ET-SoC-1 builds get this from hart.h. */
+#if defined(TPA_HOST_SMOKE_TEST_DOUBLE)
 #define SOC_MINIONS_PER_SHIRE 8u
+#else
+#error "SOC_MINIONS_PER_SHIRE must come from ET-SoC-1 hart.h in real device builds"
+#endif
 #endif
 
 #ifndef CACHE_LINE_SIZE
-/* Host syntax-check fallback. Real ET-SoC-1 builds get this from cacheops. */
+#if defined(TPA_HOST_SMOKE_TEST_DOUBLE)
 #define CACHE_LINE_SIZE 64u
+#else
+#error "CACHE_LINE_SIZE must come from ET-SoC-1 cacheops headers in real device builds"
+#endif
 #endif
 
 #define TPA_ETSOC1_HARTS_PER_MINION      2u
