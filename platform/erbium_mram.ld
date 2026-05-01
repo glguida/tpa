@@ -85,9 +85,12 @@ SECTIONS {
         PROVIDE(__tpa_prog_end = .);
 
         . = ALIGN(8);
-        PROVIDE(__tpa_boot_start = .);
+        __tpa_boot_start = .;
         KEEP(*(.tpa.boot))
-        PROVIDE(__tpa_boot_end = .);
+        __tpa_boot_end = .;
+
+        . = ALIGN(8);
+        KEEP(*(.tpa.bootvec))
     } > MRAM
 
     .data : {
