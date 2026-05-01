@@ -49,7 +49,6 @@ smoke-test doubles; they are not ET platform validation.
   commands.
 - `docs/memory-and-edge-buffers.md` — memory taxonomy and edge-buffer planning.
 - `docs/yolo-demo.md` — YOLO downstream, tools/models policy, and block tests.
-- `docs/MISSING_ORIGINAL_ARTIFACTS.md` — ported vs missing original artifacts.
 - `docs/USAGE.md` — current runtime usage notes and caveats.
 - `planner/README.md` — quick reference for the Python planner package.
 
@@ -92,10 +91,12 @@ python -m pip install -e planner
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python)
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
-cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
-/opt/et/bin/erbium_emu \
-  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf \
-  -max_cycles 10000
+# Downstream device ELF/runtime is currently a revalidation target, not a
+# validated PASS path in the phase-3 scheduler-hardening status.
+# cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+# /opt/et/bin/erbium_emu \
+#   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf \
+#   -max_cycles 10000
 ```
 
 ## Quick start: runtime regression test ELFs
@@ -186,10 +187,13 @@ Ported and validated today:
 
 - ET superbuild integration for device and host subprojects.
 - Erbium `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_tensor_matmul.elf`,
-  and `tpa_yolov5n_downstream.elf` build paths.
+  and representative message/queue/negative regression ELF build paths.
 - Cooperative runtime scheduler execution for generated graph programs, with
-  Erbium emulator PASS validation for `tpa_empty.elf` and `tpa_pipe_demo.elf`.
-- Erbium emulator validation for YOLO downstream.
+  Erbium emulator PASS validation for `tpa_empty.elf`, `tpa_pipe_demo.elf`,
+  representative message/channel tests, and representative queue tests.
+- Negative expected-failure execution reports the intended Erbium FAIL marker.
+- YOLO downstream planner/map artifact generation; downstream device ELF/runtime
+  validation remains scheduler/toolchain hardening follow-up.
 - ET-SoC-1 default one-shire `tpa_core` build.
 - `tpa_launcher` host tool target.
 - Python planner package, checked-in machine JSONs, and planner tests.
@@ -200,9 +204,9 @@ Ported and validated today:
   analysis under `docs/archive/`.
 - Host smoke-test-double mode for non-platform syntax/unit smoke.
 
-Important missing or partial areas remain: full YOLO end-user host pipeline and
-the full cooperative runtime scheduler. Message/queue/negative test ELFs are
-ported, but full behavioral validation remains tied to the cooperative scheduler
-follow-up. YOLO tools/models and representative block tests are now ported; DNN
-and LTFarm sources are archived/reference material. See `docs/yolo-demo.md` and
-`docs/MISSING_ORIGINAL_ARTIFACTS.md` for the detailed inventory.
+Important missing or partial areas remain: tensor matmul runtime PASS,
+YOLO downstream device ELF/runtime validation, the full YOLO end-user host
+pipeline, and broader scheduler coverage beyond the representative runtime
+regressions. YOLO tools/models and representative block tests are now ported;
+DNN and LTFarm sources are archived/reference material. See `docs/yolo-demo.md`
+for the current YOLO scope.

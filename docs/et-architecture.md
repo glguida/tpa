@@ -56,11 +56,17 @@ and HAL validate.
 
 Erbium generated ELFs use the structured platform/startup assets under
 `platform/` and the selected Erbium HAL implementation under `tpa/hal/erbium/`.
-Current validated Erbium targets include:
+Current validated Erbium runtime targets include:
 
-- `tpa_pipe_demo.elf`;
 - `tpa_empty.elf`;
-- `tpa_yolov5n_downstream.elf`.
+- `tpa_pipe_demo.elf`;
+- representative message/channel and queue regression ELFs;
+- `tpa_negative_expected_fail.elf` as an intentional FAIL-marker test.
+
+`tpa_tensor_matmul.elf` builds but still reports FAIL under current runtime
+validation. YOLO downstream planner/map artifacts are integrated, but the
+downstream device ELF/runtime path remains scheduler/toolchain hardening
+follow-up.
 
 `erbium_emu` validation is ET platform validation. Host smoke-test-double builds
 are not.
@@ -188,11 +194,12 @@ they are not substitutes for Erbium or ET-SoC-1 device validation.
 ## What remains follow-up
 
 Architecture docs should not imply that all original ET/TPA artifacts are fully
-validated. The message/channel, queue/scheduler, and negative expected-failure test
-assets and ELF build targets are ported under `tests/tpa_msg/`,
-`tests/tpa_queue/`, and `tests/tpa_negative/`. Their full behavioral validation,
-including expected-failure runtime semantics, remains tied to the full
-cooperative runtime scheduler follow-up.
+validated. The message/channel, queue/scheduler, and negative expected-failure
+test assets and ELF build targets are ported under `tests/tpa_msg/`,
+`tests/tpa_queue/`, and `tests/tpa_negative/`. Representative message/channel
+and queue ELFs report PASS under Erbium, and the negative expected-failure ELF
+reports the intended FAIL marker. Broader scheduler coverage remains hardening
+follow-up.
 
 Other missing or partial areas include:
 
@@ -200,6 +207,6 @@ Other missing or partial areas include:
 - active DNN demo and LTFarm build targets (sources are archived under
   `docs/archive/`);
 - broader metadata extraction coverage;
-- full cooperative runtime scheduler completion.
+- tensor matmul, YOLO downstream, and broader cooperative scheduler hardening.
 
 Those follow-up items are not reasons to use an alternate build path.

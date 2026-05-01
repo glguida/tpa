@@ -295,7 +295,9 @@ python -m pip install -e planner
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python)
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
-cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+# Downstream device ELF/runtime is currently a revalidation target, not a
+# validated PASS path in the phase-3 scheduler-hardening status.
+# cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 ```
 
 ET-SoC-1 core build:
@@ -443,11 +445,13 @@ Avoid these common mistakes:
 - Hiding required ET toolchain or HAL behavior behind host fallbacks.
 - Claiming original tests/demos/tools are integrated before they are ported.
 
-Current missing or partial areas include full YOLO host/demo integration and the
-full cooperative runtime scheduler. Message, queue, and negative test assets are
-ported as structured build targets, but do not claim their full runtime behavior
-is validated until the cooperative scheduler executes continuations. YOLO
-tools/models and representative block tests are ported; mention remaining items
-only as follow-up until implementation jobs port them. Original DNN demos and
-LTFarm are preserved under `docs/archive/` as reference material with future port
-steps, not active program examples.
+Current missing or partial areas include tensor matmul runtime PASS, YOLO
+downstream device-runtime PASS, full YOLO host/demo integration, and broader
+scheduler coverage. Representative message/channel and queue test assets report
+PASS under Erbium, and the negative expected-failure ELF reports the intended
+FAIL marker; do not generalize those representative checks into exhaustive
+scheduler validation. YOLO tools/models and representative block tests are
+ported; mention remaining items only as follow-up until implementation jobs port
+or validate them. Original DNN demos and LTFarm are preserved under
+`docs/archive/` as reference material with future port steps, not active program
+examples.
