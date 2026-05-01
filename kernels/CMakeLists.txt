@@ -39,6 +39,14 @@ set(tpa_tensor_matmul_cols 8)
 set(tpa_tensor_matmul_rounds 4)
 set(tpa_tensor_matmul_tile_n 64)
 set(tpa_tensor_matmul_tile_bytes 16384)
+# Keep the Erbium correctness demo inside the documented emulator validation
+# mask (-minions 0x1f), which starts minions 0..4. Other platforms keep the
+# original eight-minion hand placement.
+if (TPA_PLATFORM_ID STREQUAL "erbium")
+    set(tpa_tensor_matmul_nr_minions 5)
+else()
+    set(tpa_tensor_matmul_nr_minions 8)
+endif()
 set(tpa_tensor_matmul_tpp
     "${CMAKE_CURRENT_BINARY_DIR}/generated/tpa_tensor_matmul.tpp")
 set(tpa_tensor_matmul_place
@@ -53,7 +61,7 @@ add_custom_command(
         -DOUTPUT_PLACEMENT=${tpa_tensor_matmul_place}
         -DROWS=${tpa_tensor_matmul_rows}
         -DCOLS=${tpa_tensor_matmul_cols}
-        -DNR_MINIONS=8
+        -DNR_MINIONS=${tpa_tensor_matmul_nr_minions}
         -DTILE_BYTES=${tpa_tensor_matmul_tile_bytes}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/gen_tpa_tensor_matmul.cmake"
     DEPENDS

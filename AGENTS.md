@@ -139,7 +139,7 @@ cmake --build build-et-erbium --target tpa_tensor_matmul.elf
   -max_cycles 10000
 ```
 
-For YOLO downstream planner/map artifact validation:
+For YOLO downstream planner/map/device validation:
 
 ```sh
 python3 -m venv .venv-planner
@@ -148,10 +148,12 @@ python -m pip install -e planner
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python)
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
+cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+/opt/et/bin/erbium_emu \
+  -minions 0x1f \
+  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf \
+  -max_cycles 100000000
 ```
-
-The downstream YOLO device ELF/runtime path currently needs revalidation before
-it can be claimed as a PASS path.
 
 ### Host launcher validation
 
@@ -204,14 +206,14 @@ because the current YOLO mapping uses the full-card machine JSON.
 
 ## Current status notes
 
-Validated current paths include Erbium simple demo ELFs, representative
-message/channel and queue runtime regression ELFs, the negative expected-failure
-ELF's intentional FAIL marker, ET-SoC-1 default `tpa_core`, the host launcher
-target, planner tests, and host smoke-test doubles.
+Validated current paths include Erbium simple demo ELFs, the tensor matmul demo
+ELF, YOLO downstream planner/map/device ELF PASS-marker runtime path,
+representative message/channel and queue runtime regression ELFs, the negative
+expected-failure ELF's intentional FAIL marker, ET-SoC-1 default `tpa_core`, the
+host launcher target, planner tests, and host smoke-test doubles.
 
-Important follow-up areas remain: `tpa_tensor_matmul.elf` runtime PASS, YOLO
-downstream device ELF/runtime validation, broader scheduler hardening beyond the
-representative runtime regressions, and full YOLO host/demo integration. YOLO
+Important follow-up areas remain: broader scheduler hardening beyond the
+representative runtime regressions and full YOLO host/demo integration. YOLO
 tools/models and representative block tests are documented in
 `docs/yolo-demo.md`. DNN demos, LTFarm, trace tools, and historical generated
 YOLO reports have explicit port/archive status.

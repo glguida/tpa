@@ -91,12 +91,11 @@ python -m pip install -e planner
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python)
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
-# Downstream device ELF/runtime is currently a revalidation target, not a
-# validated PASS path in the phase-3 scheduler-hardening status.
-# cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
-# /opt/et/bin/erbium_emu \
-#   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf \
-#   -max_cycles 10000
+cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+/opt/et/bin/erbium_emu \
+  -minions 0x1f \
+  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf \
+  -max_cycles 100000000
 ```
 
 ## Quick start: runtime regression test ELFs
@@ -190,10 +189,11 @@ Ported and validated today:
   and representative message/queue/negative regression ELF build paths.
 - Cooperative runtime scheduler execution for generated graph programs, with
   Erbium emulator PASS validation for `tpa_empty.elf`, `tpa_pipe_demo.elf`,
-  representative message/channel tests, and representative queue tests.
+  `tpa_tensor_matmul.elf`, representative message/channel tests, and
+  representative queue tests.
 - Negative expected-failure execution reports the intended Erbium FAIL marker.
-- YOLO downstream planner/map artifact generation; downstream device ELF/runtime
-  validation remains scheduler/toolchain hardening follow-up.
+- YOLO downstream planner/map artifact generation, downstream device ELF link,
+  and Erbium emulator PASS-marker runtime validation.
 - ET-SoC-1 default one-shire `tpa_core` build.
 - `tpa_launcher` host tool target.
 - Python planner package, checked-in machine JSONs, and planner tests.
@@ -204,9 +204,8 @@ Ported and validated today:
   analysis under `docs/archive/`.
 - Host smoke-test-double mode for non-platform syntax/unit smoke.
 
-Important missing or partial areas remain: tensor matmul runtime PASS,
-YOLO downstream device ELF/runtime validation, the full YOLO end-user host
-pipeline, and broader scheduler coverage beyond the representative runtime
+Important missing or partial areas remain: the full YOLO end-user host
+pipeline and broader scheduler coverage beyond the representative runtime
 regressions. YOLO tools/models and representative block tests are now ported;
 DNN and LTFarm sources are archived/reference material. See `docs/yolo-demo.md`
 for the current YOLO scope.

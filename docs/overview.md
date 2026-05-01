@@ -82,7 +82,7 @@ The physical layer is the ET realization:
 
 - Erbium minions, harts, MRAM, and emulator startup;
 - ET-SoC-1 shires, minions, harts, shire-local memory, and NoC/fabric;
-- ET RISC-V device toolchain and `et-common-libs::cm-umode`;
+- ET RISC-V device toolchain and platform-specific device libraries;
 - host runtime/device-layer packages;
 - `erbium_emu`, `tpa_launcher`, sysemu, pcie, and fake host modes.
 
@@ -118,13 +118,14 @@ The current structured repo validates these paths:
 - `tpa_host_tools` builds `tpa_launcher`;
 - `tpa_empty.elf`, `tpa_pipe_demo.elf`, and `tpa_tensor_matmul.elf` build
   through the generated TPA process/program flow;
-- `tpa_empty.elf` and `tpa_pipe_demo.elf` run under `erbium_emu` and report
-  PASS markers;
+- `tpa_empty.elf`, `tpa_pipe_demo.elf`, and `tpa_tensor_matmul.elf` run under
+  `erbium_emu` and report PASS markers;
 - representative message/channel and queue regression ELFs build and report
   PASS markers under `erbium_emu`;
 - `tpa_negative_expected_fail.elf` builds and reports the expected FAIL marker
   under `erbium_emu`;
-- YOLO downstream planner JSON and mapped-program artifacts build through CMake;
+- YOLO downstream planner JSON, mapped-program artifacts, downstream device
+  ELF, and Erbium PASS-marker runtime path build through CMake;
 - ET-SoC-1 default one-shire `tpa_core` builds;
 - host smoke-test-double builds and tests pass, but those are not platform
   validation.
@@ -139,10 +140,11 @@ The runtime-facing core code lives under `tpa/lib`. It talks to hardware through
 maintenance, wake/wait operations, lifecycle hooks, tracing, and diagnostics.
 
 Generated graph-program ELFs now link the cooperative runtime scheduler and
-execute continuations. The current validated Erbium PASS set covers the empty
-and pipe demos plus representative message/channel and queue regression tests.
-Tensor matmul and YOLO downstream device-runtime PASS remain scheduler/toolchain
-hardening follow-up.
+execute continuations. The current validated Erbium PASS set covers the empty,
+pipe, and tensor matmul demos plus representative message/channel and queue
+regression tests. YOLO downstream device-runtime validation covers the CMake
+planner/map/device path and Erbium PASS marker; the full YOLO host/demo pipeline
+remains follow-up.
 
 ### Image generation
 

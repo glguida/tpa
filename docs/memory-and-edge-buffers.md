@@ -207,5 +207,5 @@ The current edge-buffer path is real but still evolving:
 - YOLO model artifacts and regeneration tools are ported under `models/` and
   `tools/yolo/`, but heavyweight regeneration dependencies are not part of
   normal validation;
-- tensor matmul and YOLO downstream runtime PASS remain scheduler/toolchain
-  hardening follow-up.
+- tensor matmul and YOLO downstream now have Erbium PASS-marker validation, but
+  broader scheduler and full YOLO host/demo coverage remain follow-up.

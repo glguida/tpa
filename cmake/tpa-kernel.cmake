@@ -16,10 +16,12 @@ if (TPA_PLATFORM_ID STREQUAL "erbium")
         "${TPA_ROOT_DIR}/platform/crt.S"
         "${TPA_ROOT_DIR}/platform/trap.S"
     )
+    set(TPA_PLATFORM_LIBS)
 else()
     set(TPA_PLATFORM_LINKER_SCRIPT "")
     set(TPA_PLATFORM_SHARED_INC_DIR "")
     set(TPA_PLATFORM_SOURCES)
+    set(TPA_PLATFORM_LIBS et-common-libs::cm-umode)
 endif()
 
 function(add_tpa_process)
@@ -39,7 +41,7 @@ function(add_tpa_process)
     endif()
 
     add_library(${TPAPROC_NAME} OBJECT ${TPAPROC_SOURCES})
-    target_link_libraries(${TPAPROC_NAME} PRIVATE tpa_core et-common-libs::cm-umode ${TPAPROC_LIBS})
+    target_link_libraries(${TPAPROC_NAME} PRIVATE tpa_core ${TPA_PLATFORM_LIBS} ${TPAPROC_LIBS})
     target_include_directories(${TPAPROC_NAME} PRIVATE
         "${TPA_ROOT_DIR}/include"
         ${TPAPROC_INCLUDES}
@@ -126,7 +128,7 @@ function(add_tpa_program)
     unset(LINKER_SCRIPT)
     unset(SHARED_INC_DIR)
 
-    target_link_libraries(${TPAPROG_NAME}.elf PRIVATE tpa_core et-common-libs::cm-umode ${TPAPROG_LIBS})
+    target_link_libraries(${TPAPROG_NAME}.elf PRIVATE tpa_core ${TPA_PLATFORM_LIBS} ${TPAPROG_LIBS})
     target_link_options(${TPAPROG_NAME}.elf PRIVATE -Wl,--no-warn-rwx-segments)
     target_include_directories(${TPAPROG_NAME}.elf PRIVATE
         "${TPA_ROOT_DIR}/include"

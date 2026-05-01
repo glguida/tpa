@@ -275,9 +275,8 @@ generated programs that use mapped channel storage.
 ## CMake-integrated YOLO downstream path
 
 The current structured repo has integrated YOLO downstream planner/map artifact
-paths. The downstream device ELF/runtime path currently needs revalidation
-before it can be claimed as a PASS path. With a planner-enabled Python
-environment:
+paths, downstream device ELF link, and Erbium PASS-marker runtime validation.
+With a planner-enabled Python environment:
 
 ```sh
 python3 -m venv .venv-planner
@@ -286,8 +285,11 @@ python -m pip install -e planner
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python)
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
-# Revalidation target only; current phase-3 status is not YOLO runtime PASS.
-# cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+/opt/et/bin/erbium_emu \
+  -minions 0x1f \
+  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf \
+  -max_cycles 100000000
 ```
 
 `yolov5n/CMakeLists.txt` wires these steps by:
@@ -314,13 +316,14 @@ Current limitations are explicit and should not be hidden:
 - machine JSONs are mapper-visible approximations, not full ET architecture
   specifications;
 - broader process metadata extraction coverage remains follow-up;
-- YOLO downstream device-runtime PASS and full/demo host launcher integration
-  are not yet complete;
+- YOLO downstream planner/map/device ELF and Erbium PASS-marker runtime
+  validation are complete; full/demo host launcher integration remains
+  follow-up;
 - YOLO model artifacts and regeneration tools are ported, but heavyweight
   regeneration dependencies are not part of normal planner validation;
 - representative message/channel and queue test ELFs report PASS under Erbium,
   and the negative expected-failure ELF reports the intended FAIL marker, but
   broader scheduler coverage remains hardening follow-up;
 - DNN demos and LTFarm are archived/reference material, not active mapper inputs;
-- tensor matmul and YOLO downstream runtime PASS remain runtime hardening
-  follow-up separate from mapper documentation.
+- tensor matmul and YOLO downstream now have Erbium PASS-marker validation, but
+  broader runtime hardening remains separate from mapper documentation.

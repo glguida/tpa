@@ -69,12 +69,13 @@ endif()
 
 include(DeviceUtils)
 include(tpa-kernel)
-find_package(et-common-libs REQUIRED COMPONENTS cm-umode)
 
 set(TPA_PLATFORM "erbium" CACHE STRING "TPA device platform")
 set_property(CACHE TPA_PLATFORM PROPERTY STRINGS erbium etsoc1)
 string(TOLOWER "${TPA_PLATFORM}" TPA_PLATFORM_ID)
 set(TPA_ETSOC1_NR_SHIRES 1 CACHE STRING "Number of ET-SoC-1 shires with compiled TPA queues")
+
+find_package(et-common-libs REQUIRED COMPONENTS cm-umode)
 
 set(TPA_CORE_SOURCES
     "${TPA_ROOT_DIR}/tpa/lib/src/channel.c"
@@ -107,12 +108,19 @@ target_include_directories(tpa_core
         "${TPA_ROOT_DIR}/tpa/hal/include"
         "${TPA_PLATFORM_INCLUDE_DIR}"
 )
+get_target_property(TPA_CM_UMODE_INCLUDES
+    et-common-libs::cm-umode INTERFACE_INCLUDE_DIRECTORIES)
+if (TPA_CM_UMODE_INCLUDES)
+    target_include_directories(tpa_core PUBLIC ${TPA_CM_UMODE_INCLUDES})
+endif()
 
 target_compile_features(tpa_core PUBLIC c_std_11)
 target_compile_options(tpa_core PRIVATE -Wall -Wextra -Werror -fno-builtin-memset -fno-tree-loop-distribute-patterns)
 target_compile_definitions(tpa_core PUBLIC TPA_DEVICE_BUILD=1 TPA_ETSOC1_NR_SHIRES=${TPA_ETSOC1_NR_SHIRES})
 target_compile_options(tpa_core PUBLIC $<$<COMPILE_LANGUAGE:C>:-include> $<$<COMPILE_LANGUAGE:C>:${TPA_PLATFORM_HEADER}>)
-target_link_libraries(tpa_core PUBLIC et-common-libs::cm-umode)
+if (TPA_PLATFORM_ID STREQUAL "etsoc1")
+    target_link_libraries(tpa_core PUBLIC et-common-libs::cm-umode)
+endif()
 
 option(BUILD_TPA_KERNELS "Build structured TPA kernel/demo programs" ON)
 option(BUILD_TPA_TESTS "Build structured TPA runtime regression tests" ON)
