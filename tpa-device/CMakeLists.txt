@@ -114,6 +114,7 @@ target_compile_options(tpa_core PUBLIC $<$<COMPILE_LANGUAGE:C>:-include> $<$<COM
 target_link_libraries(tpa_core PUBLIC et-common-libs::cm-umode)
 
 option(BUILD_TPA_KERNELS "Build structured TPA kernel/demo programs" ON)
+option(BUILD_TPA_TESTS "Build structured TPA runtime regression tests" ON)
 set(TPA_YOLOV5N_DEFAULT ON)
 if (TPA_PLATFORM_ID STREQUAL "etsoc1" AND TPA_ETSOC1_NR_SHIRES LESS 32)
     set(TPA_YOLOV5N_DEFAULT OFF)
@@ -126,4 +127,9 @@ endif()
 
 if (BUILD_TPA_YOLOV5N)
     add_subdirectory("${TPA_ROOT_DIR}/yolov5n" "${CMAKE_BINARY_DIR}/yolov5n")
+endif()
+
+if (BUILD_TPA_TESTS)
+    include(CTest)
+    add_subdirectory("${TPA_ROOT_DIR}/tests" "${CMAKE_BINARY_DIR}/tests")
 endif()

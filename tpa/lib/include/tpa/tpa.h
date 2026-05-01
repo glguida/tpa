@@ -50,6 +50,11 @@ extern "C" {
 #define TPA_CH_LOCAL TPA_CHANNEL_KIND_LOCAL
 #define TPA_CH_FABRIC TPA_CHANNEL_KIND_FABRIC
 #define TPA_CH_EXTERNAL TPA_CHANNEL_KIND_EXTERNAL
+#define TPA_CH_EMPTY TPA_CHANNEL_STATE_EMPTY
+#define TPA_CH_TX TPA_CHANNEL_STATE_TX
+#define TPA_CH_WAIT_TX TPA_CHANNEL_STATE_WAIT_TX
+#define TPA_CH_RX TPA_CHANNEL_STATE_RX
+#define TPA_CH_WAIT_RX TPA_CHANNEL_STATE_WAIT_RX
 #define TPA_CH_KIND(src_hartid, dst_hartid)                                  \
     TPA_ARCH_CH_KIND((src_hartid), (dst_hartid), TPA_CH_KIND_DIRECT,         \
                      TPA_CH_KIND_LOCAL, TPA_CH_KIND_FABRIC,                  \

@@ -1,0 +1,10 @@
+pdef msg_edge_sf_tx_pdef user 151 msg_edge_sf_tx_start 0
+port msg_edge_sf_tx_pdef 0 out
+pdef msg_edge_sf_rx_pdef user 152 msg_edge_sf_rx_start 0
+port msg_edge_sf_rx_pdef 0 in
+pdef msg_edge_sf_chk_pdef user 153 msg_edge_chk 0
+pdef msg_edge_rf_tx_pdef user 161 msg_edge_rf_tx_start 0
+port msg_edge_rf_tx_pdef 0 out
+pdef msg_edge_rf_rx_pdef user 162 msg_edge_rf_rx_start 0
+port msg_edge_rf_rx_pdef 0 in
+pdef msg_edge_rf_chk_pdef user 163 msg_edge_chk 0

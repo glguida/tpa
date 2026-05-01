@@ -1,0 +1,3 @@
+pdef queue_wake_kick_pdef user 31 queue_wake_kick 0
+pdef queue_wake_target_pdef user 32 queue_wake_target_start 0
+pdef queue_wake_chk_pdef user 33 queue_wake_chk 0

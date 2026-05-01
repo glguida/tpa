@@ -166,8 +166,9 @@ packages.
 ## What is intentionally not implied
 
 TPA documentation must not imply that every original repository artifact is
-ported. In particular, message tests, queue tests, negative tests, tensor matmul,
-DNN demos, `ltfarm`, YOLO block-test CTest wiring, YOLO model regeneration tools,
-and some generated analysis artifacts remain follow-up or archive material.
+ported. Message, queue, and negative runtime regression assets now build as
+structured test ELFs, but tensor matmul, DNN demos, `ltfarm`, YOLO block-test
+CTest wiring, YOLO model regeneration tools, and some generated analysis
+artifacts remain follow-up or archive material.
 See `docs/MISSING_ORIGINAL_ARTIFACTS.md` when present and the future
 `docs/limitations.md`.

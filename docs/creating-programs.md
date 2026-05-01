@@ -425,7 +425,8 @@ Avoid these common mistakes:
 - Hiding required ET toolchain or HAL behavior behind host fallbacks.
 - Claiming original tests/demos/tools are integrated before they are ported.
 
-Current missing or partial areas include message tests, queue tests, negative
-tests, tensor matmul, DNN demos, ltfarm, YOLO block-test CTest wiring, YOLO
-model/tool regeneration, and the full cooperative runtime scheduler. Mention
-those only as follow-up until implementation jobs port them.
+Current missing or partial areas include tensor matmul, DNN demos, ltfarm, YOLO
+block-test CTest wiring, YOLO model/tool regeneration, and the full cooperative
+runtime scheduler. Message, queue, and negative test assets are ported as
+structured build targets, but do not claim their full runtime behavior is
+validated until the cooperative scheduler executes continuations.
