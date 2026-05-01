@@ -249,6 +249,24 @@ The important authoring lessons are:
 - placement is separate from the graph;
 - the CMake target is `tpa_pipe_demo.elf`, generated from the TPA artifacts.
 
+## Intermediate example: `tpa_tensor_matmul`
+
+`kernels/tpa_tensor_matmul.*` is the intermediate original demo now ported to
+the structured repo. It sits between the small hand-written pipe example and the
+larger YOLO downstream path:
+
+- `kernels/tpa_tensor_matmul.c` defines tensor-feed, cell, and check process
+  continuations;
+- `kernels/tpa_tensor_matmul.tpm` declares the process kinds and ports;
+- `kernels/gen_tpa_tensor_matmul.cmake` generates the matrix program graph and
+  placement;
+- `kernels/CMakeLists.txt` wires those generated `.tpp/.place` artifacts into
+  `add_tpa_program()`;
+- the forwarded ET target is `tpa_tensor_matmul.elf`.
+
+Use it when you need an example with generated graph artifacts but do not need
+YOLO's full mapper-integrated process inventory.
+
 ## Build with the ET superbuild
 
 Configure from the repository root. Use the top-level CMake entry point, not an
@@ -426,6 +444,6 @@ Avoid these common mistakes:
 - Claiming original tests/demos/tools are integrated before they are ported.
 
 Current missing or partial areas include message tests, queue tests, negative
-tests, tensor matmul, DNN demos, ltfarm, YOLO block-test CTest wiring, YOLO
+tests, DNN demos, ltfarm, YOLO block-test CTest wiring, YOLO
 model/tool regeneration, and the full cooperative runtime scheduler. Mention
 those only as follow-up until implementation jobs port them.

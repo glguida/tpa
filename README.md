@@ -22,7 +22,7 @@ smoke-test doubles; they are not ET platform validation.
 - `cmake/gen_tpa_image.cmake` — image generation from `.tpm`, `.tpp`, and
   `.place` or mapper output.
 - `kernels/` — current simple generated programs: `tpa_empty` and
-  `tpa_pipe_demo`.
+  `tpa_pipe_demo`, and `tpa_tensor_matmul`.
 - `yolov5n/` — current YOLO downstream process sources and planner/map/device
   targets.
 - `tests/yolo/` — YOLO block-test sources/assets retained for follow-up CTest
@@ -68,6 +68,7 @@ Examples below use `/opt/et`.
 ```sh
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
+cmake --build build-et-erbium --target tpa_tensor_matmul.elf
 /opt/et/bin/erbium_emu \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf \
   -max_cycles 10000
@@ -141,8 +142,8 @@ integration works.
 Ported and validated today:
 
 - ET superbuild integration for device and host subprojects.
-- Erbium `tpa_empty.elf`, `tpa_pipe_demo.elf`, and
-  `tpa_yolov5n_downstream.elf` build paths.
+- Erbium `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_tensor_matmul.elf`,
+  and `tpa_yolov5n_downstream.elf` build paths.
 - Erbium emulator validation for `tpa_pipe_demo.elf` and YOLO downstream.
 - ET-SoC-1 default one-shire `tpa_core` build.
 - `tpa_launcher` host tool target.
@@ -150,7 +151,7 @@ Ported and validated today:
 - Host smoke-test-double mode for non-platform syntax/unit smoke.
 
 Important missing or partial areas remain: original message/queue/negative test
-suites, YOLO block-test CTest wiring, tensor matmul and DNN demos, ltfarm,
+suites, YOLO block-test CTest wiring, DNN demos, ltfarm,
 YOLO model regeneration tools/model artifacts, full YOLO end-user host pipeline,
 and the full cooperative runtime scheduler. See
 `docs/MISSING_ORIGINAL_ARTIFACTS.md` for the detailed inventory.
