@@ -1,0 +1,4 @@
+pdef yolov5n_fork2_pdef user 503 yolo_full_fork_p3_start 16
+port yolov5n_fork2_pdef 0 in
+port yolov5n_fork2_pdef 1 out
+port yolov5n_fork2_pdef 2 out

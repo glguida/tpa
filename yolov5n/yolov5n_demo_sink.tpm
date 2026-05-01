@@ -1,0 +1,7 @@
+pdef yolov5n_demo_sink_pdef user 519 yolov5n_demo_sink_start 96
+port yolov5n_demo_sink_pdef 0 in
+port yolov5n_demo_sink_pdef 1 in
+port yolov5n_demo_sink_pdef 2 in
+port yolov5n_demo_sink_pdef 3 in
+port yolov5n_demo_sink_pdef 4 in
+port yolov5n_demo_sink_pdef 5 in

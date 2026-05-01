@@ -1,0 +1,4 @@
+pdef yolov5n_p6_pdef user 506 yolo_subgraph_p6_start 32
+port yolov5n_p6_pdef 0 in
+port yolov5n_p6_pdef 1 out
+port yolov5n_p6_pdef 2 out

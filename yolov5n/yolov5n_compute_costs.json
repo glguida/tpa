@@ -1,0 +1,18 @@
+{
+  "yolov5n_src_input_pdef": 1.0,
+  "yolov5n_src_skip_p5_pdef": 1.0,
+  "yolov5n_src_skip_p4_pdef": 1.0,
+  "yolov5n_src_skip_p3_pdef": 1.0,
+  "yolov5n_fork2_pdef": 1.0,
+  "yolov5n_p0_pdef": 28.0,
+  "yolov5n_p1_pdef": 22.0,
+  "yolov5n_p2_pdef": 18.0,
+  "yolov5n_p3_pdef": 14.0,
+  "yolov5n_p4_pdef": 20.0,
+  "yolov5n_p5_pdef": 36.0,
+  "yolov5n_p6_pdef": 34.0,
+  "yolov5n_p7_pdef": 18.0,
+  "yolov5n_p8_pdef": 9.0,
+  "yolov5n_p9_pdef": 6.0,
+  "yolov5n_p10_pdef": 2.0
+}

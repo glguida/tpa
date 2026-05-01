@@ -1,0 +1,4 @@
+pdef yolov5n_p7_pdef user 507 yolo_full_p7_start 24
+port yolov5n_p7_pdef 0 in
+port yolov5n_p7_pdef 1 in
+port yolov5n_p7_pdef 2 out
