@@ -265,10 +265,10 @@ Currently integrated generated TPA programs include:
 - `yolov5n/` downstream planner/map path -> `tpa_yolov5n_downstream.elf`.
 
 Original message, queue, and negative regression assets are also integrated as
-structured test ELF targets. Other original examples and tests, such as tensor
-matmul, DNN demos, ltfarm, and YOLO block-test CTest wiring, are follow-up work
-or archive material. Do not document them as currently integrated targets until
-they are ported.
+structured test ELF targets, though their full behavioral validation depends on
+the cooperative scheduler follow-up. YOLO block-test CTest wiring remains
+follow-up work. Original DNN demos and LTFarm are archived under `docs/archive/`
+as reference material, not active generated program targets.
 
 ## Current runtime limitation
 

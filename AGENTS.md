@@ -56,8 +56,9 @@ The intended program authoring pipeline is:
 8. Run with `erbium_emu` or `tpa_launcher` as required.
 9. Validate application PASS/FAIL behavior and generated artifacts.
 
-Use `kernels/tpa_pipe_demo.*` as the small current example. Use `yolov5n/` as the
-larger mapper-integrated example.
+Use `kernels/tpa_pipe_demo.*` as the small current example,
+`kernels/tpa_tensor_matmul.*` as the intermediate generated-graph example, and
+`yolov5n/` as the larger mapper-integrated example.
 
 ## Mapper/planner workflow
 
@@ -132,6 +133,7 @@ cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium
 cmake --build build-et-erbium --target tpa_host_tools
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_empty.elf
+cmake --build build-et-erbium --target tpa_tensor_matmul.elf
 /opt/et/bin/erbium_emu \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf \
   -max_cycles 10000
@@ -188,20 +190,24 @@ because the current YOLO mapping uses the full-card machine JSON.
   instructions.
 - Forgetting to install/select the planner Python environment for YOLO CMake
   planner/map targets.
-- Claiming tensor matmul, DNN demos, ltfarm, YOLO block CTests, or model
-  regeneration tools are integrated before they are actually ported.
+- Claiming YOLO block CTests or model regeneration tools are integrated before
+  they are actually ported.
+- Claiming archived DNN demos or LTFarm are active build targets; they are
+  preserved under `docs/archive/` until their dependencies/harnesses are
+  revived.
 - Claiming ported message/queue/negative test ELFs prove full scheduler runtime
   behavior before the cooperative runtime scheduler executes process
   continuations.
 
 ## Current status notes
 
-Validated current paths include Erbium simple demo ELFs, YOLO downstream
-planner/map/device ELF, message/queue/negative test ELF build targets,
-ET-SoC-1 default `tpa_core`, the host launcher target, planner tests, and host
-smoke-test doubles.
+Validated current paths include Erbium simple demo ELFs, the tensor matmul demo
+ELF, YOLO downstream planner/map/device ELF, message/queue/negative test ELF
+build targets, ET-SoC-1 default `tpa_core`, the host launcher target, planner
+tests, and host smoke-test doubles.
 
 Important follow-up areas remain documented in
-`docs/MISSING_ORIGINAL_ARTIFACTS.md`: YOLO block-test CTest wiring, tensor
-matmul, DNN demos, ltfarm, YOLO tools/models, broader generated reports, and
-full cooperative runtime scheduler work.
+`docs/MISSING_ORIGINAL_ARTIFACTS.md`: YOLO block-test CTest wiring, YOLO
+tools/models, broader generated reports, and full cooperative runtime scheduler
+work. DNN demos, LTFarm, trace tools, and historical generated YOLO reports have
+explicit port/archive status.

@@ -100,8 +100,8 @@ Current structured pieces are:
 - `cmake/tpa-kernel.cmake` — `add_tpa_process()` and `add_tpa_program()`.
 - `cmake/gen_tpa_image.cmake` — parses `.tpm`, `.tpp`, and `.place` inputs and
   generates image C.
-- `kernels/` — currently ported simple TPA programs: `tpa_empty` and
-  `tpa_pipe_demo`.
+- `kernels/` — currently ported TPA programs: `tpa_empty`,
+  `tpa_pipe_demo`, and the generated tensor matmul demo.
 - `yolov5n/` — currently ported YOLO downstream process sources and CMake
   planner/map/device targets.
 - `tests/yolo/` — source/assets for YOLO block-test follow-up; not yet wired as
@@ -167,8 +167,9 @@ packages.
 
 TPA documentation must not imply that every original repository artifact is
 ported. Message, queue, and negative runtime regression assets now build as
-structured test ELFs, but tensor matmul, DNN demos, `ltfarm`, YOLO block-test
-CTest wiring, YOLO model regeneration tools, and some generated analysis
-artifacts remain follow-up or archive material.
+structured test ELFs, but full behavioral validation remains tied to cooperative
+scheduler work. YOLO block-test CTest wiring and YOLO model regeneration tools
+remain follow-up; DNN demos, `ltfarm`, and historical generated YOLO analysis
+are archived reference material rather than active runtime inputs.
 See `docs/MISSING_ORIGINAL_ARTIFACTS.md` when present and the future
 `docs/limitations.md`.

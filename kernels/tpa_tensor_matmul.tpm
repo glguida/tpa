@@ -1,0 +1,15 @@
+pdef tensor_matmul_a_feed_pdef user 601 tensor_matmul_a_feed_start 65664
+port tensor_matmul_a_feed_pdef 0 out
+
+pdef tensor_matmul_b_feed_pdef user 602 tensor_matmul_b_feed_start 65664
+port tensor_matmul_b_feed_pdef 0 out
+
+pdef tensor_matmul_cell_pdef user 603 tensor_matmul_cell_init 16576
+port tensor_matmul_cell_pdef 0 in
+port tensor_matmul_cell_pdef 1 in
+port tensor_matmul_cell_pdef 2 out
+port tensor_matmul_cell_pdef 3 out
+port tensor_matmul_cell_pdef 4 out
+
+pdef tensor_matmul_check_pdef user 604 tensor_matmul_check_start 64
+port tensor_matmul_check_pdef 0 in

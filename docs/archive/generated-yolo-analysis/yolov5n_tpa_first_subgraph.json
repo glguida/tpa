@@ -1,0 +1,169 @@
+{
+  "name": "p4_p5_p6",
+  "why": "First runnable mapped subgraph with real process boundaries, one upsample/concat neck stage, one fine-scale neck stage, and one detect branch.",
+  "instances": [
+    {
+      "id": "SRC_skip_p5",
+      "kind": "static_source",
+      "logical_tensor": "skip_p5",
+      "workspace_bytes": 0,
+      "minion": 3,
+      "hart": "h0",
+      "bytes": 51200
+    },
+    {
+      "id": "SRC_skip_p4",
+      "kind": "static_source",
+      "logical_tensor": "skip_p4",
+      "workspace_bytes": 0,
+      "minion": 2,
+      "hart": "h0",
+      "bytes": 204800
+    },
+    {
+      "id": "P4",
+      "kind": "yolo_neck_up",
+      "workspace_bytes": 512000,
+      "minion": 4,
+      "hart": "h0",
+      "layer_indices": [
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ]
+    },
+    {
+      "id": "SRC_skip_p3",
+      "kind": "static_source",
+      "logical_tensor": "skip_p3",
+      "workspace_bytes": 0,
+      "minion": 1,
+      "hart": "h0",
+      "bytes": 409600
+    },
+    {
+      "id": "P5",
+      "kind": "yolo_neck_up",
+      "workspace_bytes": 1024000,
+      "minion": 5,
+      "hart": "h0",
+      "layer_indices": [
+        40,
+        41,
+        42,
+        43,
+        44
+      ]
+    },
+    {
+      "id": "P6",
+      "kind": "yolo_detect_scale",
+      "workspace_bytes": 512000,
+      "minion": 5,
+      "hart": "h0",
+      "layer_indices": [
+        57,
+        58,
+        69,
+        63,
+        64,
+        72
+      ]
+    }
+  ],
+  "channels": [
+    {
+      "id": "ch_skip_p5",
+      "logical_tensor": "skip_p5",
+      "bytes": 51200,
+      "src": {
+        "instance": "SRC_skip_p5",
+        "port": 0
+      },
+      "dst": {
+        "instance": "P4",
+        "port": 0
+      },
+      "transport_kind": "local"
+    },
+    {
+      "id": "ch_skip_p4",
+      "logical_tensor": "skip_p4",
+      "bytes": 204800,
+      "src": {
+        "instance": "SRC_skip_p4",
+        "port": 0
+      },
+      "dst": {
+        "instance": "P4",
+        "port": 1
+      },
+      "transport_kind": "local"
+    },
+    {
+      "id": "ch_mid_p4",
+      "logical_tensor": "mid_p4",
+      "bytes": 102400,
+      "src": {
+        "instance": "P4",
+        "port": 2
+      },
+      "dst": {
+        "instance": "P5",
+        "port": 0
+      },
+      "transport_kind": "local"
+    },
+    {
+      "id": "ch_skip_p3",
+      "logical_tensor": "skip_p3",
+      "bytes": 409600,
+      "src": {
+        "instance": "SRC_skip_p3",
+        "port": 0
+      },
+      "dst": {
+        "instance": "P5",
+        "port": 1
+      },
+      "transport_kind": "local"
+    },
+    {
+      "id": "ch_p3",
+      "logical_tensor": "p3",
+      "bytes": 409600,
+      "src": {
+        "instance": "P5",
+        "port": 2
+      },
+      "dst": {
+        "instance": "P6",
+        "port": 0
+      },
+      "transport_kind": "direct"
+    }
+  ],
+  "expected_outputs": [
+    {
+      "name": "box",
+      "shape": [
+        64,
+        80,
+        80
+      ],
+      "bytes": 409600
+    },
+    {
+      "name": "cls",
+      "shape": [
+        80,
+        80,
+        80
+      ],
+      "bytes": 512000
+    }
+  ]
+}

@@ -197,8 +197,8 @@ cooperative runtime scheduler follow-up.
 Other missing or partial areas include:
 
 - YOLO block-test CTest wiring;
-- tensor matmul and DNN demos;
-- ltfarm;
+- active DNN demo and LTFarm build targets (sources are archived under
+  `docs/archive/`);
 - YOLO model regeneration tools and model artifact policy;
 - broader metadata extraction coverage;
 - full cooperative runtime scheduler completion.

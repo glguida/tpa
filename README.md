@@ -22,7 +22,7 @@ smoke-test doubles; they are not ET platform validation.
 - `cmake/gen_tpa_image.cmake` — image generation from `.tpm`, `.tpp`, and
   `.place` or mapper output.
 - `kernels/` — current simple generated programs: `tpa_empty` and
-  `tpa_pipe_demo`.
+  `tpa_pipe_demo`, and `tpa_tensor_matmul`.
 - `yolov5n/` — current YOLO downstream process sources and planner/map/device
   targets.
 - `tests/tpa_msg/`, `tests/tpa_queue/`, `tests/tpa_negative/` — ported
@@ -32,6 +32,9 @@ smoke-test doubles; they are not ET platform validation.
   integration.
 - `planner/` — Python metadata extraction, planning, and mapping package.
 - `machines/` — mapper machine topology JSON inputs.
+- `tools/trace/` — Erbium emulator trace splitting and symbol-attribution tools.
+- `docs/archive/` — preserved original-reference material that is not an active
+  runtime input, including DNN demos, LTFarm, and historical YOLO analysis.
 - `docs/` — detailed project documentation.
 
 ## Read next
@@ -71,6 +74,7 @@ Examples below use `/opt/et`.
 ```sh
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
+cmake --build build-et-erbium --target tpa_tensor_matmul.elf
 /opt/et/bin/erbium_emu \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf \
   -max_cycles 10000
@@ -145,6 +149,20 @@ YOLO mapping uses the full-card `machines/etsoc1.json` model. The device project
 therefore keeps YOLO off by default for ET-SoC-1 unless configured with
 `TPA_ETSOC1_NR_SHIRES=32`.
 
+## Quick start: trace tools
+
+Trace tools operate on `erbium_emu` logs and built ELFs:
+
+```sh
+tools/trace/split_trace_by_hart.sh /tmp/erbium.log /tmp/tpa-trace-by-hart
+tools/trace/analyze_trace_by_hart.sh \
+  build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf \
+  /tmp/tpa-trace-by-hart/m0_h0.inst.log \
+  --top
+```
+
+See `tools/trace/README.md` for gzip and cycle-window options.
+
 ## Host smoke-test double
 
 For local syntax/unit smoke without et-platform:
@@ -164,17 +182,21 @@ integration works.
 Ported and validated today:
 
 - ET superbuild integration for device and host subprojects.
-- Erbium `tpa_empty.elf`, `tpa_pipe_demo.elf`, and
-  `tpa_yolov5n_downstream.elf` build paths.
+- Erbium `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_tensor_matmul.elf`,
+  and `tpa_yolov5n_downstream.elf` build paths.
 - Erbium emulator validation for `tpa_pipe_demo.elf` and YOLO downstream.
 - ET-SoC-1 default one-shire `tpa_core` build.
 - `tpa_launcher` host tool target.
 - Python planner package, checked-in machine JSONs, and planner tests.
 - Ported message/channel, queue, and negative runtime regression test build
   targets.
+- Trace analysis tools under `tools/trace/`.
+- Archived/reference DNN demos, LTFarm experiment, and historical generated YOLO
+  analysis under `docs/archive/`.
 - Host smoke-test-double mode for non-platform syntax/unit smoke.
 
-Important missing or partial areas remain: YOLO block-test CTest wiring, tensor
-matmul and DNN demos, ltfarm, YOLO model regeneration tools/model artifacts,
-full YOLO end-user host pipeline, and the full cooperative runtime scheduler.
-See `docs/MISSING_ORIGINAL_ARTIFACTS.md` for the detailed inventory.
+Important missing or partial areas remain: YOLO block-test CTest wiring, YOLO
+model regeneration tools/model artifacts, full YOLO end-user host pipeline, and
+the full cooperative runtime scheduler. Message/queue/negative test ELFs are
+ported, but full behavioral validation remains tied to the cooperative scheduler
+follow-up. See `docs/MISSING_ORIGINAL_ARTIFACTS.md` for the detailed inventory.

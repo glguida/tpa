@@ -317,7 +317,7 @@ Current limitations are explicit and should not be hidden:
 - message, queue, and negative test assets are ported as structured ELF targets,
   but full behavioral validation still depends on the cooperative scheduler
   follow-up;
-- tensor matmul, DNN demos, and ltfarm remain missing/follow-up items;
+- DNN demos and LTFarm are archived/reference material, not active mapper inputs;
 - the full cooperative runtime scheduler remains a runtime implementation
   follow-up separate from mapper documentation.
 
