@@ -55,7 +55,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(GNUInstallDirs)
 
 list(APPEND CMAKE_PREFIX_PATH ${TPA_ET_ROOTS})
-list(APPEND CMAKE_MODULE_PATH ${TPA_ET_CMAKE_PATHS})
+list(APPEND CMAKE_MODULE_PATH
+    ${TPA_ET_CMAKE_PATHS}
+    "${TPA_ROOT_DIR}/cmake"
+)
 list(REMOVE_DUPLICATES CMAKE_MODULE_PATH)
 
 if (NOT CMAKE_C_COMPILER MATCHES "riscv64-unknown-elf")
@@ -65,6 +68,7 @@ if (NOT CMAKE_C_COMPILER MATCHES "riscv64-unknown-elf")
 endif()
 
 include(DeviceUtils)
+include(tpa-kernel)
 find_package(et-common-libs REQUIRED COMPONENTS cm-umode)
 
 set(TPA_PLATFORM "erbium" CACHE STRING "TPA device platform")
@@ -106,12 +110,11 @@ target_include_directories(tpa_core
 target_compile_features(tpa_core PUBLIC c_std_11)
 target_compile_options(tpa_core PRIVATE -Wall -Wextra -Werror)
 target_compile_definitions(tpa_core PUBLIC TPA_DEVICE_BUILD=1 TPA_ETSOC1_NR_SHIRES=${TPA_ETSOC1_NR_SHIRES})
-target_compile_options(tpa_core PUBLIC "-include" "${TPA_PLATFORM_HEADER}")
+target_compile_options(tpa_core PUBLIC $<$<COMPILE_LANGUAGE:C>:-include> $<$<COMPILE_LANGUAGE:C>:${TPA_PLATFORM_HEADER}>)
 target_link_libraries(tpa_core PUBLIC et-common-libs::cm-umode)
 
-add_executable(tpa_pipe_demo.elf
-    "${TPA_ROOT_DIR}/tpa-device/examples/tpa_pipe_demo.c"
-)
-target_link_libraries(tpa_pipe_demo.elf PRIVATE tpa_core et-common-libs::cm-umode)
-target_compile_options(tpa_pipe_demo.elf PRIVATE -Wall -Wextra -Werror)
-set_target_properties(tpa_pipe_demo.elf PROPERTIES LINKER_LANGUAGE C)
+option(BUILD_TPA_KERNELS "Build structured TPA kernel/demo programs" ON)
+
+if (BUILD_TPA_KERNELS)
+    add_subdirectory("${TPA_ROOT_DIR}/kernels" "${CMAKE_BINARY_DIR}/kernels")
+endif()

@@ -13,7 +13,10 @@ are not platform validation.
 ## Layout
 
 - `CMakeLists.txt` — ET superbuild entry point.
-- `tpa-device/` — structured ET RISC-V device project.
+- `tpa-device/` — structured ET RISC-V device project and runtime link harness.
+- `kernels/` — ported original TPA process/program demo manifests and sources.
+- `cmake/tpa-kernel.cmake` — structured `add_tpa_process()` / `add_tpa_program()` helpers.
+- `platform/` — Erbium startup/linker assets used by generated demo ELFs.
 - `tpa-host/` — structured ET host integration project. Full launcher/demo
   tooling is still being ported.
 - `tpa/hal/include/tpa/hal.h` — core-facing HAL API used by `tpa/lib`.
@@ -38,6 +41,8 @@ Erbium:
 ```sh
 cmake -S . -B build-et-erbium -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=erbium
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
+cmake --build build-et-erbium --target tpa_empty.elf
+/opt/et/bin/erbium_emu -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf -max_cycles 10000
 ```
 
 ET-SoC-1:
@@ -51,8 +56,8 @@ Forwarded top-level targets currently include:
 
 - `tpa_core` — selected-platform structured runtime archive in the device
   subproject.
-- `tpa_pipe_demo.elf` — minimal real ET RISC-V executable linked against the
-  selected HAL/core while full legacy mapper/demo integration is ported.
+- `tpa_empty.elf` — generated from the original `tpa_empty.c/.tpm/.tpp/.place` path.
+- `tpa_pipe_demo.elf` — generated from the original pipe demo process/program manifests through structured `add_tpa_process()` / `add_tpa_program()` helpers, linked with Erbium startup and the selected HAL/core.
 - `tpa_host_tools` — host subproject package-discovery target documenting that
   full host launcher tooling remains follow-up work.
 
@@ -102,5 +107,5 @@ tpa-extract-process-json --help
 ```
 
 See `planner/README.md` for mapper command examples and current limitations.
-See `docs/USAGE.md` for runtime details, smoke-test caveats, and current
+See `docs/USAGE.md` for runtime demo details, smoke-test caveats, and current
 integration limitations.

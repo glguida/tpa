@@ -1,0 +1,8 @@
+pdef demo_src_pdef user 201 demo_src_start 0
+port demo_src_pdef 0 out
+pdef demo_stage_pdef user 202 demo_stage_recv 24
+port demo_stage_pdef 0 in
+port demo_stage_pdef 1 out
+pdef demo_sink_pdef user 203 demo_sink_start 0
+port demo_sink_pdef 0 in
+pdef demo_chk_pdef user 204 demo_chk 0

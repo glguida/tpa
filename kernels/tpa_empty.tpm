@@ -1,0 +1,2 @@
+# pdef <name> <user|sys> <pid> <start> <ws_sz>
+pdef tpa_empty user 1 tpa_empty_start 0
