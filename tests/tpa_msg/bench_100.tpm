@@ -1,0 +1,5 @@
+pdef msg_bench_tx_pdef user 141 msg_bench_tx_start 0
+port msg_bench_tx_pdef 0 out
+pdef msg_bench_rx_pdef user 142 msg_bench_rx_start 0
+port msg_bench_rx_pdef 0 in
+pdef msg_bench_chk_pdef user 143 msg_bench_chk 0

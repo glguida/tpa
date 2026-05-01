@@ -1,0 +1,4 @@
+# pdef <name> <user|sys> <pid> <start> <ws_sz>
+pdef queue_lo user 1 queue_lo_start 0
+pdef queue_hi sys  2 queue_hi_start 0
+pdef queue_chk user 3 queue_chk_start 0

@@ -1,0 +1,5 @@
+pdef msg_cross_sf_tx_pdef user 101 msg_cross_sf_tx_start 0
+port msg_cross_sf_tx_pdef 0 out
+pdef msg_cross_sf_rx_pdef user 102 msg_cross_sf_rx_start 0
+port msg_cross_sf_rx_pdef 0 in
+pdef msg_cross_sf_chk_pdef user 103 msg_cross_sf_chk 0

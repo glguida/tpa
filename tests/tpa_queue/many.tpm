@@ -1,0 +1,4 @@
+pdef queue_many_lo0_pdef user 21 queue_many_lo0 0
+pdef queue_many_lo1_pdef user 22 queue_many_lo1 0
+pdef queue_many_hi_pdef sys 23 queue_many_hi 0
+pdef queue_many_chk_pdef user 24 queue_many_chk 0

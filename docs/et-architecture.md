@@ -187,12 +187,15 @@ they are not substitutes for Erbium or ET-SoC-1 device validation.
 
 ## What remains follow-up
 
-Architecture docs should not imply that all original ET/TPA artifacts are
-ported. Missing or partial areas include:
+Architecture docs should not imply that all original ET/TPA artifacts are fully
+validated. The message/channel, queue/scheduler, and negative expected-failure test
+assets and ELF build targets are ported under `tests/tpa_msg/`,
+`tests/tpa_queue/`, and `tests/tpa_negative/`. Their full behavioral validation,
+including expected-failure runtime semantics, remains tied to the full
+cooperative runtime scheduler follow-up.
 
-- message/channel transport tests;
-- queue/scheduler tests;
-- negative expected-failure tests;
+Other missing or partial areas include:
+
 - YOLO block-test CTest wiring;
 - active DNN demo and LTFarm build targets (sources are archived under
   `docs/archive/`);
@@ -200,5 +203,4 @@ ported. Missing or partial areas include:
 - broader metadata extraction coverage;
 - full cooperative runtime scheduler completion.
 
-Those are implementation and documentation follow-up items, not reasons to use
-an alternate build path.
+Those follow-up items are not reasons to use an alternate build path.

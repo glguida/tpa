@@ -190,20 +190,24 @@ because the current YOLO mapping uses the full-card machine JSON.
   instructions.
 - Forgetting to install/select the planner Python environment for YOLO CMake
   planner/map targets.
-- Claiming original message/queue/negative tests, YOLO block CTests, or model
-  regeneration tools are integrated before they are actually ported.
+- Claiming YOLO block CTests or model regeneration tools are integrated before
+  they are actually ported.
 - Claiming archived DNN demos or LTFarm are active build targets; they are
   preserved under `docs/archive/` until their dependencies/harnesses are
   revived.
+- Claiming ported message/queue/negative test ELFs prove full scheduler runtime
+  behavior before the cooperative runtime scheduler executes process
+  continuations.
 
 ## Current status notes
 
 Validated current paths include Erbium simple demo ELFs, the tensor matmul demo
-ELF, YOLO downstream planner/map/device ELF, ET-SoC-1 default `tpa_core`, the host launcher target,
-planner tests, and host smoke-test doubles.
+ELF, YOLO downstream planner/map/device ELF, message/queue/negative test ELF
+build targets, ET-SoC-1 default `tpa_core`, the host launcher target, planner
+tests, and host smoke-test doubles.
 
 Important follow-up areas remain documented in
-`docs/MISSING_ORIGINAL_ARTIFACTS.md`: original message/channel tests, queue
-tests, negative tests, YOLO block-test CTest wiring, YOLO tools/models, and
-full cooperative runtime scheduler work. DNN demos, LTFarm, trace tools, and
-historical generated YOLO reports have explicit port/archive status.
+`docs/MISSING_ORIGINAL_ARTIFACTS.md`: YOLO block-test CTest wiring, YOLO
+tools/models, broader generated reports, and full cooperative runtime scheduler
+work. DNN demos, LTFarm, trace tools, and historical generated YOLO reports have
+explicit port/archive status.

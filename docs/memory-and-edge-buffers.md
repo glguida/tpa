@@ -201,8 +201,10 @@ The current edge-buffer path is real but still evolving:
 - lifetime analysis is conservative and schedule-derived;
 - fanout is shared and forwarder aliasing is heuristic;
 - compute costs and memory metadata need broader coverage;
-- original message/channel tests, queue tests, negative tests, and YOLO block
-  CTest wiring are still missing/follow-up;
+- original message/channel, queue, and negative test assets are ported as
+  structured ELF targets, but full behavioral validation still depends on the
+  cooperative scheduler follow-up;
+- YOLO block CTest wiring is still missing/follow-up;
 - old YOLO regeneration/model tools are not ported;
 - the full cooperative runtime scheduler remains separate follow-up work.
 

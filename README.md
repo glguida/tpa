@@ -25,6 +25,9 @@ smoke-test doubles; they are not ET platform validation.
   `tpa_pipe_demo`, and `tpa_tensor_matmul`.
 - `yolov5n/` — current YOLO downstream process sources and planner/map/device
   targets.
+- `tests/tpa_msg/`, `tests/tpa_queue/`, `tests/tpa_negative/` — ported
+  original message/channel, scheduler/queue, and expected-failure runtime test
+  assets integrated through the structured TPA process/program build path.
 - `tests/yolo/` — YOLO block-test sources/assets retained for follow-up CTest
   integration.
 - `planner/` — Python metadata extraction, planning, and mapping package.
@@ -91,6 +94,26 @@ cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf \
   -max_cycles 10000
 ```
+
+## Quick start: runtime regression test ELFs
+
+Build representative original message, queue, and negative regression tests
+through the Erbium ET superbuild:
+
+```sh
+cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium
+cmake --build build-et-erbium --target \
+  tpa_queue_basic.elf tpa_queue_yield.elf tpa_queue_many.elf tpa_queue_wake.elf
+cmake --build build-et-erbium --target \
+  tpa_msg_same_send_first.elf tpa_msg_cross_send_first.elf tpa_msg_fabric_send_first.elf
+cmake --build build-et-erbium --target tpa_negative_expected_fail.elf
+```
+
+Representative ELFs can be loaded with `erbium_emu` in the same way as the demo
+ELFs. The negative target intentionally calls `TEST_FAIL` when the full
+cooperative runtime scheduler executes process continuations; the current
+structured demo link harness still reports loader PASS before running process
+continuations, so expected-failure runtime semantics remain a scheduler follow-up.
 
 ## Quick start: host launcher
 
@@ -165,12 +188,15 @@ Ported and validated today:
 - ET-SoC-1 default one-shire `tpa_core` build.
 - `tpa_launcher` host tool target.
 - Python planner package, checked-in machine JSONs, and planner tests.
+- Ported message/channel, queue, and negative runtime regression test build
+  targets.
 - Trace analysis tools under `tools/trace/`.
 - Archived/reference DNN demos, LTFarm experiment, and historical generated YOLO
   analysis under `docs/archive/`.
 - Host smoke-test-double mode for non-platform syntax/unit smoke.
 
-Important missing or partial areas remain: original message/queue/negative test
-suites, YOLO block-test CTest wiring, YOLO model regeneration tools/model
-artifacts, full YOLO end-user host pipeline, and the full cooperative runtime
-scheduler. See `docs/MISSING_ORIGINAL_ARTIFACTS.md` for the detailed inventory.
+Important missing or partial areas remain: YOLO block-test CTest wiring, YOLO
+model regeneration tools/model artifacts, full YOLO end-user host pipeline, and
+the full cooperative runtime scheduler. Message/queue/negative test ELFs are
+ported, but full behavioral validation remains tied to the cooperative scheduler
+follow-up. See `docs/MISSING_ORIGINAL_ARTIFACTS.md` for the detailed inventory.
