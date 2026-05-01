@@ -39,7 +39,7 @@ install those packages or regenerate every checked-in header.
 
 See `tools/yolo/README.md` for the tool list and checksum policy.
 
-## Downstream YOLO build and run
+## Downstream YOLO planner/map build
 
 From a planner-enabled Python environment:
 
@@ -50,6 +50,14 @@ python -m pip install -e planner
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python)
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
+```
+
+The downstream planner/map artifact path is integrated. The downstream device
+ELF and Erbium runtime smoke are currently scheduler/toolchain hardening
+follow-up and should be revalidated before claiming YOLO downstream runtime
+PASS:
+
+```sh
 cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 /opt/et/bin/erbium_emu \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf \
@@ -98,5 +106,6 @@ ET-SoC-1 default one-shire configuration validates `tpa_core`; YOLO requires
 ## Remaining follow-up
 
 The full original YOLO end-user host pipeline is still separate follow-up work.
-The current validated paths are the downstream planner/map/device ELF and the
-representative Erbium block-test ELFs documented above.
+The current validated paths are the downstream planner/map artifacts and the
+representative Erbium block-test ELFs documented above. Downstream device ELF
+and runtime PASS validation remains scheduler/toolchain hardening follow-up.

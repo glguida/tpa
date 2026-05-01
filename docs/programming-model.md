@@ -265,16 +265,18 @@ Currently integrated generated TPA programs include:
 - `yolov5n/` downstream planner/map path -> `tpa_yolov5n_downstream.elf`.
 
 Original message, queue, and negative regression assets are also integrated as
-structured test ELF targets, though their full behavioral validation depends on
-the cooperative scheduler follow-up. YOLO tools/models and representative block
-tests are ported; full YOLO host/demo integration remains follow-up work.
-Original DNN demos and LTFarm are archived under `docs/archive/` as reference
-material, not active generated program targets.
+structured test ELF targets. Representative message/channel and queue ELFs now
+report PASS under Erbium, and the negative expected-failure ELF reports the
+intended FAIL marker. YOLO tools/models and representative block tests are
+ported; YOLO downstream device-runtime PASS and full YOLO host/demo integration
+remain follow-up work. Original DNN demos and LTFarm are archived under
+`docs/archive/` as reference material, not active generated program targets.
 
 ## Current runtime limitation
 
-The structured demo link harness currently proves generated process/image
-metadata compile, link, load, and signal PASS in `erbium_emu`. It does not yet
-represent completion of the full cooperative runtime scheduler that executes
-every generated process continuation. Documentation and tests should be explicit
+Generated graph-program ELFs now link the cooperative runtime scheduler and
+execute process continuations. The validated Erbium PASS set is still limited:
+`tpa_empty.elf`, `tpa_pipe_demo.elf`, representative message/channel tests, and
+representative queue tests pass, while tensor matmul and YOLO downstream runtime
+PASS remain hardening follow-up. Documentation and tests should be explicit
 about that distinction.

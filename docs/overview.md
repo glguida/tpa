@@ -116,12 +116,15 @@ The current structured repo validates these paths:
 
 - Erbium ET configure and build through the ET superbuild;
 - `tpa_host_tools` builds `tpa_launcher`;
-- `tpa_empty.elf` and `tpa_pipe_demo.elf` build through the generated TPA
-  process/program flow;
-- `tpa_pipe_demo.elf` runs under `erbium_emu`;
-- YOLO downstream planner JSON, mapped-program artifacts, and
-  `tpa_yolov5n_downstream.elf` build through CMake;
-- `tpa_yolov5n_downstream.elf` runs under `erbium_emu`;
+- `tpa_empty.elf`, `tpa_pipe_demo.elf`, and `tpa_tensor_matmul.elf` build
+  through the generated TPA process/program flow;
+- `tpa_empty.elf` and `tpa_pipe_demo.elf` run under `erbium_emu` and report
+  PASS markers;
+- representative message/channel and queue regression ELFs build and report
+  PASS markers under `erbium_emu`;
+- `tpa_negative_expected_fail.elf` builds and reports the expected FAIL marker
+  under `erbium_emu`;
+- YOLO downstream planner JSON and mapped-program artifacts build through CMake;
 - ET-SoC-1 default one-shire `tpa_core` builds;
 - host smoke-test-double builds and tests pass, but those are not platform
   validation.
@@ -135,10 +138,11 @@ The runtime-facing core code lives under `tpa/lib`. It talks to hardware through
 `tpa/hal/etsoc1.h`). The HAL provides topology constants, atomics, cache
 maintenance, wake/wait operations, lifecycle hooks, tracing, and diagnostics.
 
-The current generated demo link harness proves that generated process/image
-metadata can compile, link, load, and signal PASS. A complete cooperative
-runtime scheduler that executes every generated continuation remains follow-up
-work.
+Generated graph-program ELFs now link the cooperative runtime scheduler and
+execute continuations. The current validated Erbium PASS set covers the empty
+and pipe demos plus representative message/channel and queue regression tests.
+Tensor matmul and YOLO downstream device-runtime PASS remain scheduler/toolchain
+hardening follow-up.
 
 ### Image generation
 
@@ -166,11 +170,10 @@ packages.
 ## What is intentionally not implied
 
 TPA documentation must not imply that every original repository artifact is
-ported. Message, queue, and negative runtime regression assets now build as
-structured test ELFs, but full behavioral validation remains tied to cooperative
-scheduler work. YOLO tools/models and representative block-test CMake/CTest
-coverage are ported; full YOLO host/demo integration remains follow-up. DNN
-demos, `ltfarm`, and historical generated YOLO analysis are archived reference
-material rather than active runtime inputs.
-See `docs/MISSING_ORIGINAL_ARTIFACTS.md` when present and the future
-`docs/limitations.md`.
+ported. Representative message/channel and queue runtime regression ELFs now
+report PASS under Erbium, and the negative expected-failure ELF reports the
+intended FAIL marker; broader scheduler coverage remains hardening work. YOLO
+tools/models and representative block-test CMake/CTest coverage are ported;
+YOLO downstream device-runtime validation and full YOLO host/demo integration
+remain follow-up. DNN demos, `ltfarm`, and historical generated YOLO analysis
+are archived reference material rather than active runtime inputs.

@@ -311,14 +311,13 @@ Current limitations are explicit and should not be hidden:
 - machine JSONs are mapper-visible approximations, not full ET architecture
   specifications;
 - broader process metadata extraction coverage remains follow-up;
-- YOLO full/demo host launcher integration is not yet complete;
+- YOLO downstream device-runtime PASS and full/demo host launcher integration
+  are not yet complete;
 - YOLO model artifacts and regeneration tools are ported, but heavyweight
   regeneration dependencies are not part of normal planner validation;
-- message, queue, and negative test assets are ported as structured ELF targets,
-  but full behavioral validation still depends on the cooperative scheduler
-  follow-up;
+- representative message/channel and queue test ELFs report PASS under Erbium,
+  and the negative expected-failure ELF reports the intended FAIL marker, but
+  broader scheduler coverage remains hardening follow-up;
 - DNN demos and LTFarm are archived/reference material, not active mapper inputs;
-- the full cooperative runtime scheduler remains a runtime implementation
+- tensor matmul and YOLO downstream runtime PASS remain runtime hardening
   follow-up separate from mapper documentation.
-
-See `docs/MISSING_ORIGINAL_ARTIFACTS.md` for the artifact inventory.

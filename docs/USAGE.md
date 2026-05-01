@@ -100,10 +100,10 @@ structured program path as `kernels/` demos. Useful Erbium targets include:
 
 `cmake/run_erbium_test_fast.cmake` and
 `cmake/run_erbium_expected_fail.cmake` provide reusable emulator result checks.
-The negative test is expected to report FAIL once the full cooperative runtime
-scheduler executes process continuations. The current structured demo link
-harness still reports loader PASS before running continuations, so negative
-expected-failure execution remains tied to the scheduler follow-up.
+The negative test is expected to report FAIL when the cooperative runtime
+scheduler executes process continuations. Representative Erbium validation now
+checks that intended FAIL marker directly; do not treat that intentional FAIL as
+a broken build.
 
 ### Host smoke-test doubles (not platform validation)
 
@@ -194,9 +194,20 @@ targets, not archived generated JSON.
 
 - The structured host project ports the original `tpa_launcher` implementation
   for loading generated ELFs through ET runtime device layers.
-- Generated graph-program ELFs now link the cooperative runtime scheduler instead of the former PASS-only demo harness. `tpa_empty.elf` and `tpa_pipe_demo.elf` execute continuations and report PASS under Erbium emulator validation; broader tensor/YOLO/message/queue behavioral hardening remains follow-up.
-- YOLO full/demo host launcher integration still needs ordered porting into the structured tree. Representative YOLO block-test CMake/CTest coverage is now available under `tests/yolo/`.
-- Message/queue/negative test ELFs are ported, but complete behavioral validation remains tied to scheduler hardening work.
+- Generated graph-program ELFs now link the cooperative runtime scheduler
+  instead of the former PASS-only demo harness. `tpa_empty.elf` and
+  `tpa_pipe_demo.elf` execute continuations and report PASS under Erbium
+  emulator validation.
+- Representative message/channel and queue regression ELFs report PASS under
+  Erbium emulator validation; `tpa_negative_expected_fail.elf` reports the
+  intended FAIL marker.
+- `tpa_tensor_matmul.elf` builds, but current Erbium runtime validation still
+  reports FAIL and remains scheduler/tensor hardening follow-up.
+- YOLO downstream planner/map artifact generation is integrated. In the current
+  Erbium scheduler-hardening pass, the downstream ELF/runtime path was not
+  revalidated successfully and remains follow-up together with the full YOLO
+  host/demo launcher integration. Representative YOLO block-test CMake/CTest
+  coverage is available under `tests/yolo/`.
 - DNN demos and LTFarm are preserved as archived/reference material with
   dependency/status notes rather than active build targets.
 - Python mapper/planner commands are ported and the YOLO downstream CMake planner/map targets use them; broader CMake metadata extraction coverage remains follow-up work.
