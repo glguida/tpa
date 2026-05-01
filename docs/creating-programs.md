@@ -1,0 +1,431 @@
+# Creating TPA Programs
+
+This guide shows the practical path from a computation to a built and validated
+TPA device program. For terminology, read `docs/programming-model.md` first. For
+hardware/topology background, read `docs/et-architecture.md`.
+
+## The end-to-end pipeline
+
+A TPA program is authored as a graph of continuation-style processes and then
+built through the ET superbuild. The normal flow is:
+
+1. Decompose the computation into process kinds and ports.
+2. Write C process code that returns TPA runtime operations.
+3. Declare process kinds and ports in one or more `.tpm` manifests.
+4. Instantiate process kinds and connect ports in a `.tpp` program graph.
+5. Choose placement with either a hand `.place` file or mapper-generated output.
+6. Integrate the sources with CMake using `add_tpa_process()` and
+   `add_tpa_program()`.
+7. Configure and build through the top-level ET superbuild.
+8. Run the generated ELF with `erbium_emu` or load it with `tpa_launcher`.
+9. Validate application output, emulator PASS/FAIL markers, generated artifacts,
+   and relevant tests.
+
+Do not bypass this flow for real TPA programs. A handcrafted standalone ELF may
+be useful for isolated platform experiments, but it is not the TPA
+process/graph/image path.
+
+## Step 1: decompose the computation
+
+Start from dataflow boundaries, not from hardware details.
+
+Good process-kind boundaries are usually:
+
+- natural fan-in/fan-out points;
+- named tensor or buffer lifetime boundaries;
+- independently placeable stages;
+- repeated kernels that can share one process kind;
+- boundaries where communication and scratch requirements are clear.
+
+Avoid splitting straight-line compute just to make the graph look parallel. A
+process kind should be a useful reusable behavior with a clear port interface.
+
+For each process kind, decide:
+
+- input ports;
+- output ports;
+- persistent state/workspace size;
+- scratch requirements, if planner metadata will need them;
+- start continuation symbol;
+- whether the process is `user` or `sys`.
+
+Keep the concepts separate:
+
+- **process state** is persistent per-instance data;
+- **scratch** is transient compute workspace;
+- **edge/channel data** belongs to graph connections and may be mapped into
+  channel storage.
+
+## Step 2: write continuation-style C process code
+
+Process code uses TPA operations rather than blocking C calls. A continuation
+returns a `tpa_op_t` that tells the runtime what to do next.
+
+Common operations are:
+
+- `tpa_send(channel, data, length, next_continuation)`;
+- `tpa_recv(channel, data_pointer_out, length_out, next_continuation)`;
+- `tpa_yield(next_continuation)`;
+- `tpa_stop()`.
+
+Current demo process code includes the compatibility header:
+
+```c
+#include "tpa/tpa.h"
+```
+
+A process obtains a channel from its port id with `tpa_chan(port_id)`. It obtains
+persistent process workspace with `tpa_ws()` when the process manifest declares
+a non-zero workspace size.
+
+The process code should not hard-code placement, minion ids, shire ids, or
+channel transport classes. Those belong to `.place` or mapper output.
+
+## Step 3: declare process kinds in `.tpm`
+
+A `.tpm` manifest declares process kinds and their ports:
+
+```text
+pdef <name> <user|sys> <pid> <start> <ws_sz>
+port <pdef_name> <port_id> <in|out|inout>
+```
+
+Example from `kernels/tpa_pipe_demo.tpm`:
+
+```text
+pdef demo_src_pdef user 201 demo_src_start 0
+port demo_src_pdef 0 out
+pdef demo_stage_pdef user 202 demo_stage_recv 24
+port demo_stage_pdef 0 in
+port demo_stage_pdef 1 out
+pdef demo_sink_pdef user 203 demo_sink_start 0
+port demo_sink_pdef 0 in
+pdef demo_chk_pdef user 204 demo_chk 0
+```
+
+Here `demo_stage_pdef` has one input port, one output port, and 24 bytes of
+persistent workspace.
+
+## Step 4: write the `.tpp` program graph
+
+A `.tpp` file instantiates process kinds and connects ports:
+
+```text
+inst <inst_id> <pdef_name>
+conn <src_inst> <src_port> <dst_inst> <dst_port> <bytes>
+```
+
+Example from `kernels/tpa_pipe_demo.tpp`:
+
+```text
+inst 201 demo_src_pdef
+inst 202 demo_stage_pdef
+inst 203 demo_stage_pdef
+inst 204 demo_sink_pdef
+inst 205 demo_chk_pdef
+conn 201 0 202 0 8
+conn 202 1 203 0 8
+conn 203 1 204 0 8
+```
+
+This graph uses one source, two instances of the same stage process kind, one
+sink, and one checker. Each edge has an 8-byte capacity. The graph does not say
+where the instances run.
+
+## Step 5: choose hand placement or mapper output
+
+### Hand `.place`
+
+For small examples, write a placement file by hand:
+
+```text
+<inst_id> <runtime_hart_id>
+```
+
+Example from `kernels/tpa_pipe_demo.place`:
+
+```text
+201 0
+202 2
+203 4
+204 6
+205 8
+```
+
+A placement file can also include explicit channel kind overrides:
+
+```text
+chan <src_inst> <src_port> <dst_inst> <dst_port> <direct|local|fabric|external>
+```
+
+Hand placement is best when the graph is small, deterministic, and intended as a
+worked example or smoke target.
+
+### Mapper-generated output
+
+Use the mapper for larger graphs where manual placement is error-prone or where
+scratch/edge memory and topology costs matter. The YOLO downstream path is the
+current integrated example. Its CMake flow extracts process metadata, runs the
+planner/mapper against `machines/erbium.json` or `machines/etsoc1.json`, and
+emits:
+
+- mapped `.place`;
+- mapped-program JSON;
+- planner/map reports;
+- scratch config header;
+- edge config header.
+
+The detailed mapper guide is planned for `docs/mapper-planner.md`. Until that
+exists, use `planner/README.md` and `yolov5n/CMakeLists.txt` as implementation
+references.
+
+## Step 6: integrate with CMake
+
+Use `add_tpa_process()` for process object targets and `add_tpa_program()` for
+the final generated ELF target.
+
+Example from `kernels/CMakeLists.txt`:
+
+```cmake
+add_tpa_process(
+    NAME tpa_pipe_demo_proc
+    MANIFEST
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_pipe_demo.tpm"
+    SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_pipe_demo.c"
+)
+
+add_tpa_program(
+    NAME tpa_pipe_demo
+    PROCESSES
+        tpa_pipe_demo_proc
+    PROGRAM
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_pipe_demo.tpp"
+    PLACEMENT
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_pipe_demo.place"
+)
+```
+
+`add_tpa_process()` compiles the process sources as an object library, links the
+selected TPA core/HAL dependencies, enables C11, and records the `.tpm` manifest
+on the target.
+
+`add_tpa_program()` collects process objects/manifests, calls
+`cmake/gen_tpa_image.cmake`, and links the generated image, process objects,
+platform startup code, runtime harness, and selected HAL/core into
+`<name>.elf`.
+
+For mapper-backed programs, pass mapper-generated placement and generated edge
+configuration to `add_tpa_program()` when needed. The current YOLO downstream
+CMake path demonstrates this pattern.
+
+## Worked example: `tpa_pipe_demo`
+
+`kernels/tpa_pipe_demo.*` is the small current example for authoring a generated
+TPA program.
+
+Files:
+
+- `kernels/tpa_pipe_demo.c` — continuation-style process implementations.
+- `kernels/tpa_pipe_demo.tpm` — process kind and port declarations.
+- `kernels/tpa_pipe_demo.tpp` — program graph and edge capacities.
+- `kernels/tpa_pipe_demo.place` — hand placement onto runtime hart ids.
+- `kernels/CMakeLists.txt` — `add_tpa_process()` and `add_tpa_program()` calls.
+
+Behavior:
+
+1. `demo_src_start` sends the constant `7` on port 0.
+2. A first `demo_stage_pdef` instance receives 8 bytes, computes `x * 2 + 1`,
+   and sends the result on its output port.
+3. A second `demo_stage_pdef` instance repeats the transform.
+4. `demo_sink_start` receives the final value and records it.
+5. `demo_chk` yields until the sink records a value, then emits PASS if the
+   value is `31`.
+
+The important authoring lessons are:
+
+- one process kind can have multiple instances;
+- ports are declared on the process kind, while connections live in `.tpp`;
+- placement is separate from the graph;
+- the CMake target is `tpa_pipe_demo.elf`, generated from the TPA artifacts.
+
+## Build with the ET superbuild
+
+Configure from the repository root. Use the top-level CMake entry point, not an
+ad-hoc subdirectory build.
+
+Erbium:
+
+```sh
+cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium
+cmake --build build-et-erbium --target tpa_pipe_demo.elf
+```
+
+The generated ELF is under the ET device sub-build, currently:
+
+```text
+build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf
+```
+
+If the program uses YOLO-style mapper targets, install/select a Python
+environment with the planner package before configuring or pass `-DPYTHON`:
+
+```sh
+python3 -m venv .venv-planner
+. .venv-planner/bin/activate
+python -m pip install -e planner
+cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python)
+cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
+cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
+cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+```
+
+ET-SoC-1 core build:
+
+```sh
+cmake -S . -B build-et-etsoc1 -DET_ROOT=/opt/et -DTPA_PLATFORM=etsoc1
+cmake --build build-et-etsoc1 --target tpa_core
+```
+
+For ET-SoC-1 YOLO mapping, the current full-card machine description requires:
+
+```sh
+-DTPA_ETSOC1_NR_SHIRES=32
+```
+
+Do not enable or document ET-SoC-1 YOLO as a default one-shire target.
+
+## Run and validate
+
+### Run with `erbium_emu`
+
+For Erbium ELFs:
+
+```sh
+/opt/et/bin/erbium_emu \
+  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf \
+  -max_cycles 10000
+```
+
+Check for the expected PASS/FAIL trace behavior and emulator exit status. For
+new programs, define an unambiguous application-level success condition, not just
+"the ELF loads".
+
+### Run with `tpa_launcher`
+
+Build the host tools through the ET host subproject:
+
+```sh
+cmake --build build-et-erbium --target tpa_host_tools
+```
+
+Then load a generated ELF with the launcher:
+
+```sh
+build-et-erbium/tpa-host-prefix/src/tpa-host-build/tpa_launcher \
+  --kernel build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf \
+  --mode sysemu \
+  --timeout 300
+```
+
+`tpa_launcher` also supports `--mode pcie` for silicon and `--mode fake` for
+host runtime API smoke checks. Use `--help` for the full option list.
+
+### Host smoke tests are not platform validation
+
+For local syntax/unit smoke on machines without ET platform support:
+
+```sh
+cmake -S . -B build-smoke -DTPA_HOST_SMOKE_TEST_DOUBLE=ON
+cmake --build build-smoke
+ctest --test-dir build-smoke --output-on-failure
+```
+
+This mode is intentionally named `TPA_HOST_SMOKE_TEST_DOUBLE`. It does not prove
+that Erbium or ET-SoC-1 device integration works.
+
+## Validation checklist for a new program
+
+Use the relevant groups below before asking for review.
+
+### Always
+
+```sh
+git diff --check
+```
+
+If process code or CMake changed, build with warnings as errors through the
+normal targets. Current process targets use `-Wall -Wextra -Werror`.
+
+### Planner/mapper changes
+
+```sh
+python3 -m venv .venv-planner
+. .venv-planner/bin/activate
+python -m pip install -e planner
+python -m unittest discover -s planner/tests
+```
+
+For mapper-backed CMake targets, configure with `-DPYTHON=$(command -v python)`
+from that environment.
+
+### Erbium program validation
+
+```sh
+cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium
+cmake --build build-et-erbium --target tpa_pipe_demo.elf
+/opt/et/bin/erbium_emu \
+  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf \
+  -max_cycles 10000
+```
+
+Replace `tpa_pipe_demo.elf` and the ELF path with your new program target/path.
+
+### Host launcher path
+
+```sh
+cmake --build build-et-erbium --target tpa_host_tools
+build-et-erbium/tpa-host-prefix/src/tpa-host-build/tpa_launcher --help
+```
+
+Then run your generated ELF in the appropriate launcher mode if the job requires
+launcher coverage.
+
+### ET-SoC-1 core validation
+
+```sh
+cmake -S . -B build-et-etsoc1 -DET_ROOT=/opt/et -DTPA_PLATFORM=etsoc1
+cmake --build build-et-etsoc1 --target tpa_core
+```
+
+Only add ET-SoC-1 program targets when their placement/machine assumptions match
+the configured `TPA_ETSOC1_NR_SHIRES`.
+
+### Host smoke-test double
+
+```sh
+cmake -S . -B build-smoke -DTPA_HOST_SMOKE_TEST_DOUBLE=ON
+cmake --build build-smoke
+ctest --test-dir build-smoke --output-on-failure
+```
+
+Report this as smoke coverage only.
+
+## Authoring traps and anti-patterns
+
+Avoid these common mistakes:
+
+- Bypassing `.tpm`, `.tpp`, `.place`, and `gen_tpa_image.cmake` for a graph
+  program.
+- Inventing an alternate CMake path instead of the top-level ET superbuild.
+- Treating host smoke tests as Erbium or ET-SoC-1 validation.
+- Confusing process kind ids with process instance ids.
+- Treating ports as transport classes; transport belongs to mapped edges.
+- Counting edge/channel payloads as persistent process state.
+- Hiding required ET toolchain or HAL behavior behind host fallbacks.
+- Claiming original tests/demos/tools are integrated before they are ported.
+
+Current missing or partial areas include message tests, queue tests, negative
+tests, tensor matmul, DNN demos, ltfarm, YOLO block-test CTest wiring, YOLO
+model/tool regeneration, and the full cooperative runtime scheduler. Mention
+those only as follow-up until implementation jobs port them.
