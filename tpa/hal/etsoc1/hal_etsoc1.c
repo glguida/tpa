@@ -47,7 +47,8 @@ static uint32_t first_runtime_shire(uint64_t shire_mask)
                                                 UINT64_C(0xffffffff));
 }
 
-static uint32_t physical_hart_from_runtime(uint32_t hartid)
+static uint32_t __attribute__((unused)) physical_hart_from_runtime(
+    uint32_t hartid)
 {
     uint32_t first_shire = first_runtime_shire(runtime_shire_mask_or_default());
 
