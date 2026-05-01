@@ -64,11 +64,18 @@ tpa_find_et_package_dir(hostUtils hostUtilsConfig.cmake)
 tpa_find_et_package_dir(sw-sysemu sw-sysemuConfig.cmake)
 tpa_find_et_package_dir(deviceLayer deviceLayerConfig.cmake)
 tpa_find_et_package_dir(deviceApi deviceApiConfig.cmake)
+tpa_find_et_package_dir(cereal cerealConfig.cmake)
+tpa_find_et_package_dir(easy_profiler easy_profilerConfig.cmake)
 tpa_find_et_package_dir(runtime runtimeConfig.cmake)
+tpa_find_et_package_dir(EsperantoBootLoader EsperantoBootLoaderConfig.cmake)
+tpa_find_et_package_dir(EsperantoDeviceMinionRuntime EsperantoDeviceMinionRuntimeConfig.cmake)
 
 find_package(runtime REQUIRED)
 find_package(deviceLayer REQUIRED)
 find_package(sw-sysemu REQUIRED)
+find_package(hostUtils REQUIRED)
+find_package(EsperantoBootLoader QUIET)
+find_package(EsperantoDeviceMinionRuntime QUIET)
 
 # ET's HostProject wrapper passes these before this subproject has real host
 # binaries. Consume them so configure output stays focused on meaningful issues.
@@ -82,11 +89,57 @@ foreach (var IN ITEMS
     endif()
 endforeach()
 
-# The structured host launcher/tooling has not been fully ported yet. Keep this
-# real ET host subproject in the superbuild so package discovery and wrapper
-# integration are validated, and provide a named target for follow-up work.
-add_custom_target(tpa_host_tools
-    COMMAND "${CMAKE_COMMAND}" -E echo
-        "TPA structured host launcher is not yet ported; ET host packages configured successfully."
-    VERBATIM
+function(tpa_imported_target_file out_var target)
+    if (TARGET "${target}")
+        get_property(target_file TARGET "${target}" PROPERTY LOCATION)
+        set("${out_var}" "${target_file}" PARENT_SCOPE)
+    else()
+        set("${out_var}" "" PARENT_SCOPE)
+    endif()
+endfunction()
+
+tpa_imported_target_file(TPA_BOOTROM_TRAMPOLINE_TO_BL2_ELF EsperantoBootLoader::BootromTrampolineToBL2.elf)
+tpa_imported_target_file(TPA_BL2_ELF EsperantoBootLoader::ServiceProcessorBL2_fast-boot.elf)
+tpa_imported_target_file(TPA_MACHINE_MINION_ELF EsperantoDeviceMinionRuntime::MachineMinion.elf)
+tpa_imported_target_file(TPA_MASTER_MINION_ELF EsperantoDeviceMinionRuntime::MasterMinion.elf)
+tpa_imported_target_file(TPA_WORKER_MINION_ELF EsperantoDeviceMinionRuntime::WorkerMinion.elf)
+
+if (DEFINED runtime_DIR)
+    get_filename_component(TPA_ET_PREFIX "${runtime_DIR}/../../.." ABSOLUTE)
+elseif (DEFINED ET_ROOT AND NOT "${ET_ROOT}" STREQUAL "")
+    set(TPA_ET_PREFIX "${ET_ROOT}")
+elseif (DEFINED ET_PLATFORM_PATH AND NOT "${ET_PLATFORM_PATH}" STREQUAL "")
+    set(TPA_ET_PREFIX "${ET_PLATFORM_PATH}")
+endif()
+
+find_program(TPA_SYSEMU_EXECUTABLE
+    NAMES sys_emu
+    HINTS
+        "${TPA_ET_PREFIX}/bin"
+        "${CMAKE_INSTALL_PREFIX}/bin"
+    PATH_SUFFIXES bin
 )
+
+add_executable(tpa_launcher
+    src/tpa_launcher.cpp
+)
+
+target_link_libraries(tpa_launcher
+    PRIVATE
+        runtime::etrt
+        deviceLayer::deviceLayer
+        sw-sysemu::sw-sysemu
+        hostUtils::logging
+)
+
+target_compile_definitions(tpa_launcher
+    PRIVATE
+        TPA_SYSEMU_EXECUTABLE="${TPA_SYSEMU_EXECUTABLE}"
+        TPA_BOOTROM_TRAMPOLINE_TO_BL2_ELF="${TPA_BOOTROM_TRAMPOLINE_TO_BL2_ELF}"
+        TPA_BL2_ELF="${TPA_BL2_ELF}"
+        TPA_MACHINE_MINION_ELF="${TPA_MACHINE_MINION_ELF}"
+        TPA_MASTER_MINION_ELF="${TPA_MASTER_MINION_ELF}"
+        TPA_WORKER_MINION_ELF="${TPA_WORKER_MINION_ELF}"
+)
+
+add_custom_target(tpa_host_tools DEPENDS tpa_launcher)
