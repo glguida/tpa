@@ -94,6 +94,7 @@ if (BUILD_TPA_DEVICE)
     endfunction()
 
     tpa_forward_device_target(tpa_core)
+    tpa_forward_device_target(tpa_empty.elf)
     tpa_forward_device_target(tpa_pipe_demo.elf)
 endif()
 
