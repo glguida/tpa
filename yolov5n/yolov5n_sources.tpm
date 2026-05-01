@@ -1,0 +1,11 @@
+pdef yolov5n_src_skip_p5_pdef user 500 yolo_subgraph_src_p5_start 0
+port yolov5n_src_skip_p5_pdef 0 out
+
+pdef yolov5n_src_skip_p4_pdef user 501 yolo_subgraph_src_p4_start 0
+port yolov5n_src_skip_p4_pdef 0 out
+
+pdef yolov5n_src_skip_p3_pdef user 502 yolo_subgraph_src_p3_start 0
+port yolov5n_src_skip_p3_pdef 0 out
+
+pdef yolov5n_src_input_pdef user 514 yolov5n_src_input_start 0
+port yolov5n_src_input_pdef 0 out

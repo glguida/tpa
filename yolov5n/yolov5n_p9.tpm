@@ -1,0 +1,4 @@
+pdef yolov5n_p9_pdef user 509 yolo_full_p9_start 24
+port yolov5n_p9_pdef 0 in
+port yolov5n_p9_pdef 1 in
+port yolov5n_p9_pdef 2 out

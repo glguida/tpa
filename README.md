@@ -15,6 +15,8 @@ are not platform validation.
 - `CMakeLists.txt` — ET superbuild entry point.
 - `tpa-device/` — structured ET RISC-V device project and runtime link harness.
 - `kernels/` — ported original TPA process/program demo manifests and sources.
+- `yolov5n/` — ported YOLOv5n process sources, manifests, planner reports, mapper targets, and downstream demo target.
+- `tests/yolo/` — representative original YOLO block test sources/assets retained for follow-up block-test integration.
 - `cmake/tpa-kernel.cmake` — structured `add_tpa_process()` / `add_tpa_program()` helpers.
 - `platform/` — Erbium startup/linker assets used by generated demo ELFs.
 - `tpa-host/` — structured ET host integration project. Full launcher/demo
@@ -42,7 +44,11 @@ Erbium:
 cmake -S . -B build-et-erbium -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=erbium
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_empty.elf
+cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
+cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
+cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 /opt/et/bin/erbium_emu -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf -max_cycles 10000
+/opt/et/bin/erbium_emu -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf -max_cycles 10000
 ```
 
 ET-SoC-1:
@@ -58,8 +64,13 @@ Forwarded top-level targets currently include:
   subproject.
 - `tpa_empty.elf` — generated from the original `tpa_empty.c/.tpm/.tpp/.place` path.
 - `tpa_pipe_demo.elf` — generated from the original pipe demo process/program manifests through structured `add_tpa_process()` / `add_tpa_program()` helpers, linked with Erbium startup and the selected HAL/core.
+- `tpa_yolov5n_downstream_plan_planner_json` — extracts process metadata and writes the planner JSON report.
+- `tpa_yolov5n_downstream_map_mapped_program` — writes mapped-program JSON, generated placement, scratch config, and edge-buffer config.
+- `tpa_yolov5n_downstream.elf` — generated YOLO downstream device ELF linked with the structured runtime harness.
 - `tpa_host_tools` — host subproject package-discovery target documenting that
   full host launcher tooling remains follow-up work.
+
+For ET-SoC-1, YOLO mapping uses the full-card machine JSON. The device project therefore defaults `BUILD_TPA_YOLOV5N=OFF` unless `TPA_ETSOC1_NR_SHIRES=32` is provided; `tpa_core` still builds in the default one-shire ET-SoC-1 configuration.
 
 ## Local smoke-test doubles
 

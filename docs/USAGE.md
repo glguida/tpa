@@ -13,9 +13,10 @@ The runtime is organized around a narrow HAL boundary and ET platform build:
    selected HAL against `et-common-libs::cm-umode`.
 5. `kernels/` contains ported original TPA demo assets (`.c`, `.tpm`, `.tpp`, `.place`).
 6. `cmake/tpa-kernel.cmake` provides structured `add_tpa_process()` and `add_tpa_program()` helpers that generate image metadata with `gen_tpa_image.cmake`.
-7. `tpa-host/` configures against et-platform host packages. The full launcher
+7. `yolov5n/` ports the original YOLOv5n process sources/manifests and CMake planner/mapper targets for the downstream graph.
+8. `tpa-host/` configures against et-platform host packages. The full launcher
    is explicit follow-up work.
-8. `planner/` provides Python-only offline process metadata extraction,
+9. `planner/` provides Python-only offline process metadata extraction,
    mapping, and planning commands; `machines/` provides mapper topology inputs.
 
 ## Selecting a platform
@@ -44,7 +45,11 @@ header defines `TPA_HAL_NR_HARTS`, `TPA_HAL_CACHELINE_BYTES`, and
 cmake -S . -B build-et-erbium -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=erbium
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_empty.elf
+cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
+cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
+cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 /opt/et/bin/erbium_emu -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf -max_cycles 10000
+/opt/et/bin/erbium_emu -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf -max_cycles 10000
 
 cmake -S . -B build-et-etsoc1 -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=etsoc1
 cmake --build build-et-etsoc1 --target tpa_core
@@ -53,7 +58,9 @@ cmake --build build-et-etsoc1 --target tpa_core
 The top-level CMake discovers `ProjectFunctions.cmake`, calls
 `DeviceProjectNoInstall(tpa-device ...)`, and calls
 `HostProjectNoInstall(tpa-host ...)`. `tpa-device` fails during configure if the
-ET RISC-V toolchain or required ET CMake packages are unavailable. The `tpa_pipe_demo.elf` and `tpa_empty.elf` targets are generated through the TPA process/program flow, not as handcrafted standalone executables.
+ET RISC-V toolchain or required ET CMake packages are unavailable. The `tpa_pipe_demo.elf`, `tpa_empty.elf`, and `tpa_yolov5n_downstream.elf` targets are generated through the TPA process/program flow, not as handcrafted standalone executables.
+
+YOLO targets currently port the downstream planner/map/device path. On ET-SoC-1, `BUILD_TPA_YOLOV5N` defaults OFF unless `TPA_ETSOC1_NR_SHIRES=32` because the original YOLO mapping uses the full-card machine description.
 
 ### Host smoke-test doubles (not platform validation)
 
@@ -108,11 +115,12 @@ example mapper commands.
   compile-time channel policy.
 - `kernels/tpa_empty.*` is the original empty TPA process/program demo path.
 - `kernels/tpa_pipe_demo.*` is the original pipe demo process/program path, built via `add_tpa_process()` / `add_tpa_program()` into `tpa_pipe_demo.elf`.
+- `yolov5n/` contains the original YOLOv5n process sources/assets plus downstream planner/map targets and `tpa_yolov5n_downstream.elf`.
 
 ## Current limitations / follow-up
 
 - The structured host project validates ET host package discovery but does not
   yet port the original `tpa_launcher` implementation.
 - The structured demo link harness currently proves generated process/image metadata compile, link, and load/pass in `erbium_emu`; it does not yet implement the complete cooperative runtime scheduler that executes every generated process continuation.
-- JSON planner CMake targets, YOLO demos, message tests, and ltfarm experiments still need ordered porting into the structured tree.
-- The Python mapper/planner commands are ported, but CMake targets that build real process objects and extract process JSON metadata remain follow-up work.
+- YOLO full/demo host launcher integration, YOLO block-test CTest wiring, message tests, and ltfarm experiments still need ordered porting into the structured tree.
+- Python mapper/planner commands are ported and the YOLO downstream CMake planner/map targets use them; broader CMake metadata extraction coverage remains follow-up work.

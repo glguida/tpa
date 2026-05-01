@@ -78,6 +78,9 @@ if (BUILD_TPA_DEVICE)
         "-DTPA_PLATFORM=${TPA_PLATFORM}"
         "-DTPA_ETSOC1_NR_SHIRES=${TPA_ETSOC1_NR_SHIRES}"
     )
+    if (DEFINED PYTHON AND NOT "${PYTHON}" STREQUAL "")
+        list(APPEND TPA_DEVICE_CMAKE_ARGS "-DPYTHON=${PYTHON}")
+    endif()
     list(JOIN TPA_DEVICE_CMAKE_ARGS " " TPA_DEVICE_CMAKE_ARGS_STRING)
 
     DeviceProjectNoInstall(tpa-device "${TPA_DEVICE_CMAKE_ARGS_STRING}")
@@ -96,6 +99,9 @@ if (BUILD_TPA_DEVICE)
     tpa_forward_device_target(tpa_core)
     tpa_forward_device_target(tpa_empty.elf)
     tpa_forward_device_target(tpa_pipe_demo.elf)
+    tpa_forward_device_target(tpa_yolov5n_downstream_plan_planner_json)
+    tpa_forward_device_target(tpa_yolov5n_downstream_map_mapped_program)
+    tpa_forward_device_target(tpa_yolov5n_downstream.elf)
 endif()
 
 if (BUILD_TPA_HOST)

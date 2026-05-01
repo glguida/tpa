@@ -59,7 +59,11 @@ extern "C" {
                      TPA_CHANNEL_KIND_DIRECT, TPA_CHANNEL_KIND_LOCAL,        \
                      TPA_CHANNEL_KIND_FABRIC, TPA_CHANNEL_KIND_EXTERNAL)
 
+#define tpa_chan tpa_channel
+
 #define arch_trace(tag) tpa_hal_trace((tag))
+#define arch_diag_putc(c) tpa_hal_diag_putc((c))
+#define arch_runtime_hartid() tpa_hal_runtime_hartid()
 #define arch_fence_rw() tpa_hal_fence_rw()
 #define arch_flush(ptr, bytes) tpa_hal_flush((ptr), (bytes))
 #define arch_evict(ptr, bytes) tpa_hal_evict((ptr), (bytes))
@@ -69,6 +73,7 @@ extern "C" {
 #define et_cache_evict_line(addr)                                             \
     tpa_hal_evict((const volatile void *)(uintptr_t)(addr),                   \
                   TPA_HAL_CACHELINE_BYTES)
+#define et_cache_evict_l1d_to_l2() tpa_hal_evict((const volatile void *)0, TPA_HAL_L1D_BYTES)
 
 enum {
     TPA_OP_STOP = 0,

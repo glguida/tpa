@@ -1,0 +1,3 @@
+pdef yolov5n_p0_pdef user 520 yolov5n_p0_start 16
+port yolov5n_p0_pdef 0 in
+port yolov5n_p0_pdef 1 out

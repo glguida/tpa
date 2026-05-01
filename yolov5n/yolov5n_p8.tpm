@@ -1,0 +1,4 @@
+pdef yolov5n_p8_pdef user 508 yolo_full_p8_start 32
+port yolov5n_p8_pdef 0 in
+port yolov5n_p8_pdef 1 out
+port yolov5n_p8_pdef 2 out

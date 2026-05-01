@@ -1,0 +1,21 @@
+pdef yolo_subgraph_src_p5_pdef user 408 yolo_subgraph_src_p5_start 0
+port yolo_subgraph_src_p5_pdef 0 out
+
+pdef yolo_subgraph_src_p4_pdef user 409 yolo_subgraph_src_p4_start 0
+port yolo_subgraph_src_p4_pdef 0 out
+
+pdef yolo_subgraph_p4_pdef user 410 yolo_subgraph_p4_start 24
+port yolo_subgraph_p4_pdef 0 in
+port yolo_subgraph_p4_pdef 1 in
+port yolo_subgraph_p4_pdef 2 out
+
+pdef yolo_subgraph_src_p3_pdef user 411 yolo_subgraph_src_p3_start 0
+port yolo_subgraph_src_p3_pdef 0 out
+
+pdef yolo_subgraph_p5_pdef user 412 yolo_subgraph_p5_start 24
+port yolo_subgraph_p5_pdef 0 in
+port yolo_subgraph_p5_pdef 1 in
+port yolo_subgraph_p5_pdef 2 out
+
+pdef yolo_subgraph_p6_pdef user 413 yolo_subgraph_p6_start 16
+port yolo_subgraph_p6_pdef 0 in

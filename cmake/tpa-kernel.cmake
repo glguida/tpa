@@ -40,10 +40,17 @@ function(add_tpa_process)
 
     add_library(${TPAPROC_NAME} OBJECT ${TPAPROC_SOURCES})
     target_link_libraries(${TPAPROC_NAME} PRIVATE tpa_core et-common-libs::cm-umode ${TPAPROC_LIBS})
-    target_include_directories(${TPAPROC_NAME} PRIVATE ${TPAPROC_INCLUDES})
+    target_include_directories(${TPAPROC_NAME} PRIVATE
+        "${TPA_ROOT_DIR}/include"
+        ${TPAPROC_INCLUDES}
+    )
     target_compile_features(${TPAPROC_NAME} PRIVATE c_std_11)
-    target_compile_options(${TPAPROC_NAME} PRIVATE -Wall -Wextra -Werror)
+    target_compile_options(${TPAPROC_NAME} PRIVATE -Wall -Wextra -Werror -Wno-cast-qual -Wno-unused-function -Wno-unused-const-variable)
     set_target_properties(${TPAPROC_NAME} PROPERTIES TPA_MANIFEST "${TPAPROC_MANIFEST}")
+endfunction()
+
+function(add_tpa_program_test)
+    add_tpa_program(${ARGN})
 endfunction()
 
 function(add_tpa_program)
@@ -121,9 +128,12 @@ function(add_tpa_program)
 
     target_link_libraries(${TPAPROG_NAME}.elf PRIVATE tpa_core et-common-libs::cm-umode ${TPAPROG_LIBS})
     target_link_options(${TPAPROG_NAME}.elf PRIVATE -Wl,--no-warn-rwx-segments)
-    target_include_directories(${TPAPROG_NAME}.elf PRIVATE ${TPAPROG_INCLUDES})
+    target_include_directories(${TPAPROG_NAME}.elf PRIVATE
+        "${TPA_ROOT_DIR}/include"
+        ${TPAPROG_INCLUDES}
+    )
     target_compile_features(${TPAPROG_NAME}.elf PRIVATE c_std_11)
-    target_compile_options(${TPAPROG_NAME}.elf PRIVATE -Wall -Wextra -Werror)
+    target_compile_options(${TPAPROG_NAME}.elf PRIVATE -Wall -Wextra -Werror -Wno-cast-qual)
     set_target_properties(${TPAPROG_NAME}.elf PROPERTIES LINKER_LANGUAGE C)
     add_dependencies(${TPAPROG_NAME}.elf ${TPAPROG_PROCESSES})
 endfunction()
