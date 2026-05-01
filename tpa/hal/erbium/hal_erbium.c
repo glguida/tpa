@@ -33,7 +33,7 @@ static uint32_t hart_minion(uint32_t hartid)
     return TPA_HAL_ERBIUM_HART_MINION_ID(hartid);
 }
 
-static int hart_hi(uint32_t hartid)
+static int __attribute__((unused)) hart_hi(uint32_t hartid)
 {
     return TPA_HAL_ERBIUM_HART_THREAD_ID(hartid) != 0u;
 }
