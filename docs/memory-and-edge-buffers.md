@@ -201,9 +201,11 @@ The current edge-buffer path is real but still evolving:
 - lifetime analysis is conservative and schedule-derived;
 - fanout is shared and forwarder aliasing is heuristic;
 - compute costs and memory metadata need broader coverage;
-- original message/channel tests, queue tests, negative tests, and YOLO block
-  CTest wiring are still missing/follow-up;
-- old YOLO regeneration/model tools are not ported;
+- original message/channel tests, queue tests, and negative tests are still
+  missing/follow-up;
+- YOLO model artifacts and regeneration tools are ported under `models/` and
+  `tools/yolo/`, but heavyweight regeneration dependencies are not part of
+  normal validation;
 - the full cooperative runtime scheduler remains separate follow-up work.
 
 See `docs/MISSING_ORIGINAL_ARTIFACTS.md` for the broader missing-artifact

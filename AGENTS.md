@@ -17,7 +17,7 @@ Read these before making changes:
 8. `docs/MISSING_ORIGINAL_ARTIFACTS.md`
 9. `docs/USAGE.md`
 10. `planner/README.md` when touching planner/mapper code
-11. `docs/yolo-demo.md` when it exists and you are touching YOLO paths
+11. `docs/yolo-demo.md` when touching YOLO paths
 
 ## Core rules
 
@@ -188,9 +188,10 @@ because the current YOLO mapping uses the full-card machine JSON.
   instructions.
 - Forgetting to install/select the planner Python environment for YOLO CMake
   planner/map targets.
-- Claiming original message/queue/negative tests, tensor matmul, DNN demos,
-  ltfarm, YOLO block CTests, or model regeneration tools are integrated before
-  they are actually ported.
+- Claiming original message/queue/negative tests, tensor matmul, DNN demos, or
+  ltfarm are integrated before they are actually ported. YOLO tools/models and
+  representative block tests are ported; check `docs/yolo-demo.md` for current
+  scope.
 
 ## Current status notes
 
@@ -200,6 +201,6 @@ planner tests, and host smoke-test doubles.
 
 Important follow-up areas remain documented in
 `docs/MISSING_ORIGINAL_ARTIFACTS.md`: original message/channel tests, queue
-tests, negative tests, YOLO block-test CTest wiring, tensor matmul, DNN demos,
-ltfarm, YOLO tools/models, broader generated reports, and full cooperative
-runtime scheduler work.
+tests, negative tests, tensor matmul, DNN demos, ltfarm, broader generated
+reports, and full cooperative runtime scheduler work. YOLO tools/models and
+representative block tests are documented in `docs/yolo-demo.md`.

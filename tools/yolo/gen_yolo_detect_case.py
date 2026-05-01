@@ -1,0 +1,193 @@
+#!/usr/bin/env python3
+
+import argparse
+import re
+from pathlib import Path
+
+import numpy as np
+
+
+def parse_array_values(ctype: str, body: str):
+    vals = []
+    for part in body.replace("\n", " ").split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if ctype == "float":
+            vals.append(float(part.rstrip("f")))
+        else:
+            vals.append(int(part, 10))
+    return vals
+
+
+def load_header(path: Path):
+    text = path.read_text()
+    arrays = {}
+    for m in re.finditer(
+        r"const\s+(int8_t|int32_t|float|uint8_t)\s+(\w+)\[\d+\][^{]*=\s*\{(.*?)\};",
+        text,
+        re.S,
+    ):
+        ctype, name, body = m.groups()
+        arrays[name] = parse_array_values(ctype, body)
+    return text, arrays
+
+
+def parse_layer(text: str, layer_idx: int):
+    m = re.search(rf"\[{layer_idx}\]\s*=\s*\{{(.*?)\n\s*\}},", text, re.S)
+    if not m:
+        raise SystemExit(f"layer {layer_idx} not found in header")
+    return dict(re.findall(r"\.(\w+)\s*=\s*([^,]+),", m.group(1)))
+
+
+def make_input(n: int):
+    out = [0] * n
+    state = 0x6D2B79F5
+    for i in range(n):
+        state = (state * 1664525 + 1013904223) & 0xFFFFFFFF
+        v = (state >> 24) & 0xFF
+        out[i] = v - 256 if v >= 128 else v
+    return out
+
+
+def round_away(x: float):
+    return int(x + 0.5) if x >= 0.0 else int(x - 0.5)
+
+
+def clamp_i8(x: int):
+    if x < -128:
+        return -128
+    if x > 127:
+        return 127
+    return x
+
+
+def to_signed_lut(lut_vals):
+    lut = np.asarray(lut_vals, dtype=np.uint8).astype(np.int16)
+    lut = np.where(lut >= 128, lut - 256, lut)
+    return lut.astype(np.int8)
+
+
+def fnv1a64(buf):
+    h = 0xCBF29CE484222325
+    for v in buf:
+        h ^= (v & 0xFF)
+        h = (h * 0x100000001B3) & 0xFFFFFFFFFFFFFFFF
+    return h
+
+
+def qconv_hwc(layer, arrays, in_buf, in_h: int, in_w: int):
+    c_in = int(layer["C_in"])
+    k_h = int(layer["kH"])
+    k_w = int(layer["kW"])
+    s_h = int(layer["stride_h"])
+    s_w = int(layer["stride_w"])
+    p_h = int(layer["pad_h"])
+    p_w = int(layer["pad_w"])
+    k_out = int(layer["K_out"])
+    w_stride = int(layer["w_stride"])
+    out_h = (in_h + (2 * p_h) - k_h) // s_h + 1
+    out_w = (in_w + (2 * p_w) - k_w) // s_w + 1
+
+    in_arr = np.asarray(in_buf, dtype=np.int8).reshape(in_h, in_w, c_in)
+    weights = np.asarray(arrays[layer["w"]], dtype=np.int8).reshape(k_out, w_stride)
+    weights = weights[:, :k_h * k_w * c_in].astype(np.int32)
+    bias = np.asarray(arrays[layer["b"]], dtype=np.int32)[:k_out]
+    scales = np.asarray(arrays[layer["s"]], dtype=np.float32)[:k_out]
+    lut = None
+    if layer["lut"] != "((void*)0)":
+        lut = to_signed_lut(arrays[layer["lut"]])
+
+    padded = np.pad(in_arr, ((p_h, p_h), (p_w, p_w), (0, 0)),
+                    mode="constant", constant_values=0)
+    windows = np.lib.stride_tricks.sliding_window_view(
+        padded, (k_h, k_w, c_in)
+    )[:, :, 0, :, :, :]
+    windows = windows[::s_h, ::s_w, :, :, :]
+    cols = windows.reshape(out_h * out_w, k_h * k_w * c_in).astype(np.int32)
+    acc = cols @ weights.T
+    acc += bias[None, :]
+
+    q = acc.astype(np.float32) * scales[None, :]
+    q = np.where(q >= 0.0, np.floor(q + 0.5), np.ceil(q - 0.5)).astype(np.int32)
+    q = np.clip(q, -128, 127).astype(np.int16)
+    if lut is not None:
+        q = lut[(q.astype(np.int16) & 0xFF)].astype(np.int16)
+
+    return q.astype(np.int8).reshape(-1).tolist(), out_h, out_w
+
+
+def emit_i8_array(f, name, data):
+    f.write(
+        f"static const int8_t {name}[{len(data)}] __attribute__((aligned(64))) = {{\n"
+    )
+    for i in range(0, len(data), 16):
+        row = ", ".join(str(v) for v in data[i:i + 16])
+        f.write(f"    {row},\n")
+    f.write("};\n\n")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--weights-header", required=True)
+    ap.add_argument("--in-h", type=int, required=True)
+    ap.add_argument("--in-w", type=int, required=True)
+    ap.add_argument("--out", required=True)
+    args = ap.parse_args()
+
+    text, arrays = load_header(Path(args.weights_header))
+    l57 = parse_layer(text, 57)
+    l58 = parse_layer(text, 58)
+    l69 = parse_layer(text, 69)
+    l63 = parse_layer(text, 63)
+    l64 = parse_layer(text, 64)
+    l72 = parse_layer(text, 72)
+
+    in_buf = make_input(args.in_h * args.in_w * int(l57["C_in"]))
+
+    box1_buf, h1, w1 = qconv_hwc(l57, arrays, in_buf, args.in_h, args.in_w)
+    box2_buf, h2, w2 = qconv_hwc(l58, arrays, box1_buf, h1, w1)
+    box_buf, hb, wb = qconv_hwc(l69, arrays, box2_buf, h2, w2)
+
+    cls1_buf, hc1, wc1 = qconv_hwc(l63, arrays, in_buf, args.in_h, args.in_w)
+    cls2_buf, hc2, wc2 = qconv_hwc(l64, arrays, cls1_buf, hc1, wc1)
+    cls_buf, ho, wo = qconv_hwc(l72, arrays, cls2_buf, hc2, wc2)
+
+    if (hb, wb) != (ho, wo):
+        raise SystemExit("detect output spatial mismatch")
+
+    tag = "L57_58_69_63_64_72"
+    guard = f"YOLOV5N_{tag}_CASE0_H"
+
+    with open(args.out, "w") as f:
+        f.write("/* AUTO-GENERATED by tools/gen_yolo_detect_case.py — DO NOT EDIT */\n")
+        f.write(f"#ifndef {guard}\n#define {guard}\n\n")
+        f.write("#include <stdint.h>\n\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_INPUT_H {args.in_h}u\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_INPUT_W {args.in_w}u\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_INPUT_C {int(l57['C_in'])}u\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_BOX_C {int(l69['K_out'])}u\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_CLS_C {int(l72['K_out'])}u\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_BOX_ELEMS {len(box_buf)}u\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_CLS_ELEMS {len(cls_buf)}u\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_INPUT_HASH UINT64_C(0x{fnv1a64(in_buf):016x})\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_BOX1_HASH UINT64_C(0x{fnv1a64(box1_buf):016x})\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_BOX2_HASH UINT64_C(0x{fnv1a64(box2_buf):016x})\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_BOX_HASH UINT64_C(0x{fnv1a64(box_buf):016x})\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_CLS1_HASH UINT64_C(0x{fnv1a64(cls1_buf):016x})\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_CLS2_HASH UINT64_C(0x{fnv1a64(cls2_buf):016x})\n")
+        f.write(f"#define YOLOV5N_{tag}_CASE0_CLS_HASH UINT64_C(0x{fnv1a64(cls_buf):016x})\n\n")
+
+        emit_i8_array(f, "yolov5n_l57_58_69_63_64_72_case0_in", in_buf)
+        emit_i8_array(f, "yolov5n_l57_58_69_63_64_72_case0_box1", box1_buf)
+        emit_i8_array(f, "yolov5n_l57_58_69_63_64_72_case0_box2", box2_buf)
+        emit_i8_array(f, "yolov5n_l57_58_69_63_64_72_case0_box", box_buf)
+        emit_i8_array(f, "yolov5n_l57_58_69_63_64_72_case0_cls1", cls1_buf)
+        emit_i8_array(f, "yolov5n_l57_58_69_63_64_72_case0_cls2", cls2_buf)
+        emit_i8_array(f, "yolov5n_l57_58_69_63_64_72_case0_cls", cls_buf)
+
+        f.write(f"#endif /* {guard} */\n")
+
+
+if __name__ == "__main__":
+    main()

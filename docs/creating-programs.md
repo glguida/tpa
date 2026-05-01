@@ -426,6 +426,7 @@ Avoid these common mistakes:
 - Claiming original tests/demos/tools are integrated before they are ported.
 
 Current missing or partial areas include message tests, queue tests, negative
-tests, tensor matmul, DNN demos, ltfarm, YOLO block-test CTest wiring, YOLO
-model/tool regeneration, and the full cooperative runtime scheduler. Mention
-those only as follow-up until implementation jobs port them.
+tests, tensor matmul, DNN demos, ltfarm, full YOLO host/demo integration, and
+the full cooperative runtime scheduler. YOLO tools/models and representative
+block tests are ported; mention remaining items only as follow-up until
+implementation jobs port them.

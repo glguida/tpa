@@ -25,8 +25,10 @@ smoke-test doubles; they are not ET platform validation.
   `tpa_pipe_demo`.
 - `yolov5n/` — current YOLO downstream process sources and planner/map/device
   targets.
-- `tests/yolo/` — YOLO block-test sources/assets retained for follow-up CTest
-  integration.
+- `tests/yolo/` — YOLO block-test sources/assets with representative structured
+  Erbium block-test targets.
+- `tools/yolo/` and `models/` — YOLO regeneration/quantization tools and source
+  model artifacts.
 - `planner/` — Python metadata extraction, planning, and mapping package.
 - `machines/` — mapper machine topology JSON inputs.
 - `docs/` — detailed project documentation.
@@ -40,6 +42,7 @@ smoke-test doubles; they are not ET platform validation.
 - `docs/mapper-planner.md` — planner/mapper inputs, algorithms, outputs, and
   commands.
 - `docs/memory-and-edge-buffers.md` — memory taxonomy and edge-buffer planning.
+- `docs/yolo-demo.md` — YOLO downstream, tools/models policy, and block tests.
 - `docs/MISSING_ORIGINAL_ARTIFACTS.md` — ported vs missing original artifacts.
 - `docs/USAGE.md` — current runtime usage notes and caveats.
 - `planner/README.md` — quick reference for the Python planner package.
@@ -150,7 +153,7 @@ Ported and validated today:
 - Host smoke-test-double mode for non-platform syntax/unit smoke.
 
 Important missing or partial areas remain: original message/queue/negative test
-suites, YOLO block-test CTest wiring, tensor matmul and DNN demos, ltfarm,
-YOLO model regeneration tools/model artifacts, full YOLO end-user host pipeline,
-and the full cooperative runtime scheduler. See
+suites, tensor matmul and DNN demos, ltfarm, full YOLO end-user host pipeline,
+and the full cooperative runtime scheduler. YOLO tools/models and representative
+block tests are now ported; see `docs/yolo-demo.md` and
 `docs/MISSING_ORIGINAL_ARTIFACTS.md` for the detailed inventory.

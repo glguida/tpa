@@ -221,11 +221,22 @@ add_tpa_program(
         "${TPA_YOLO_LDS}"
 )
 
-if (TPA_PLATFORM_ID STREQUAL "erbium" AND BUILD_TESTING AND EXISTS "${ERBIUM_EMU}")
+set(TPA_YOLO_ERBIUM_EMU "${ERBIUM_EMU}")
+if (NOT TPA_YOLO_ERBIUM_EMU AND DEFINED ET_ROOT)
+    set(TPA_YOLO_ERBIUM_EMU "${ET_ROOT}/bin/erbium_emu")
+endif()
+if (NOT TPA_YOLO_ERBIUM_EMU AND DEFINED ET_PLATFORM_PATH)
+    set(TPA_YOLO_ERBIUM_EMU "${ET_PLATFORM_PATH}/bin/erbium_emu")
+endif()
+if (NOT TPA_YOLO_ERBIUM_EMU)
+    set(TPA_YOLO_ERBIUM_EMU "/opt/et/bin/erbium_emu")
+endif()
+
+if (TPA_PLATFORM_ID STREQUAL "erbium" AND BUILD_TESTING AND EXISTS "${TPA_YOLO_ERBIUM_EMU}")
     add_test(
         NAME tpa_yolo_cbs_l40
         COMMAND "${CMAKE_COMMAND}"
-            -DEMU=${ERBIUM_EMU}
+            -DEMU=${TPA_YOLO_ERBIUM_EMU}
             -DELF=$<TARGET_FILE:tpa_yolo_cbs_l40.elf>
             -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_yolo_cbs_l40.out
             -DMAX_CYCLES=200000000
@@ -234,7 +245,7 @@ if (TPA_PLATFORM_ID STREQUAL "erbium" AND BUILD_TESTING AND EXISTS "${ERBIUM_EMU
     add_test(
         NAME tpa_yolo_bottleneck_l27_28
         COMMAND "${CMAKE_COMMAND}"
-            -DEMU=${ERBIUM_EMU}
+            -DEMU=${TPA_YOLO_ERBIUM_EMU}
             -DELF=$<TARGET_FILE:tpa_yolo_bottleneck_l27_28.elf>
             -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_yolo_bottleneck_l27_28.out
             -DMAX_CYCLES=200000000
@@ -243,7 +254,7 @@ if (TPA_PLATFORM_ID STREQUAL "erbium" AND BUILD_TESTING AND EXISTS "${ERBIUM_EMU
     add_test(
         NAME tpa_yolo_c3_l40_44
         COMMAND "${CMAKE_COMMAND}"
-            -DEMU=${ERBIUM_EMU}
+            -DEMU=${TPA_YOLO_ERBIUM_EMU}
             -DELF=$<TARGET_FILE:tpa_yolo_c3_l40_44.elf>
             -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_yolo_c3_l40_44.out
             -DMAX_CYCLES=300000000
@@ -252,7 +263,7 @@ if (TPA_PLATFORM_ID STREQUAL "erbium" AND BUILD_TESTING AND EXISTS "${ERBIUM_EMU
     add_test(
         NAME tpa_yolo_sppf_l31_32
         COMMAND "${CMAKE_COMMAND}"
-            -DEMU=${ERBIUM_EMU}
+            -DEMU=${TPA_YOLO_ERBIUM_EMU}
             -DELF=$<TARGET_FILE:tpa_yolo_sppf_l31_32.elf>
             -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_yolo_sppf_l31_32.out
             -DMAX_CYCLES=300000000
@@ -261,7 +272,7 @@ if (TPA_PLATFORM_ID STREQUAL "erbium" AND BUILD_TESTING AND EXISTS "${ERBIUM_EMU
     add_test(
         NAME tpa_yolo_detect_l57_58_69_63_64_72
         COMMAND "${CMAKE_COMMAND}"
-            -DEMU=${ERBIUM_EMU}
+            -DEMU=${TPA_YOLO_ERBIUM_EMU}
             -DELF=$<TARGET_FILE:tpa_yolo_detect_l57_58_69_63_64_72.elf>
             -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_yolo_detect_l57_58_69_63_64_72.out
             -DMAX_CYCLES=400000000
@@ -270,7 +281,7 @@ if (TPA_PLATFORM_ID STREQUAL "erbium" AND BUILD_TESTING AND EXISTS "${ERBIUM_EMU
     add_test(
         NAME tpa_yolo_neck_up_l34_39
         COMMAND "${CMAKE_COMMAND}"
-            -DEMU=${ERBIUM_EMU}
+            -DEMU=${TPA_YOLO_ERBIUM_EMU}
             -DELF=$<TARGET_FILE:tpa_yolo_neck_up_l34_39.elf>
             -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_yolo_neck_up_l34_39.out
             -DMAX_CYCLES=400000000
@@ -279,7 +290,7 @@ if (TPA_PLATFORM_ID STREQUAL "erbium" AND BUILD_TESTING AND EXISTS "${ERBIUM_EMU
     add_test(
         NAME tpa_yolo_neck_down_l45_50
         COMMAND "${CMAKE_COMMAND}"
-            -DEMU=${ERBIUM_EMU}
+            -DEMU=${TPA_YOLO_ERBIUM_EMU}
             -DELF=$<TARGET_FILE:tpa_yolo_neck_down_l45_50.elf>
             -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_yolo_neck_down_l45_50.out
             -DMAX_CYCLES=400000000
@@ -288,7 +299,7 @@ if (TPA_PLATFORM_ID STREQUAL "erbium" AND BUILD_TESTING AND EXISTS "${ERBIUM_EMU
     add_test(
         NAME tpa_yolo_subgraph_p4_p5_p6
         COMMAND "${CMAKE_COMMAND}"
-            -DEMU=${ERBIUM_EMU}
+            -DEMU=${TPA_YOLO_ERBIUM_EMU}
             -DELF=$<TARGET_FILE:tpa_yolo_subgraph_p4_p5_p6.elf>
             -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_yolo_subgraph_p4_p5_p6.out
             -DMAX_CYCLES=800000000

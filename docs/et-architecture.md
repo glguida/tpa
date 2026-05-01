@@ -193,10 +193,9 @@ ported. Missing or partial areas include:
 - message/channel transport tests;
 - queue/scheduler tests;
 - negative expected-failure tests;
-- YOLO block-test CTest wiring;
 - tensor matmul and DNN demos;
 - ltfarm;
-- YOLO model regeneration tools and model artifact policy;
+- full YOLO host/demo integration beyond downstream and representative block tests;
 - broader metadata extraction coverage;
 - full cooperative runtime scheduler completion.
 

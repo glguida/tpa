@@ -104,8 +104,8 @@ Current structured pieces are:
   `tpa_pipe_demo`.
 - `yolov5n/` — currently ported YOLO downstream process sources and CMake
   planner/map/device targets.
-- `tests/yolo/` — source/assets for YOLO block-test follow-up; not yet wired as
-  complete structured CTest coverage.
+- `tests/yolo/` — YOLO block-test sources/assets with representative Erbium
+  CMake/CTest coverage.
 - `planner/` — Python metadata extraction, planning, and mapping package.
 - `machines/` — machine JSON topology inputs for the planner/mapper.
 - `tpa-host/` — host project containing `tpa_launcher`.
@@ -167,7 +167,7 @@ packages.
 
 TPA documentation must not imply that every original repository artifact is
 ported. In particular, message tests, queue tests, negative tests, tensor matmul,
-DNN demos, `ltfarm`, YOLO block-test CTest wiring, YOLO model regeneration tools,
-and some generated analysis artifacts remain follow-up or archive material.
+DNN demos, `ltfarm`, full YOLO host/demo integration, and some generated
+analysis artifacts remain follow-up or archive material.
 See `docs/MISSING_ORIGINAL_ARTIFACTS.md` when present and the future
 `docs/limitations.md`.

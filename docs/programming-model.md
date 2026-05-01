@@ -265,9 +265,10 @@ Currently integrated generated TPA programs include:
 - `yolov5n/` downstream planner/map path -> `tpa_yolov5n_downstream.elf`.
 
 Other original examples and tests, such as message tests, queue tests, tensor
-matmul, DNN demos, ltfarm, and YOLO block-test CTest wiring, are follow-up work
-or archive material. Do not document them as currently integrated targets until
-they are ported.
+matmul, DNN demos, ltfarm, and full YOLO host/demo integration, are follow-up
+work or archive material. YOLO tools/models and representative block tests are
+ported; do not document remaining original artifacts as integrated until they
+are ported.
 
 ## Current runtime limitation
 

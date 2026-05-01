@@ -136,5 +136,5 @@ example mapper commands.
 - The structured host project ports the original `tpa_launcher` implementation
   for loading generated ELFs through ET runtime device layers.
 - The structured demo link harness currently proves generated process/image metadata compile, link, and load/pass in `erbium_emu`; it does not yet implement the complete cooperative runtime scheduler that executes every generated process continuation.
-- YOLO full/demo host launcher integration, YOLO block-test CTest wiring, message tests, and ltfarm experiments still need ordered porting into the structured tree.
+- YOLO full/demo host launcher integration, message tests, and ltfarm experiments still need ordered porting into the structured tree. Representative YOLO block-test CMake/CTest coverage is now available under `tests/yolo/`.
 - Python mapper/planner commands are ported and the YOLO downstream CMake planner/map targets use them; broader CMake metadata extraction coverage remains follow-up work.

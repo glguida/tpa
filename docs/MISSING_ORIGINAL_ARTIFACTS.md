@@ -26,8 +26,8 @@ validated:
   - mapper target producing mapped program, placement, scratch config, and edge
     config;
   - `tpa_yolov5n_downstream.elf`.
-- `tests/yolo/` source/assets have been copied for representative block-test
-  follow-up, but the block-test CTest/CMake integration is not complete.
+- `tests/yolo/` source/assets are integrated for representative Erbium block-test
+  targets (`tpa_yolo_cbs_l40.elf`, `tpa_yolo_sppf_l31_32.elf`) with device-subbuild CTest entries.
 - Python planner package, machine JSONs, unit tests, and CLI entry points.
 - `tpa-host/src/tpa_launcher.cpp` and the `tpa_host_tools` target.
 - Erbium emulator validation for `tpa_pipe_demo.elf` and
@@ -47,12 +47,11 @@ demos, tools, generated reports, or model artifacts. Important gaps include:
 - `kernels/tpa_tensor_matmul.*` and `gen_tpa_tensor_matmul.cmake` are missing.
 - DNN tree/systolic demo kernels and generators are missing.
 - `ltfarm/` Litecoin-farm experiment is missing.
-- `models/yolov5nu.onnx` and `models/yolov5nu.pt` are missing.
-- `tools/` YOLO generation/quantization/trace/planning scripts are missing.
+- `models/yolov5nu.onnx` and `models/yolov5nu.pt` are checked in under `models/` with checksums documented in `docs/yolo-demo.md`.
+- YOLO generation/quantization/case tools are ported under `tools/yolo/`; trace-analysis scripts remain missing.
 - Old checked-in `generated/` YOLO analysis artifacts are missing; most should
   be archive/reference material, not required runtime inputs.
-- Full YOLO/full-demo host pipeline and YOLO block-test CTest wiring remain
-  follow-up work.
+- Full YOLO/full-demo host pipeline remains follow-up work; representative block-test CMake/CTest coverage is ported.
 - The full cooperative runtime scheduler remains a documented limitation of the
   structured demo link harness.
 - The old standalone documentation corpus is not yet fully migrated into the
@@ -65,13 +64,13 @@ demos, tools, generated reports, or model artifacts. Important gaps include:
 | `tests/tpa_msg/` | Missing. No structured message/channel test targets beyond simple demos. | tests / runtime validation | high | runtime validation, agents | Port to `tests/tpa_msg/`; document in `docs/build-and-run.md` and `docs/limitations.md`. |
 | `tests/tpa_queue/` | Missing. Scheduler/queue behavior lacks original regression coverage. | tests / runtime validation | high | runtime/HAL validation, agents | Port to `tests/tpa_queue/`; include target list in `docs/build-and-run.md`. |
 | `tests/tpa_negative/` | Missing. Expected-failure path not covered. | tests / runtime validation | medium | agents, runtime validation | Port to `tests/tpa_negative/`; document expected failure semantics in `docs/build-and-run.md`. |
-| `tests/yolo/` | Sources/assets copied, including generated weight headers, but CMake/CTest integration is not yet wired in structured device build. | tests / YOLO validation | high | mapper validation, runtime validation | Keep under `tests/yolo/`; integrate in `docs/yolo-demo.md` and `docs/limitations.md`. |
+| `tests/yolo/` | Representative Erbium block-test targets are wired through structured device CMake/CTest (`tpa_yolo_cbs_l40.elf`, `tpa_yolo_sppf_l31_32.elf`). Additional targets remain available in CMake for future expansion. | tests / YOLO validation | partially done | mapper validation, runtime validation | Keep status in `docs/yolo-demo.md`; expand coverage as needed. |
 | `kernels/tpa_tensor_matmul.c`, `.tpm`, generated `.tpp/.place`, `gen_tpa_tensor_matmul.cmake` | Missing. Structured `kernels/` has only empty and pipe demo. | demo / mapper validation | medium | users, agents, mapper validation | Port to `kernels/`; use as `docs/creating-programs.md` intermediate example after pipe demo. |
 | `kernels/tpa_dnn_tree_demo.*` | Missing. | demo / research | medium | users, program authors | Port if DNN demo remains valuable; document in `docs/creating-programs.md` or archive in limitations. |
 | `kernels/tpa_dnn_systolic_demo.*`, `gen_tpa_dnn_systolic_demo.cmake` | Missing. | demo / research | low-medium | research, mapper stress | Port after tensor matmul/DNN tree; document as advanced example or archive-only if obsolete. |
 | `ltfarm/` | Missing. | demo / research experiment | low | research only unless revived | Archive or port to `ltfarm/`; document status in `docs/limitations.md`. |
-| `models/yolov5nu.onnx`, `models/yolov5nu.pt` | Missing. YOLO checked-in weights/headers exist under `tests/yolo/generated`, but source model files are not in structured repo. | model artifact | medium | YOLO regeneration, users | Decide artifact policy. If large files are not committed, document acquisition/regeneration in `docs/yolo-demo.md`. |
-| `tools/regen_yolov5n_weights.py`, `ptq_yolov5.py`, `gen_yolo_*`, `gen_yolo_tensor_weights.py`, `yolov5n_legacy_layer_map.json` | Missing. Ported YOLO uses checked-in generated headers/assets but not regeneration tools. | tool / model generation | high for reproducibility | mapper validation, YOLO contributors | Port to `tools/`; document in `docs/yolo-demo.md` and `docs/mapper-planner.md`. |
+| `models/yolov5nu.onnx`, `models/yolov5nu.pt` | Ported under `models/` with SHA-256 checksums documented in `docs/yolo-demo.md` and `tools/yolo/README.md`. | model artifact | done | YOLO regeneration, users | Keep checksums/policy current if artifacts move to external storage. |
+| `tools/regen_yolov5n_weights.py`, `ptq_yolov5.py`, `gen_yolo_*`, `gen_yolo_tensor_weights.py`, `yolov5n_legacy_layer_map.json` | Ported under `tools/yolo/`. Heavyweight Python dependencies are documented but not part of normal planner tests. | tool / model generation | done | mapper validation, YOLO contributors | Keep `tools/yolo/README.md` and `docs/yolo-demo.md` current. |
 | `tools/analyze_trace_by_hart.*`, `split*_trace_by_hart.sh` | Missing. | tool / debugging | medium | agents, runtime contributors | Port to `tools/trace/` or `tools/`; document in `docs/build-and-run.md` debugging section. |
 | `tools/plan_yolov5n.py` | Missing; functionality overlaps with ported planner package and YOLO CMake targets. | tool / generated analysis | archive or selective port | mapper contributors | Compare with `planner/`; migrate unique logic to planner docs/tests or archive under `docs/yolo-demo.md`. |
 | `generated/yolov5n_tpa_exec_graph.json`, `yolov5n_tpa_first_subgraph.json`, `yolov5n_tpa_map.json`, `yolov5n_tpa_plan.json`, `yolov5n_tpa_plan.md` | Missing. `generated/yolov5n_tpa_plan.md` is source material for docs; current CMake generates fresh planner/map outputs in build tree. | generated artifact / docs source | archive only / docs | mapper contributors, docs | Do not make runtime depend on old generated files. Extract useful tables into `docs/yolo-demo.md`. |
@@ -138,20 +137,11 @@ Future job: `port-negative-runtime-tests` or include in
 
 ### YOLO block tests
 
-The structured repo has copied `tests/yolo/` sources and generated headers, but
-these are not yet integrated into the structured device build/CTest flow. These
-tests are important because they validate individual fused YOLO blocks before
-full/downstream graph assembly.
-
-Recommended plan:
-
-1. Adapt `tests/yolo/CMakeLists.txt` to structured `tpa-kernel.cmake`.
-2. Start with one representative block target such as `tpa_yolo_cbs_l40.elf`.
-3. Add remaining block targets after compile/runtime issues are resolved.
-4. Use emulator max-cycle values from the old CMake as references.
-5. Document which block tests are expected to pass in `docs/yolo-demo.md`.
-
-Future job: `port-yolo-block-tests`.
+The structured repo now wires representative Erbium block-test targets through
+`tests/yolo/CMakeLists.txt` and device-subbuild CTest entries. Current reviewed
+coverage includes `tpa_yolo_cbs_l40.elf` and `tpa_yolo_sppf_l31_32.elf`, both
+run under `erbium_emu`. Additional block target definitions remain in CMake for
+future expansion. See `docs/yolo-demo.md`.
 
 ## Missing demo/tool/model plan
 
@@ -200,25 +190,19 @@ Future job: `port-ltfarm-experiment` only if revived; otherwise archive-only.
 
 ### YOLO tools/model artifacts
 
-Original assets include:
+Original model artifacts and generation tools are ported:
 
 - `models/yolov5nu.onnx`
 - `models/yolov5nu.pt`
-- `tools/regen_yolov5n_weights.py`
-- `tools/ptq_yolov5.py`
-- `tools/gen_yolo_*_case.py`
-- `tools/gen_yolo_tensor_weights.py`
-- `tools/yolov5n_legacy_layer_map.json`
+- `tools/yolo/regen_yolov5n_weights.py`
+- `tools/yolo/ptq_yolov5.py`
+- `tools/yolo/gen_yolo_*_case.py`
+- `tools/yolo/gen_yolo_tensor_weights.py`
+- `tools/yolo/yolov5n_legacy_layer_map.json`
 
-Status: missing, while generated weight headers and YOLO process sources are
-present.
-
-Plan: decide whether source model artifacts belong in git, external storage, or
-an acquisition script. Port the regeneration and quantization tools required to
-reproduce `tests/yolo/generated/` headers. Document exact toolchain/version
-requirements.
-
-Future job: `port-yolo-tools-models`.
+Status: ported. The model artifacts are committed because they are small enough
+for this repository; checksums and heavyweight dependency caveats are documented
+in `docs/yolo-demo.md` and `tools/yolo/README.md`.
 
 ### Trace analysis tools
 
@@ -255,7 +239,7 @@ This inventory should feed the documentation tree from `docs/DOCUMENTATION_PLAN.
 
 - `docs/limitations.md`
   - Centralize missing/partial status for message tests, queue tests, negative
-    tests, YOLO block tests, tensor matmul, DNN demos, ltfarm, tools, models,
+    tests, tensor matmul, DNN demos, ltfarm, trace tools,
     full runtime scheduler, and broader metadata coverage.
 - `docs/build-and-run.md`
   - Add only currently validated commands as primary commands.
@@ -299,18 +283,17 @@ Priority: medium.
 
 ### `port-yolo-block-tests`
 
-Scope: integrate copied `tests/yolo/` block tests into structured device CMake
-and CTest/emulator validation, starting with one representative block and then
-expanding.
+Status: representative block-test CMake/CTest coverage completed by `port-yolo-tools-models-block-tests`; expand beyond `tpa_yolo_cbs_l40.elf` and `tpa_yolo_sppf_l31_32.elf` as needed.
 
 Priority: high.
 
 ### `port-yolo-tools-models`
 
-Scope: port YOLO model-regeneration/quantization/case-generation tools, decide
-model artifact policy for `models/`, and document reproducibility commands.
+Status: completed by `port-yolo-tools-models-block-tests`; YOLO model artifacts
+are committed under `models/`, reproduction tools live under `tools/yolo/`, and
+checksums/policy are documented in `docs/yolo-demo.md`.
 
-Priority: high for reproducibility, medium for runtime users.
+Priority: done.
 
 ### `port-ltfarm-experiment`
 

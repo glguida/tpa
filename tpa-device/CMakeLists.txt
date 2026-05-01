@@ -114,6 +114,14 @@ target_compile_options(tpa_core PUBLIC $<$<COMPILE_LANGUAGE:C>:-include> $<$<COM
 target_link_libraries(tpa_core PUBLIC et-common-libs::cm-umode)
 
 option(BUILD_TPA_KERNELS "Build structured TPA kernel/demo programs" ON)
+set(TPA_YOLO_BLOCK_TESTS_DEFAULT OFF)
+if (TPA_PLATFORM_ID STREQUAL "erbium")
+    set(TPA_YOLO_BLOCK_TESTS_DEFAULT ON)
+endif()
+option(BUILD_TPA_YOLO_BLOCK_TESTS "Build structured YOLO block-test programs" ${TPA_YOLO_BLOCK_TESTS_DEFAULT})
+if (BUILD_TPA_YOLO_BLOCK_TESTS)
+    include(CTest)
+endif()
 set(TPA_YOLOV5N_DEFAULT ON)
 if (TPA_PLATFORM_ID STREQUAL "etsoc1" AND TPA_ETSOC1_NR_SHIRES LESS 32)
     set(TPA_YOLOV5N_DEFAULT OFF)
@@ -126,4 +134,8 @@ endif()
 
 if (BUILD_TPA_YOLOV5N)
     add_subdirectory("${TPA_ROOT_DIR}/yolov5n" "${CMAKE_BINARY_DIR}/yolov5n")
+endif()
+
+if (BUILD_TPA_YOLO_BLOCK_TESTS)
+    add_subdirectory("${TPA_ROOT_DIR}/tests/yolo" "${CMAKE_BINARY_DIR}/tests/yolo")
 endif()
