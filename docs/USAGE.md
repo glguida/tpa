@@ -13,6 +13,8 @@ The runtime is organized around a narrow HAL boundary and ET platform build:
    selected HAL against `et-common-libs::cm-umode`.
 5. `tpa-host/` configures against et-platform host packages. The full launcher
    and demo tooling are explicit follow-up work.
+6. `planner/` provides Python-only offline process metadata extraction,
+   mapping, and planning commands; `machines/` provides mapper topology inputs.
 
 ## Selecting a platform
 
@@ -61,6 +63,26 @@ This mode is for local syntax and unit smoke only. It is intentionally named as
 a test double and defines `TPA_HOST_SMOKE_TEST_DOUBLE=1`; real device builds do
 not silently use host atomic/cache/fence fallbacks.
 
+## Planner/mapper workflow
+
+The offline Python planner/mapper package lives in `planner/`, with topology
+inputs in `machines/`. Install and smoke-test it from the repository root:
+
+```sh
+python3 -m venv .venv-planner
+. .venv-planner/bin/activate
+python -m pip install -e planner
+python -m unittest discover -s planner/tests
+
+tpa-map-program --help
+tpa-plan-program --help
+tpa-extract-process-json --help
+```
+
+The package currently ports the original extract/map/plan Python entry points
+and the machine topology inputs used by the mapper. See `planner/README.md` for
+example mapper commands.
+
 ## Core concepts
 
 - Scheduler: `tpa/scheduler.h` owns per-hart run queues and remote-ready bell
@@ -88,8 +110,11 @@ not silently use host atomic/cache/fence fallbacks.
 
 - The structured host project validates ET host package discovery but does not
   yet port the original `tpa_launcher` implementation.
-- The full legacy TPA program generator, placement mapper, JSON planner targets,
-  YOLO demos, message tests, and ltfarm experiments still need ordered porting
-  into the structured tree.
+- The full legacy TPA program generator, JSON planner CMake targets, YOLO
+  demos, message tests, and ltfarm experiments still need ordered porting into
+  the structured tree.
+- The Python mapper/planner commands are ported, but CMake targets that build
+  real process objects and extract process JSON metadata have not yet been
+  ported in this structured repository.
 - `tpa_pipe_demo.elf` is currently a minimal real device-link target, not the
   complete original pipe demo workload.

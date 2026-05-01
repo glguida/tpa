@@ -1,0 +1,20 @@
+{
+  "kind": "etsoc1",
+  "description": "One ET-SoC1 card: 32 shires on the fabric, each shire with 32 minions sharing its L2 scratchpad.",
+  "comm_cost_default": 0.1,
+  "comm_cost_local": 0.1,
+  "comm_cost_fabric": 5.0,
+  "comm_cost_external": 50.0,
+  "context_grid": {
+    "devices": ["etsoc1:card0"],
+    "local_domains_per_device": 32,
+    "minions_per_local_domain": 32,
+    "harts": ["h0"],
+    "hart_stride": 2,
+    "label_format": "shire{local_domain}.m{local_minion}:{hart}",
+    "direct_domain_format": "etsoc1:card0:shire{local_domain}:minion{local_minion}",
+    "local_domain_format": "etsoc1:card0:shire{local_domain}:l2scp",
+    "device_domain_format": "etsoc1:card0",
+    "edge_pool_format": "etsoc1:card0:shire{local_domain}:l2scp"
+  }
+}

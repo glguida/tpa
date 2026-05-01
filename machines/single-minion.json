@@ -1,0 +1,20 @@
+{
+  "kind": "single-minion",
+  "description": "Minimal one-minion machine for mapper tests and degenerate runs.",
+  "comm_cost_default": 0.1,
+  "comm_cost_local": 0.1,
+  "comm_cost_fabric": 5.0,
+  "comm_cost_external": 50.0,
+  "context_grid": {
+    "devices": ["test0"],
+    "local_domains_per_device": 1,
+    "minions_per_local_domain": 1,
+    "harts": ["h0"],
+    "hart_stride": 2,
+    "label_format": "test.m{minion}:{hart}",
+    "direct_domain_format": "test0:minion{minion}",
+    "local_domain_format": "test0:local",
+    "device_domain_format": "test0",
+    "edge_pool_format": "test0:local"
+  }
+}
