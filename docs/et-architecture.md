@@ -193,9 +193,9 @@ ported. Missing or partial areas include:
 - message/channel transport tests;
 - queue/scheduler tests;
 - negative expected-failure tests;
-- tensor matmul and DNN demos;
-- ltfarm;
 - full YOLO host/demo integration beyond downstream and representative block tests;
+- active DNN demo and LTFarm build targets (sources are archived under
+  `docs/archive/`);
 - broader metadata extraction coverage;
 - full cooperative runtime scheduler completion.
 

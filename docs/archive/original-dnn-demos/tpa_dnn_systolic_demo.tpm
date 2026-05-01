@@ -1,0 +1,15 @@
+pdef systolic_north_feed_pdef user 401 systolic_north_feed_start 262208
+port systolic_north_feed_pdef 0 out
+
+pdef systolic_east_feed_pdef user 402 systolic_east_feed_start 262208
+port systolic_east_feed_pdef 0 out
+
+pdef systolic_cell_pdef user 403 systolic_cell_init 65664
+port systolic_cell_pdef 0 in
+port systolic_cell_pdef 1 in
+port systolic_cell_pdef 2 out
+port systolic_cell_pdef 3 out
+port systolic_cell_pdef 4 out
+
+pdef systolic_check_pdef user 404 systolic_check_start 64
+port systolic_check_pdef 0 in

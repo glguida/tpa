@@ -16,9 +16,11 @@ validated:
   `DeviceProjectNoInstall(tpa-device ...)` and `HostProjectNoInstall(tpa-host ...)`.
 - Device HAL/core build for Erbium and ET-SoC-1.
 - Host smoke-test-double mode, clearly marked as non-platform validation.
-- Simple generated TPA programs:
+- Generated TPA programs:
   - `kernels/tpa_empty.*` -> `tpa_empty.elf`;
-  - `kernels/tpa_pipe_demo.*` -> `tpa_pipe_demo.elf`.
+  - `kernels/tpa_pipe_demo.*` -> `tpa_pipe_demo.elf`;
+  - `kernels/tpa_tensor_matmul.*` plus generated `.tpp/.place` ->
+    `tpa_tensor_matmul.elf`.
 - YOLO downstream path:
   - `yolov5n/` process sources/manifests/assets;
   - CMake process metadata extraction;
@@ -28,6 +30,11 @@ validated:
   - `tpa_yolov5n_downstream.elf`.
 - `tests/yolo/` source/assets are integrated for representative Erbium block-test
   targets (`tpa_yolo_cbs_l40.elf`, `tpa_yolo_sppf_l31_32.elf`) with device-subbuild CTest entries.
+- Trace analysis tools have been ported to `tools/trace/`.
+- Original DNN demos and LTFarm are preserved as archived/reference material
+  with dependency/status notes under `docs/archive/`.
+- Historical generated YOLO analysis artifacts are preserved under
+  `docs/archive/generated-yolo-analysis/` and are not runtime inputs.
 - Python planner package, machine JSONs, unit tests, and CLI entry points.
 - `tpa-host/src/tpa_launcher.cpp` and the `tpa_host_tools` target.
 - Erbium emulator validation for `tpa_pipe_demo.elf` and
@@ -44,13 +51,14 @@ demos, tools, generated reports, or model artifacts. Important gaps include:
 - `tests/tpa_msg/` message/channel transport tests are missing.
 - `tests/tpa_queue/` scheduler/queue tests are missing.
 - `tests/tpa_negative/` expected-failure tests are missing.
-- `kernels/tpa_tensor_matmul.*` and `gen_tpa_tensor_matmul.cmake` are missing.
-- DNN tree/systolic demo kernels and generators are missing.
-- `ltfarm/` Litecoin-farm experiment is missing.
+- DNN tree/systolic demo kernels and generators are archived/reference only,
+  not active build targets.
+- `ltfarm/` Litecoin-farm experiment is archived/reference only, not an active
+  build target.
 - `models/yolov5nu.onnx` and `models/yolov5nu.pt` are checked in under `models/` with checksums documented in `docs/yolo-demo.md`.
-- YOLO generation/quantization/case tools are ported under `tools/yolo/`; trace-analysis scripts remain missing.
-- Old checked-in `generated/` YOLO analysis artifacts are missing; most should
-  be archive/reference material, not required runtime inputs.
+- YOLO generation/quantization/case tools are ported under `tools/yolo/`; trace analysis scripts are also ported under `tools/trace/`.
+- Old checked-in `generated/` YOLO analysis artifacts are archived as reference
+  material, not required runtime inputs.
 - Full YOLO/full-demo host pipeline remains follow-up work; representative block-test CMake/CTest coverage is ported.
 - The full cooperative runtime scheduler remains a documented limitation of the
   structured demo link harness.
@@ -65,15 +73,15 @@ demos, tools, generated reports, or model artifacts. Important gaps include:
 | `tests/tpa_queue/` | Missing. Scheduler/queue behavior lacks original regression coverage. | tests / runtime validation | high | runtime/HAL validation, agents | Port to `tests/tpa_queue/`; include target list in `docs/build-and-run.md`. |
 | `tests/tpa_negative/` | Missing. Expected-failure path not covered. | tests / runtime validation | medium | agents, runtime validation | Port to `tests/tpa_negative/`; document expected failure semantics in `docs/build-and-run.md`. |
 | `tests/yolo/` | Representative Erbium block-test targets are wired through structured device CMake/CTest (`tpa_yolo_cbs_l40.elf`, `tpa_yolo_sppf_l31_32.elf`). Additional targets remain available in CMake for future expansion. | tests / YOLO validation | partially done | mapper validation, runtime validation | Keep status in `docs/yolo-demo.md`; expand coverage as needed. |
-| `kernels/tpa_tensor_matmul.c`, `.tpm`, generated `.tpp/.place`, `gen_tpa_tensor_matmul.cmake` | Missing. Structured `kernels/` has only empty and pipe demo. | demo / mapper validation | medium | users, agents, mapper validation | Port to `kernels/`; use as `docs/creating-programs.md` intermediate example after pipe demo. |
-| `kernels/tpa_dnn_tree_demo.*` | Missing. | demo / research | medium | users, program authors | Port if DNN demo remains valuable; document in `docs/creating-programs.md` or archive in limitations. |
-| `kernels/tpa_dnn_systolic_demo.*`, `gen_tpa_dnn_systolic_demo.cmake` | Missing. | demo / research | low-medium | research, mapper stress | Port after tensor matmul/DNN tree; document as advanced example or archive-only if obsolete. |
-| `ltfarm/` | Missing. | demo / research experiment | low | research only unless revived | Archive or port to `ltfarm/`; document status in `docs/limitations.md`. |
+| `kernels/tpa_tensor_matmul.c`, `.tpm`, generated `.tpp/.place`, `gen_tpa_tensor_matmul.cmake` | Ported. Structured CMake generates `.tpp/.place` and builds `tpa_tensor_matmul.elf`. Runtime/emulator status should be checked with the port job logs. | demo / mapper validation | done | users, agents, mapper validation | Document as the intermediate example between `tpa_pipe_demo` and YOLO. |
+| `kernels/tpa_dnn_tree_demo.*` | Archived under `docs/archive/original-dnn-demos/`; not an active build target due DNN library/dependency blockers. | demo / research | archived | users, program authors | See `docs/archive/original-dnn-demos/STATUS.md` for future port steps. |
+| `kernels/tpa_dnn_systolic_demo.*`, `gen_tpa_dnn_systolic_demo.cmake` | Archived under `docs/archive/original-dnn-demos/`; not an active build target due tensor/DNN dependency blockers. | demo / research | archived | research, mapper stress | See `docs/archive/original-dnn-demos/STATUS.md` for future port steps. |
+| `ltfarm/` | Archived under `docs/archive/ltfarm/`; not an active build target because the required Litecoin-vector host oracle/sysemu harness is not ported. | demo / research experiment | archived | research | See `docs/archive/ltfarm/STATUS.md` for preserved hard rules and future port steps. |
 | `models/yolov5nu.onnx`, `models/yolov5nu.pt` | Ported under `models/` with SHA-256 checksums documented in `docs/yolo-demo.md` and `tools/yolo/README.md`. | model artifact | done | YOLO regeneration, users | Keep checksums/policy current if artifacts move to external storage. |
 | `tools/regen_yolov5n_weights.py`, `ptq_yolov5.py`, `gen_yolo_*`, `gen_yolo_tensor_weights.py`, `yolov5n_legacy_layer_map.json` | Ported under `tools/yolo/`. Heavyweight Python dependencies are documented but not part of normal planner tests. | tool / model generation | done | mapper validation, YOLO contributors | Keep `tools/yolo/README.md` and `docs/yolo-demo.md` current. |
-| `tools/analyze_trace_by_hart.*`, `split*_trace_by_hart.sh` | Missing. | tool / debugging | medium | agents, runtime contributors | Port to `tools/trace/` or `tools/`; document in `docs/build-and-run.md` debugging section. |
+| `tools/analyze_trace_by_hart.*`, `split*_trace_by_hart.sh` | Ported to `tools/trace/` with usage docs. | tool / debugging | done | agents, runtime contributors | Keep `tools/trace/README.md` current with emulator/log formats. |
 | `tools/plan_yolov5n.py` | Missing; functionality overlaps with ported planner package and YOLO CMake targets. | tool / generated analysis | archive or selective port | mapper contributors | Compare with `planner/`; migrate unique logic to planner docs/tests or archive under `docs/yolo-demo.md`. |
-| `generated/yolov5n_tpa_exec_graph.json`, `yolov5n_tpa_first_subgraph.json`, `yolov5n_tpa_map.json`, `yolov5n_tpa_plan.json`, `yolov5n_tpa_plan.md` | Missing. `generated/yolov5n_tpa_plan.md` is source material for docs; current CMake generates fresh planner/map outputs in build tree. | generated artifact / docs source | archive only / docs | mapper contributors, docs | Do not make runtime depend on old generated files. Extract useful tables into `docs/yolo-demo.md`. |
+| `generated/yolov5n_tpa_exec_graph.json`, `yolov5n_tpa_first_subgraph.json`, `yolov5n_tpa_map.json`, `yolov5n_tpa_plan.json`, `yolov5n_tpa_plan.md` | Archived under `docs/archive/generated-yolo-analysis/`; current CMake generates fresh planner/map outputs in build tree. | generated artifact / docs source | archived | mapper contributors, docs | Do not make runtime depend on archived generated files. Use them only for historical comparison/docs. |
 | Old root docs: `TPA.md`, `TPA_IMPL.md`, `ARCHITECTURE.md`, `PROCESS_MODEL.md`, `TOPOLOGY.md`, `MEMORY.md`, `MAPPING.md`, `EDGE_BUFFER.md`, `GENERATION.md`, `RUNNING.md`, `STATUS.md`, `TRANSPUTER.md`, `HOARE.md`, `YOLO_TPA_PLAN.md` | Not directly ported. `docs/DOCUMENTATION_PLAN.md` maps them into new docs. | docs | high | users, agents | Implement through docs follow-up jobs; do not copy wholesale. |
 | `CMakePresets.json` | Missing. Structured repo uses explicit `cmake -S/-B` commands instead of old presets. | build config | low | agents | Do not port unless a new preset policy is chosen; document explicit commands in `docs/build-and-run.md`. |
 | `cmake/run_erbium_test.cmake`, `run_erbium_test_fast.cmake` | Missing. Current validation runs `erbium_emu` manually; no CTest wrapper for ET device targets. | test harness | medium | runtime validation, agents | Port/adapt if adding device CTest targets; document in `docs/build-and-run.md`. |
@@ -153,13 +161,10 @@ Original files:
 - `kernels/tpa_tensor_matmul.tpm`
 - `kernels/gen_tpa_tensor_matmul.cmake`
 
-Status: missing.
-
-Plan: port after message/queue tests or alongside program-authoring docs. It is
-a good intermediate example between `tpa_pipe_demo` and YOLO because it has
-generated `.tpp/.place` but is smaller than YOLO.
-
-Future job: `port-tensor-matmul-demo`.
+Status: ported to structured `kernels/` with generated `.tpp/.place` CMake flow
+and the forwarded `tpa_tensor_matmul.elf` target. This is the intermediate
+example between `tpa_pipe_demo` and YOLO. Check the port job logs for the exact
+Erbium emulator result.
 
 ### DNN demos
 
@@ -169,22 +174,24 @@ Original files include:
 - `kernels/tpa_dnn_systolic_demo.*`
 - `kernels/gen_tpa_dnn_systolic_demo.cmake`
 
-Status: missing.
+Status: archived/reference under `docs/archive/original-dnn-demos/`.
 
-Plan: treat as advanced examples. First decide whether dependencies such as
-`dnnLibrary` are available and still relevant. If not, archive the design in
-docs rather than porting dead code.
+Plan: treat as advanced examples. `STATUS.md` preserves dependency blockers and
+future port steps. Do not wire these into the active build until the DNN library
+package/dependency policy and C++ process support are settled.
 
-Future job: `port-dnn-demo-kernels`.
+Future job: `port-dnn-demo-kernels` only if the DNN dependency stack is revived.
 
 ### `ltfarm`
 
 Original directory: `ltfarm/`.
 
-Status: missing.
+Status: archived/reference under `docs/archive/ltfarm/`.
 
-Plan: classify as research/experiment until a current user need exists. Preserve
-`PLAN.md` knowledge in `docs/limitations.md` or an archive note if not ported.
+Plan: classify as research/experiment until a current user need exists. The
+archived `STATUS.md` preserves the original hard rule that correctness must be
+host-decided against official Litecoin Core vectors, not a hand-written host
+crypto path.
 
 Future job: `port-ltfarm-experiment` only if revived; otherwise archive-only.
 
@@ -213,25 +220,25 @@ Original tools include:
 - `tools/split_inst_trace_by_hart.sh`
 - `tools/split_trace_by_hart.sh`
 
-Status: missing.
+Status: ported to `tools/trace/` with `tools/trace/README.md`.
 
-Plan: port to `tools/trace/` or `tools/`, then document under a debugging
-section in `docs/build-and-run.md`. These are useful for agents and runtime
-contributors when emulator logs are large.
+Plan: keep these scripts aligned with `erbium_emu` log formats and ET binutils
+names. They are useful for agents and runtime contributors when emulator logs
+are large.
 
-Future job: `port-trace-analysis-tools`.
+Future job: completed unless log formats change.
 
 ### Generated YOLO analysis reports
 
 Original `generated/` reports document a historical YOLO planning snapshot.
 Current structured CMake generates fresh planner/map outputs in the build tree.
 
-Plan: do not make old generated JSON files runtime inputs. Extract stable tables
-and explanations into `docs/yolo-demo.md`. Keep old generated reports as
-archive/reference only if needed.
+Status: archived/reference under `docs/archive/generated-yolo-analysis/`.
 
-Future job: part of `docs-04-mapper-planner-guide` or
-`docs-integrate-missing-artifacts-status`.
+Plan: do not make old generated JSON files runtime inputs. Use archived reports
+only for historical comparison or to recover stable documentation tables.
+
+Future job: docs-only if more historical tables should be extracted.
 
 ## Documentation integration plan
 
@@ -239,12 +246,13 @@ This inventory should feed the documentation tree from `docs/DOCUMENTATION_PLAN.
 
 - `docs/limitations.md`
   - Centralize missing/partial status for message tests, queue tests, negative
-    tests, tensor matmul, DNN demos, ltfarm, trace tools,
-    full runtime scheduler, and broader metadata coverage.
+    tests, archived DNN/LTFarm status, full YOLO host/demo integration, full
+    runtime scheduler, and broader metadata coverage. YOLO block tests,
+    tools/models, tensor matmul, and trace tools now have explicit port status.
 - `docs/build-and-run.md`
   - Add only currently validated commands as primary commands.
   - Add missing tests/demos as future target lists, not runnable instructions.
-  - Add trace-tool section after tools are ported.
+  - Keep trace-tool usage aligned with `tools/trace/README.md`.
 - `docs/yolo-demo.md`
   - Explain downstream is ported/validated.
   - Explain full/demo/block-test/model-regeneration gaps.
@@ -253,7 +261,7 @@ This inventory should feed the documentation tree from `docs/DOCUMENTATION_PLAN.
   - Describe current CMake planner/map targets and note broader metadata and old
     generated-report migration status.
 - `docs/creating-programs.md`
-  - Use `tpa_pipe_demo` first, `tpa_tensor_matmul` later if ported, and YOLO as
+  - Use `tpa_pipe_demo` first, `tpa_tensor_matmul` as the intermediate example, and YOLO as
     an advanced mapped example.
 - `AGENTS.md`
   - Include common trap: do not assume all old repo tests/demos/tools are
@@ -275,11 +283,10 @@ Priority: high.
 
 ### `port-tensor-matmul-demo`
 
-Scope: port `tpa_tensor_matmul.c/.tpm` and `gen_tpa_tensor_matmul.cmake`, add
-structured CMake target, forward `tpa_tensor_matmul.elf`, and document as an
-intermediate program-authoring example.
+Status: completed. Keep docs and validation references current for the structured
+`kernels/tpa_tensor_matmul.*` flow and forwarded `tpa_tensor_matmul.elf` target.
 
-Priority: medium.
+Priority: done.
 
 ### `port-yolo-block-tests`
 
@@ -297,24 +304,24 @@ Priority: done.
 
 ### `port-ltfarm-experiment`
 
-Scope: decide whether `ltfarm/` is still active. If yes, port CMake/sources and
-host helper. If no, write an archive note and exclude from active build docs.
+Status: archived/reference. Future active port requires a structured host
+oracle/harness that checks official Litecoin Core vectors.
 
-Priority: low.
+Priority: low unless revived.
 
 ### `port-dnn-demo-kernels`
 
-Scope: port DNN tree and systolic demos if dependencies are available; otherwise
-archive their design and generated graph ideas.
+Status: archived/reference. Future active port requires a DNN dependency policy
+and C++ process support.
 
-Priority: medium-low.
+Priority: medium-low unless the DNN stack is revived.
 
 ### `port-trace-analysis-tools`
 
-Scope: port trace splitting and analysis scripts, add examples using
-`tpa_launcher`/`erbium_emu` logs.
+Status: completed. Trace splitting and symbol-attribution scripts live in
+`tools/trace/` with usage docs.
 
-Priority: medium.
+Priority: done.
 
 ### `docs-integrate-missing-artifacts-status`
 

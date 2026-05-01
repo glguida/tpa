@@ -108,6 +108,36 @@ The package currently ports the original extract/map/plan Python entry points
 and the machine topology inputs used by the mapper. See `planner/README.md` for
 example mapper commands.
 
+## Trace analysis tools
+
+Erbium emulator traces can be split and summarized with the ported original
+trace scripts:
+
+```sh
+tools/trace/split_trace_by_hart.sh /tmp/erbium.log /tmp/tpa-trace-by-hart
+tools/trace/split_inst_trace_by_hart.sh /tmp/erbium.log /tmp/tpa-inst-by-hart
+tools/trace/analyze_trace_by_hart.sh \
+  build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf \
+  /tmp/tpa-trace-by-hart/m0_h0.inst.log \
+  --top
+```
+
+`analyze_trace_by_hart.sh` also supports `--from <cycle>` and `--to <cycle>`.
+See `tools/trace/README.md`.
+
+## Archived original-reference material
+
+Original DNN demos, the LTFarm experiment, and historical generated YOLO
+analysis files are preserved under `docs/archive/` as reference material, not
+active runtime inputs:
+
+- `docs/archive/original-dnn-demos/STATUS.md`
+- `docs/archive/ltfarm/STATUS.md`
+- `docs/archive/generated-yolo-analysis/STATUS.md`
+
+The structured build should use current generated artifacts from CMake/planner
+targets, not archived generated JSON.
+
 ## Core concepts
 
 - Scheduler: `tpa/scheduler.h` owns per-hart run queues and remote-ready bell
@@ -136,5 +166,7 @@ example mapper commands.
 - The structured host project ports the original `tpa_launcher` implementation
   for loading generated ELFs through ET runtime device layers.
 - The structured demo link harness currently proves generated process/image metadata compile, link, and load/pass in `erbium_emu`; it does not yet implement the complete cooperative runtime scheduler that executes every generated process continuation.
-- YOLO full/demo host launcher integration, message tests, and ltfarm experiments still need ordered porting into the structured tree. Representative YOLO block-test CMake/CTest coverage is now available under `tests/yolo/`.
+- YOLO full/demo host launcher integration and message tests still need ordered porting into the structured tree. Representative YOLO block-test CMake/CTest coverage is now available under `tests/yolo/`.
+- DNN demos and LTFarm are preserved as archived/reference material with
+  dependency/status notes rather than active build targets.
 - Python mapper/planner commands are ported and the YOLO downstream CMake planner/map targets use them; broader CMake metadata extraction coverage remains follow-up work.
