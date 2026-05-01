@@ -190,22 +190,29 @@ because the current YOLO mapping uses the full-card machine JSON.
   instructions.
 - Forgetting to install/select the planner Python environment for YOLO CMake
   planner/map targets.
-- Claiming original message/queue/negative tests are integrated before they are
-  actually ported. YOLO tools/models and representative block tests are ported;
-  check `docs/yolo-demo.md` for current scope.
+- Claiming YOLO block CTests or model regeneration tools are integrated before
+  they are actually ported. YOLO tools/models and representative block tests are
+  ported; check `docs/yolo-demo.md` for current scope.
+- Claiming ported message/queue/negative test ELFs prove full scheduler runtime
+  behavior before the cooperative runtime scheduler executes process
+  continuations.
 - Claiming archived DNN demos or LTFarm are active build targets; they are
   preserved under `docs/archive/` until their dependencies/harnesses are
   revived.
+- Claiming ported message/queue/negative test ELFs prove full scheduler runtime
+  behavior before the cooperative runtime scheduler executes process
+  continuations.
 
 ## Current status notes
 
 Validated current paths include Erbium simple demo ELFs, the tensor matmul demo
-ELF, YOLO downstream planner/map/device ELF, ET-SoC-1 default `tpa_core`, the host launcher target,
-planner tests, and host smoke-test doubles.
+ELF, YOLO downstream planner/map/device ELF, message/queue/negative test ELF
+build targets, ET-SoC-1 default `tpa_core`, the host launcher target, planner
+tests, and host smoke-test doubles.
 
 Important follow-up areas remain documented in
-`docs/MISSING_ORIGINAL_ARTIFACTS.md`: original message/channel tests, queue
-tests, negative tests, and full cooperative runtime scheduler work. YOLO
-tools/models and representative block tests are documented in
-`docs/yolo-demo.md`. DNN demos, LTFarm, trace tools, and historical generated
-YOLO reports have explicit port/archive status.
+`docs/MISSING_ORIGINAL_ARTIFACTS.md`: full cooperative runtime scheduler work.
+Message/queue/negative test ELFs are ported, but full behavioral validation
+remains scheduler follow-up. YOLO tools/models and representative block tests
+are documented in `docs/yolo-demo.md`. DNN demos, LTFarm, trace tools, and
+historical generated YOLO reports have explicit port/archive status.

@@ -14,9 +14,12 @@ The runtime is organized around a narrow HAL boundary and ET platform build:
 5. `kernels/` contains ported original TPA demo assets (`.c`, `.tpm`, `.tpp`, `.place`).
 6. `cmake/tpa-kernel.cmake` provides structured `add_tpa_process()` and `add_tpa_program()` helpers that generate image metadata with `gen_tpa_image.cmake`.
 7. `yolov5n/` ports the original YOLOv5n process sources/manifests and CMake planner/mapper targets for the downstream graph.
-8. `tpa-host/` builds the structured `tpa_launcher` executable against
+8. `tests/tpa_msg/`, `tests/tpa_queue/`, and `tests/tpa_negative/` contain
+   ported original runtime regression test assets integrated through the
+   structured process/program build helpers.
+9. `tpa-host/` builds the structured `tpa_launcher` executable against
    et-platform host/runtime packages.
-9. `planner/` provides Python-only offline process metadata extraction,
+10. `planner/` provides Python-only offline process metadata extraction,
    mapping, and planning commands; `machines/` provides mapper topology inputs.
 
 ## Selecting a platform
@@ -49,6 +52,9 @@ cmake --build build-et-erbium --target tpa_empty.elf
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+cmake --build build-et-erbium --target tpa_queue_basic.elf tpa_queue_yield.elf tpa_queue_many.elf tpa_queue_wake.elf
+cmake --build build-et-erbium --target tpa_msg_same_send_first.elf tpa_msg_cross_send_first.elf tpa_msg_fabric_send_first.elf
+cmake --build build-et-erbium --target tpa_negative_expected_fail.elf
 /opt/et/bin/erbium_emu -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf -max_cycles 10000
 /opt/et/bin/erbium_emu -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf -max_cycles 10000
 
@@ -75,6 +81,29 @@ sysemu firmware/log/options arguments. Run `tpa_launcher --help` for the full
 option list.
 
 YOLO targets currently port the downstream planner/map/device path. On ET-SoC-1, `BUILD_TPA_YOLOV5N` defaults OFF unless `TPA_ETSOC1_NR_SHIRES=32` because the original YOLO mapping uses the full-card machine description.
+
+### Message, queue, and negative regression tests
+
+The original message/channel, scheduler/queue, and expected-failure test assets
+are available under `tests/tpa_msg/`, `tests/tpa_queue/`, and
+`tests/tpa_negative/`. They build with the same `.c + .tpm + .tpp + .place`
+structured program path as `kernels/` demos. Useful Erbium targets include:
+
+- queues: `tpa_queue_basic.elf`, `tpa_queue_yield.elf`, `tpa_queue_many.elf`,
+  `tpa_queue_wake.elf`;
+- messages: `tpa_msg_same_send_first.elf`, `tpa_msg_same_recv_first.elf`,
+  `tpa_msg_cross_send_first.elf`, `tpa_msg_cross_recv_first.elf`,
+  `tpa_msg_fabric_send_first.elf`, `tpa_msg_fabric_recv_first.elf`,
+  `tpa_msg_bench_100.elf`, `tpa_msg_fabric_race.elf`, and the direct/local/fabric
+  edge-storage variants;
+- negative: `tpa_negative_expected_fail.elf`.
+
+`cmake/run_erbium_test_fast.cmake` and
+`cmake/run_erbium_expected_fail.cmake` provide reusable emulator result checks.
+The negative test is expected to report FAIL once the full cooperative runtime
+scheduler executes process continuations. The current structured demo link
+harness still reports loader PASS before running continuations, so negative
+expected-failure execution remains tied to the scheduler follow-up.
 
 ### Host smoke-test doubles (not platform validation)
 
@@ -166,7 +195,8 @@ targets, not archived generated JSON.
 - The structured host project ports the original `tpa_launcher` implementation
   for loading generated ELFs through ET runtime device layers.
 - The structured demo link harness currently proves generated process/image metadata compile, link, and load/pass in `erbium_emu`; it does not yet implement the complete cooperative runtime scheduler that executes every generated process continuation.
-- YOLO full/demo host launcher integration and message tests still need ordered porting into the structured tree. Representative YOLO block-test CMake/CTest coverage is now available under `tests/yolo/`.
+- YOLO full/demo host launcher integration still needs ordered porting into the structured tree. Representative YOLO block-test CMake/CTest coverage is now available under `tests/yolo/`.
+- Message/queue/negative test ELFs are ported, but complete behavioral validation remains tied to full cooperative scheduler work.
 - DNN demos and LTFarm are preserved as archived/reference material with
   dependency/status notes rather than active build targets.
 - Python mapper/planner commands are ported and the YOLO downstream CMake planner/map targets use them; broader CMake metadata extraction coverage remains follow-up work.

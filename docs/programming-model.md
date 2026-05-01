@@ -264,11 +264,12 @@ Currently integrated generated TPA programs include:
 - `kernels/tpa_pipe_demo.*` -> `tpa_pipe_demo.elf`;
 - `yolov5n/` downstream planner/map path -> `tpa_yolov5n_downstream.elf`.
 
-Other original examples and tests, such as message tests, queue tests, and full
-YOLO host/demo integration, are follow-up work. YOLO tools/models and
-representative block tests are ported; original DNN demos and LTFarm are
-archived under `docs/archive/` as reference material, not active generated
-program targets.
+Original message, queue, and negative regression assets are also integrated as
+structured test ELF targets, though their full behavioral validation depends on
+the cooperative scheduler follow-up. YOLO tools/models and representative block
+tests are ported; full YOLO host/demo integration remains follow-up work.
+Original DNN demos and LTFarm are archived under `docs/archive/` as reference
+material, not active generated program targets.
 
 ## Current runtime limitation
 

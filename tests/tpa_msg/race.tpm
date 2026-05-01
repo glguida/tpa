@@ -1,0 +1,7 @@
+pdef msg_race_ping_pdef user 201 msg_race_ping_start 64
+port msg_race_ping_pdef 0 out
+port msg_race_ping_pdef 1 in
+pdef msg_race_pong_pdef user 202 msg_race_pong_start 64
+port msg_race_pong_pdef 0 in
+port msg_race_pong_pdef 1 out
+pdef msg_race_check_pdef user 203 msg_race_check 0

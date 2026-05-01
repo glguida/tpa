@@ -443,9 +443,11 @@ Avoid these common mistakes:
 - Hiding required ET toolchain or HAL behavior behind host fallbacks.
 - Claiming original tests/demos/tools are integrated before they are ported.
 
-Current missing or partial areas include message tests, queue tests, negative
-tests, full YOLO host/demo integration, and the full cooperative runtime
-scheduler. YOLO tools/models and representative block tests are ported; mention
-remaining items only as follow-up until implementation jobs port them. Original
-DNN demos and LTFarm are preserved under `docs/archive/` as reference material
-with future port steps, not active program examples.
+Current missing or partial areas include full YOLO host/demo integration and the
+full cooperative runtime scheduler. Message, queue, and negative test assets are
+ported as structured build targets, but do not claim their full runtime behavior
+is validated until the cooperative scheduler executes continuations. YOLO
+tools/models and representative block tests are ported; mention remaining items
+only as follow-up until implementation jobs port them. Original DNN demos and
+LTFarm are preserved under `docs/archive/` as reference material with future port
+steps, not active program examples.

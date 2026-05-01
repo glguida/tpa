@@ -108,6 +108,8 @@ Generated mapper outputs can include:
 
 Remaining follow-up work is broader integration, not absence of all integration:
 YOLO full/demo host launcher support, broader metadata extraction coverage,
-message tests, ltfarm experiments, and the full cooperative runtime scheduler
-are still tracked as follow-up work in `docs/USAGE.md`. YOLO tools/models and
-representative block tests are documented in `docs/yolo-demo.md`.
+ltfarm experiments, and the full cooperative runtime scheduler are still tracked
+as follow-up work in `docs/USAGE.md`. YOLO tools/models and representative block
+tests are documented in `docs/yolo-demo.md`. Message/queue/negative test ELFs
+are ported, while their full behavioral validation depends on the full
+cooperative scheduler follow-up.

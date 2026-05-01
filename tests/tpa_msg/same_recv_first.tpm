@@ -1,0 +1,5 @@
+pdef msg_same_rf_tx_pdef user 131 msg_same_rf_tx_start 0
+port msg_same_rf_tx_pdef 0 out
+pdef msg_same_rf_rx_pdef user 132 msg_same_rf_rx_start 0
+port msg_same_rf_rx_pdef 0 in
+pdef msg_same_rf_chk_pdef user 133 msg_same_rf_chk 0

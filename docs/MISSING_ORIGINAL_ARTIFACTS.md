@@ -28,6 +28,11 @@ validated:
   - mapper target producing mapped program, placement, scratch config, and edge
     config;
   - `tpa_yolov5n_downstream.elf`.
+- `tests/tpa_msg/`, `tests/tpa_queue/`, and `tests/tpa_negative/` original
+  runtime regression assets are ported and build as structured ET program ELFs.
+  Representative positive tests load/pass under the current Erbium demo harness;
+  negative expected-failure runtime semantics are documented for the full
+  cooperative scheduler follow-up.
 - `tests/yolo/` source/assets are integrated for representative Erbium block-test
   targets (`tpa_yolo_cbs_l40.elf`, `tpa_yolo_sppf_l31_32.elf`) with device-subbuild CTest entries.
 - Trace analysis tools have been ported to `tools/trace/`.
@@ -48,9 +53,6 @@ validated:
 The structured repo does **not** yet contain or integrate all original tests,
 demos, tools, generated reports, or model artifacts. Important gaps include:
 
-- `tests/tpa_msg/` message/channel transport tests are missing.
-- `tests/tpa_queue/` scheduler/queue tests are missing.
-- `tests/tpa_negative/` expected-failure tests are missing.
 - DNN tree/systolic demo kernels and generators are archived/reference only,
   not active build targets.
 - `ltfarm/` Litecoin-farm experiment is archived/reference only, not an active
@@ -69,9 +71,9 @@ demos, tools, generated reports, or model artifacts. Important gaps include:
 
 | Original path(s) | Structured path/status | Category | Priority | Affects | Recommended destination |
 |---|---|---:|---:|---|---|
-| `tests/tpa_msg/` | Missing. No structured message/channel test targets beyond simple demos. | tests / runtime validation | high | runtime validation, agents | Port to `tests/tpa_msg/`; document in `docs/build-and-run.md` and `docs/limitations.md`. |
-| `tests/tpa_queue/` | Missing. Scheduler/queue behavior lacks original regression coverage. | tests / runtime validation | high | runtime/HAL validation, agents | Port to `tests/tpa_queue/`; include target list in `docs/build-and-run.md`. |
-| `tests/tpa_negative/` | Missing. Expected-failure path not covered. | tests / runtime validation | medium | agents, runtime validation | Port to `tests/tpa_negative/`; document expected failure semantics in `docs/build-and-run.md`. |
+| `tests/tpa_msg/` | Ported. Structured message/channel test ELF targets cover same/cross/fabric send/recv ordering, race/bench, and edge-storage variants. | tests / runtime validation | high | runtime validation, agents | Keep under `tests/tpa_msg/`; expand runtime assertions when full scheduler executes continuations. |
+| `tests/tpa_queue/` | Ported. Structured queue ELF targets cover basic/yield/many/wake. | tests / runtime validation | high | runtime/HAL validation, agents | Keep under `tests/tpa_queue/`; validate behavior with full cooperative scheduler follow-up. |
+| `tests/tpa_negative/` | Ported. `tpa_negative_expected_fail.elf` builds and expected-failure wrapper is available; current demo harness does not yet execute the failing continuation. | tests / runtime validation | medium | agents, runtime validation | Keep under `tests/tpa_negative/`; enable expected-failure CTest when scheduler runtime runs process continuations. |
 | `tests/yolo/` | Representative Erbium block-test targets are wired through structured device CMake/CTest (`tpa_yolo_cbs_l40.elf`, `tpa_yolo_sppf_l31_32.elf`). Additional targets remain available in CMake for future expansion. | tests / YOLO validation | partially done | mapper validation, runtime validation | Keep status in `docs/yolo-demo.md`; expand coverage as needed. |
 | `kernels/tpa_tensor_matmul.c`, `.tpm`, generated `.tpp/.place`, `gen_tpa_tensor_matmul.cmake` | Ported. Structured CMake generates `.tpp/.place` and builds `tpa_tensor_matmul.elf`. Runtime/emulator status should be checked with the port job logs. | demo / mapper validation | done | users, agents, mapper validation | Document as the intermediate example between `tpa_pipe_demo` and YOLO. |
 | `kernels/tpa_dnn_tree_demo.*` | Archived under `docs/archive/original-dnn-demos/`; not an active build target due DNN library/dependency blockers. | demo / research | archived | users, program authors | See `docs/archive/original-dnn-demos/STATUS.md` for future port steps. |
@@ -89,59 +91,24 @@ demos, tools, generated reports, or model artifacts. Important gaps include:
 | `platform/etsoc1/*`, `platform/tpa_entry.c`, `platform/tpa_runtime.c` | Mostly missing in old form; structured HAL/core and runtime harness differ. | runtime feature | medium-high | runtime contributors | Document divergence in `docs/limitations.md`; port only if full cooperative runtime scheduler work needs it. |
 | `libtpa/src/tpa.c`, old `libtpa/include/tpa/runtime.h`, old `arch.h` surface | Not ported wholesale. Structured has `tpa/lib`, `tpa/hal`, compatibility `tpa/tpa.h`, and demo runtime harness. | runtime feature | high for future scheduler | runtime contributors | Track full cooperative runtime scheduler as a runtime implementation project; explain current harness in `docs/limitations.md`. |
 | YOLO full/demo targets (`tpa_yolov5n_full.elf`, `tpa_yolov5n_demo.elf`, `yolo_demo_host`) | Original CMake has them; structured currently validates downstream path and host launcher but not full/demo host YOLO pipeline. | demo / tool | high | users, mapper validation | Future `port-yolo-full-demo-host` or similar; document in `docs/yolo-demo.md`. |
-| Message/queue/failure forwarded targets in old top-level CMake | Missing because underlying tests are missing. | build/test integration | high | agents, runtime validation | Reintroduce when tests are ported. |
+| Message/queue/failure forwarded targets in old top-level CMake | Ported for structured Erbium test ELFs through top-level forwarded targets. | build/test integration | high | agents, runtime validation | Keep target list in sync with `tests/tpa_msg`, `tests/tpa_queue`, and `tests/tpa_negative`. |
 | Old `.codex`, egg-info, `__pycache__` | Not ported and should not be. | generated/local artifact | archive never | none | Ignore. |
 
 ## Missing test coverage plan
 
-### `tests/tpa_msg`
+### Message, queue, and negative regression tests
 
-Original coverage includes same-hart, cross-hart, fabric, send-first,
-recv-first, race, benchmark, and explicit edge-storage variants. This is the
-highest-value missing runtime test suite because it validates the channel
-transport classes and rendezvous ordering that TPA depends on.
+Original `tests/tpa_msg/`, `tests/tpa_queue/`, and `tests/tpa_negative/` assets
+are now ported into the structured build. They compile through
+`add_tpa_process()` / `add_tpa_program()`, and top-level forwarded targets cover
+representative message, queue, edge-storage, and expected-failure ELFs.
 
-Recommended plan:
-
-1. Port sources/manifests/placements to `tests/tpa_msg/`.
-2. Add a structured `tests/CMakeLists.txt` and `tests/tpa_msg/CMakeLists.txt`
-   using current `add_tpa_process()` / `add_tpa_program()`.
-3. Forward important targets at top level only after they build cleanly.
-4. Add emulator/CTest wrappers or document manual `erbium_emu` commands.
-5. Include direct/local/fabric edge-storage coverage in the first pass.
-
-Future job: `port-message-queue-tests` may include both message and queue tests,
-or split message tests into `port-message-channel-tests` if scope is too large.
-
-### `tests/tpa_queue`
-
-Original coverage includes `basic`, `yield`, `many`, and `wake`. These validate
-scheduler queues, yielding, many runnable processes, and wake behavior.
-
-Recommended plan:
-
-1. Port `tests/tpa_queue/` assets.
-2. Build through the same generated image path as current `kernels/` demos.
-3. Run under Erbium emulator.
-4. If the full cooperative runtime scheduler is still limited, mark any blocked
-   cases explicitly rather than weakening the tests.
-
-Future job: `port-message-queue-tests`.
-
-### `tests/tpa_negative`
-
-Original `expected_fail` validates failure signaling and expected-failure test
-harness behavior. This is useful for making CI honest: not all emulator FAIL
-signals should mean a broken test harness.
-
-Recommended plan:
-
-1. Port `tests/tpa_negative/expected_fail.*`.
-2. Port/adapt `run_erbium_test.cmake` expected-failure handling if needed.
-3. Document how expected-failure tests are named and run.
-
-Future job: `port-negative-runtime-tests` or include in
-`port-message-queue-tests` if small.
+Remaining work is runtime-depth, not asset/build integration: the structured
+demo link harness currently proves generated process/image metadata compile,
+link, and load/pass in `erbium_emu`, but it does not yet run every continuation
+through the full cooperative scheduler. The negative expected-failure wrapper is
+available as `cmake/run_erbium_expected_fail.cmake`; enable it in CTest once the
+scheduler runtime executes the failing process continuation.
 
 ### YOLO block tests
 
@@ -245,10 +212,11 @@ Future job: docs-only if more historical tables should be extracted.
 This inventory should feed the documentation tree from `docs/DOCUMENTATION_PLAN.md`:
 
 - `docs/limitations.md`
-  - Centralize missing/partial status for message tests, queue tests, negative
-    tests, archived DNN/LTFarm status, full YOLO host/demo integration, full
-    runtime scheduler, and broader metadata coverage. YOLO block tests,
-    tools/models, tensor matmul, and trace tools now have explicit port status.
+  - Centralize missing/partial status for archived DNN/LTFarm status, full YOLO
+    host/demo integration, full runtime scheduler, and broader metadata
+    coverage. Message/queue/negative tests are ported as build targets but need
+    full scheduler behavioral validation. YOLO block tests, tools/models, tensor
+    matmul, and trace tools now have explicit port status.
 - `docs/build-and-run.md`
   - Add only currently validated commands as primary commands.
   - Add missing tests/demos as future target lists, not runnable instructions.
@@ -273,11 +241,12 @@ This inventory should feed the documentation tree from `docs/DOCUMENTATION_PLAN.
 
 ## Future implementation job recommendations
 
-### `port-message-queue-tests`
+### `complete-runtime-scheduler-validation`
 
-Scope: port `tests/tpa_msg/`, `tests/tpa_queue/`, and possibly
-`tests/tpa_negative/` if small enough. Add structured CMake and emulator/CTest
-validation for representative targets.
+Scope: implement/enable the cooperative runtime scheduler path so the ported
+message, queue, and negative ELFs execute their process continuations rather
+than only loading generated images through the demo harness. Enable the negative
+expected-failure CTest wrapper when this is complete.
 
 Priority: high.
 

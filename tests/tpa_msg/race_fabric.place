@@ -1,0 +1,5 @@
+201 0
+202 2
+203 4
+chan 201 0 202 0 fabric
+chan 202 1 201 1 fabric
