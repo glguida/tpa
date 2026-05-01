@@ -264,10 +264,10 @@ Currently integrated generated TPA programs include:
 - `kernels/tpa_pipe_demo.*` -> `tpa_pipe_demo.elf`;
 - `yolov5n/` downstream planner/map path -> `tpa_yolov5n_downstream.elf`.
 
-Other original examples and tests, such as message tests, queue tests, tensor
-matmul, DNN demos, ltfarm, and YOLO block-test CTest wiring, are follow-up work
-or archive material. Do not document them as currently integrated targets until
-they are ported.
+Other original examples and tests, such as message tests, queue tests, and YOLO
+block-test CTest wiring, are follow-up work. Original DNN demos and LTFarm are
+archived under `docs/archive/` as reference material, not active generated
+program targets.
 
 ## Current runtime limitation
 

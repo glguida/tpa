@@ -1,0 +1,1226 @@
+{
+  "model": "yolov5n",
+  "source_plan": "yolov5n_tpa_plan.json",
+  "summary": {
+    "coarse_process_count": 11,
+    "execution_instance_count": 17,
+    "generated_fork_count": 6,
+    "point_to_point_channel_count": 20
+  },
+  "process_kinds": [
+    {
+      "kind": "yolo_stage_stem",
+      "category": "compute",
+      "example_instance": "P0",
+      "input_count": 1,
+      "output_count": 1,
+      "notes": "Straight-line stem; no useful split before the first saved feature map."
+    },
+    {
+      "kind": "yolo_stage_down",
+      "category": "compute",
+      "example_instance": "P1",
+      "input_count": 1,
+      "output_count": 1,
+      "notes": "First backbone skip output; natural process boundary."
+    },
+    {
+      "kind": "yolo_stage_top",
+      "category": "compute",
+      "example_instance": "P3",
+      "input_count": 1,
+      "output_count": 1,
+      "notes": "Top backbone stage; C3/SPPF/CBS kept fused to avoid exposing large temporaries."
+    },
+    {
+      "kind": "yolo_neck_up",
+      "category": "compute",
+      "example_instance": "P4",
+      "input_count": 2,
+      "output_count": 1,
+      "notes": "Upsample/concat/C3/CBS chain kept in one process."
+    },
+    {
+      "kind": "yolo_detect_scale",
+      "category": "compute",
+      "example_instance": "P6",
+      "input_count": 1,
+      "output_count": 2,
+      "notes": "One process per detect scale; box and cls branches stay fused."
+    },
+    {
+      "kind": "yolo_neck_down",
+      "category": "compute",
+      "example_instance": "P7",
+      "input_count": 2,
+      "output_count": 1,
+      "notes": "Middle detection scale producer."
+    },
+    {
+      "kind": "tpa_fork2",
+      "category": "utility",
+      "input_count": 1,
+      "output_count": 2,
+      "notes": "Generated to lower multi-consumer logical tensors into TPA point-to-point channels. Workspace holds one duplicate copy of the payload."
+    },
+    {
+      "kind": "static_source",
+      "category": "utility",
+      "input_count": 0,
+      "output_count": 1,
+      "notes": "Used only for runnable subgraph tests with embedded tensors."
+    }
+  ],
+  "instances": [
+    {
+      "id": "P0",
+      "kind": "yolo_stage_stem",
+      "workspace_bytes": 2048000,
+      "notes": "Straight-line stem; no useful split before the first saved feature map.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_t2",
+          "logical_tensor": "t2"
+        }
+      ],
+      "layer_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "shape": [
+            3,
+            640,
+            640
+          ],
+          "bytes": 1228800
+        }
+      ],
+      "outputs": [
+        "t2"
+      ],
+      "weight_bytes": 19328
+    },
+    {
+      "id": "P1",
+      "kind": "yolo_stage_down",
+      "workspace_bytes": 1024000,
+      "notes": "First backbone skip output; natural process boundary.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_t2",
+          "logical_tensor": "t2"
+        },
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_skip_p3__to_fork",
+          "logical_tensor": "skip_p3"
+        }
+      ],
+      "layer_indices": [
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "inputs": [
+        {
+          "name": "t2",
+          "shape": [
+            32,
+            160,
+            160
+          ],
+          "bytes": 819200
+        }
+      ],
+      "outputs": [
+        "skip_p3"
+      ],
+      "weight_bytes": 57856
+    },
+    {
+      "id": "P2",
+      "kind": "yolo_stage_down",
+      "workspace_bytes": 512000,
+      "notes": "Second backbone skip output; natural process boundary.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_skip_p3__p2",
+          "logical_tensor": "skip_p3"
+        },
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_skip_p4__to_fork",
+          "logical_tensor": "skip_p4"
+        }
+      ],
+      "layer_indices": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "inputs": [
+        {
+          "name": "skip_p3",
+          "shape": [
+            64,
+            80,
+            80
+          ],
+          "bytes": 409600
+        }
+      ],
+      "outputs": [
+        "skip_p4"
+      ],
+      "weight_bytes": 238080
+    },
+    {
+      "id": "P3",
+      "kind": "yolo_stage_top",
+      "workspace_bytes": 409600,
+      "notes": "Top backbone stage; C3/SPPF/CBS kept fused to avoid exposing large temporaries.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_skip_p4__p3",
+          "logical_tensor": "skip_p4"
+        },
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_skip_p5__to_fork",
+          "logical_tensor": "skip_p5"
+        }
+      ],
+      "layer_indices": [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33
+      ],
+      "inputs": [
+        {
+          "name": "skip_p4",
+          "shape": [
+            128,
+            40,
+            40
+          ],
+          "bytes": 204800
+        }
+      ],
+      "outputs": [
+        "skip_p5"
+      ],
+      "weight_bytes": 801024
+    },
+    {
+      "id": "P4",
+      "kind": "yolo_neck_up",
+      "workspace_bytes": 512000,
+      "notes": "Upsample/concat/C3/CBS chain kept in one process.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_skip_p4__p4",
+          "logical_tensor": "skip_p4"
+        },
+        {
+          "id": 1,
+          "dir": "in",
+          "channel": "ch_skip_p5__p4",
+          "logical_tensor": "skip_p5"
+        },
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_mid_p4__to_fork",
+          "logical_tensor": "mid_p4"
+        }
+      ],
+      "layer_indices": [
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "inputs": [
+        {
+          "name": "skip_p5",
+          "shape": [
+            128,
+            20,
+            20
+          ],
+          "bytes": 51200
+        },
+        {
+          "name": "skip_p4",
+          "shape": [
+            128,
+            40,
+            40
+          ],
+          "bytes": 204800
+        }
+      ],
+      "outputs": [
+        "mid_p4"
+      ],
+      "weight_bytes": 103424
+    },
+    {
+      "id": "P5",
+      "kind": "yolo_neck_up",
+      "workspace_bytes": 1024000,
+      "notes": "Produces the finest detection scale input.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_skip_p3__p5",
+          "logical_tensor": "skip_p3"
+        },
+        {
+          "id": 1,
+          "dir": "in",
+          "channel": "ch_mid_p4__p5",
+          "logical_tensor": "mid_p4"
+        },
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_p3__to_fork",
+          "logical_tensor": "p3"
+        }
+      ],
+      "layer_indices": [
+        40,
+        41,
+        42,
+        43,
+        44
+      ],
+      "inputs": [
+        {
+          "name": "mid_p4",
+          "shape": [
+            64,
+            40,
+            40
+          ],
+          "bytes": 102400
+        },
+        {
+          "name": "skip_p3",
+          "shape": [
+            64,
+            80,
+            80
+          ],
+          "bytes": 409600
+        }
+      ],
+      "outputs": [
+        "p3"
+      ],
+      "weight_bytes": 27392
+    },
+    {
+      "id": "P6",
+      "kind": "yolo_detect_scale",
+      "workspace_bytes": 512000,
+      "notes": "One process per detect scale; box and cls branches stay fused.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_p3__p6",
+          "logical_tensor": "p3"
+        }
+      ],
+      "layer_indices": [
+        57,
+        58,
+        69,
+        63,
+        64,
+        72
+      ],
+      "inputs": [
+        {
+          "name": "p3",
+          "shape": [
+            64,
+            80,
+            80
+          ],
+          "bytes": 409600
+        }
+      ],
+      "outputs": [
+        "p3_box",
+        "p3_cls"
+      ],
+      "weight_bytes": 200064
+    },
+    {
+      "id": "P7",
+      "kind": "yolo_neck_down",
+      "workspace_bytes": 512000,
+      "notes": "Middle detection scale producer.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_mid_p4__p7",
+          "logical_tensor": "mid_p4"
+        },
+        {
+          "id": 1,
+          "dir": "in",
+          "channel": "ch_p3__p7",
+          "logical_tensor": "p3"
+        },
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_p4__to_fork",
+          "logical_tensor": "p4"
+        }
+      ],
+      "layer_indices": [
+        45,
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      "inputs": [
+        {
+          "name": "p3",
+          "shape": [
+            64,
+            80,
+            80
+          ],
+          "bytes": 409600
+        },
+        {
+          "name": "mid_p4",
+          "shape": [
+            64,
+            40,
+            40
+          ],
+          "bytes": 102400
+        }
+      ],
+      "outputs": [
+        "p4"
+      ],
+      "weight_bytes": 115712
+    },
+    {
+      "id": "P8",
+      "kind": "yolo_detect_scale",
+      "workspace_bytes": 128000,
+      "notes": "One process per detect scale; box and cls branches stay fused.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_p4__p8",
+          "logical_tensor": "p4"
+        }
+      ],
+      "layer_indices": [
+        59,
+        60,
+        70,
+        65,
+        66,
+        73
+      ],
+      "inputs": [
+        {
+          "name": "p4",
+          "shape": [
+            128,
+            40,
+            40
+          ],
+          "bytes": 204800
+        }
+      ],
+      "outputs": [
+        "p4_box",
+        "p4_cls"
+      ],
+      "weight_bytes": 283008
+    },
+    {
+      "id": "P9",
+      "kind": "yolo_neck_down",
+      "workspace_bytes": 256000,
+      "notes": "Coarsest detection scale producer.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_skip_p5__p9",
+          "logical_tensor": "skip_p5"
+        },
+        {
+          "id": 1,
+          "dir": "in",
+          "channel": "ch_p4__p9",
+          "logical_tensor": "p4"
+        },
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_p5",
+          "logical_tensor": "p5"
+        }
+      ],
+      "layer_indices": [
+        51,
+        52,
+        53,
+        54,
+        55,
+        56
+      ],
+      "inputs": [
+        {
+          "name": "p4",
+          "shape": [
+            128,
+            40,
+            40
+          ],
+          "bytes": 204800
+        },
+        {
+          "name": "skip_p5",
+          "shape": [
+            128,
+            20,
+            20
+          ],
+          "bytes": 51200
+        }
+      ],
+      "outputs": [
+        "p5"
+      ],
+      "weight_bytes": 451072
+    },
+    {
+      "id": "P10",
+      "kind": "yolo_detect_scale",
+      "workspace_bytes": 32000,
+      "notes": "One process per detect scale; box and cls branches stay fused.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_p5",
+          "logical_tensor": "p5"
+        }
+      ],
+      "layer_indices": [
+        61,
+        62,
+        71,
+        67,
+        68,
+        74
+      ],
+      "inputs": [
+        {
+          "name": "p5",
+          "shape": [
+            256,
+            20,
+            20
+          ],
+          "bytes": 102400
+        }
+      ],
+      "outputs": [
+        "p5_box",
+        "p5_cls"
+      ],
+      "weight_bytes": 448896
+    },
+    {
+      "id": "F_skip_p3",
+      "kind": "tpa_fork2",
+      "workspace_bytes": 409600,
+      "notes": "Generated fork for logical tensor 'skip_p3'. One duplicate payload copy is reserved because current TPA channels are point-to-point.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_skip_p3__to_fork",
+          "logical_tensor": "skip_p3"
+        },
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_skip_p3__p2",
+          "logical_tensor": "skip_p3"
+        },
+        {
+          "id": 1,
+          "dir": "out",
+          "channel": "ch_skip_p3__p5",
+          "logical_tensor": "skip_p3"
+        }
+      ],
+      "logical_tensor": "skip_p3"
+    },
+    {
+      "id": "F_skip_p4",
+      "kind": "tpa_fork2",
+      "workspace_bytes": 204800,
+      "notes": "Generated fork for logical tensor 'skip_p4'. One duplicate payload copy is reserved because current TPA channels are point-to-point.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_skip_p4__to_fork",
+          "logical_tensor": "skip_p4"
+        },
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_skip_p4__p3",
+          "logical_tensor": "skip_p4"
+        },
+        {
+          "id": 1,
+          "dir": "out",
+          "channel": "ch_skip_p4__p4",
+          "logical_tensor": "skip_p4"
+        }
+      ],
+      "logical_tensor": "skip_p4"
+    },
+    {
+      "id": "F_skip_p5",
+      "kind": "tpa_fork2",
+      "workspace_bytes": 51200,
+      "notes": "Generated fork for logical tensor 'skip_p5'. One duplicate payload copy is reserved because current TPA channels are point-to-point.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_skip_p5__to_fork",
+          "logical_tensor": "skip_p5"
+        },
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_skip_p5__p4",
+          "logical_tensor": "skip_p5"
+        },
+        {
+          "id": 1,
+          "dir": "out",
+          "channel": "ch_skip_p5__p9",
+          "logical_tensor": "skip_p5"
+        }
+      ],
+      "logical_tensor": "skip_p5"
+    },
+    {
+      "id": "F_mid_p4",
+      "kind": "tpa_fork2",
+      "workspace_bytes": 102400,
+      "notes": "Generated fork for logical tensor 'mid_p4'. One duplicate payload copy is reserved because current TPA channels are point-to-point.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_mid_p4__to_fork",
+          "logical_tensor": "mid_p4"
+        },
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_mid_p4__p5",
+          "logical_tensor": "mid_p4"
+        },
+        {
+          "id": 1,
+          "dir": "out",
+          "channel": "ch_mid_p4__p7",
+          "logical_tensor": "mid_p4"
+        }
+      ],
+      "logical_tensor": "mid_p4"
+    },
+    {
+      "id": "F_p3",
+      "kind": "tpa_fork2",
+      "workspace_bytes": 409600,
+      "notes": "Generated fork for logical tensor 'p3'. One duplicate payload copy is reserved because current TPA channels are point-to-point.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_p3__to_fork",
+          "logical_tensor": "p3"
+        },
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_p3__p6",
+          "logical_tensor": "p3"
+        },
+        {
+          "id": 1,
+          "dir": "out",
+          "channel": "ch_p3__p7",
+          "logical_tensor": "p3"
+        }
+      ],
+      "logical_tensor": "p3"
+    },
+    {
+      "id": "F_p4",
+      "kind": "tpa_fork2",
+      "workspace_bytes": 204800,
+      "notes": "Generated fork for logical tensor 'p4'. One duplicate payload copy is reserved because current TPA channels are point-to-point.",
+      "ports": [
+        {
+          "id": 0,
+          "dir": "in",
+          "channel": "ch_p4__to_fork",
+          "logical_tensor": "p4"
+        },
+        {
+          "id": 0,
+          "dir": "out",
+          "channel": "ch_p4__p8",
+          "logical_tensor": "p4"
+        },
+        {
+          "id": 1,
+          "dir": "out",
+          "channel": "ch_p4__p9",
+          "logical_tensor": "p4"
+        }
+      ],
+      "logical_tensor": "p4"
+    }
+  ],
+  "channels": [
+    {
+      "id": "ch_t2",
+      "logical_tensor": "t2",
+      "bytes": 819200,
+      "shape": [
+        32,
+        160,
+        160
+      ],
+      "src": {
+        "instance": "P0",
+        "port": 0
+      },
+      "dst": {
+        "instance": "P1",
+        "port": 0
+      },
+      "role": "sequential stage handoff"
+    },
+    {
+      "id": "ch_skip_p3__to_fork",
+      "logical_tensor": "skip_p3",
+      "bytes": 409600,
+      "shape": [
+        64,
+        80,
+        80
+      ],
+      "src": {
+        "instance": "P1",
+        "port": 0
+      },
+      "dst": {
+        "instance": "F_skip_p3",
+        "port": 0
+      },
+      "role": "backbone skip producer-to-fork"
+    },
+    {
+      "id": "ch_skip_p3__p2",
+      "logical_tensor": "skip_p3",
+      "bytes": 409600,
+      "shape": [
+        64,
+        80,
+        80
+      ],
+      "src": {
+        "instance": "F_skip_p3",
+        "port": 0
+      },
+      "dst": {
+        "instance": "P2",
+        "port": 0
+      },
+      "role": "backbone skip fork branch 0"
+    },
+    {
+      "id": "ch_skip_p3__p5",
+      "logical_tensor": "skip_p3",
+      "bytes": 409600,
+      "shape": [
+        64,
+        80,
+        80
+      ],
+      "src": {
+        "instance": "F_skip_p3",
+        "port": 1
+      },
+      "dst": {
+        "instance": "P5",
+        "port": 0
+      },
+      "role": "backbone skip fork branch 1"
+    },
+    {
+      "id": "ch_skip_p4__to_fork",
+      "logical_tensor": "skip_p4",
+      "bytes": 204800,
+      "shape": [
+        128,
+        40,
+        40
+      ],
+      "src": {
+        "instance": "P2",
+        "port": 0
+      },
+      "dst": {
+        "instance": "F_skip_p4",
+        "port": 0
+      },
+      "role": "backbone skip producer-to-fork"
+    },
+    {
+      "id": "ch_skip_p4__p3",
+      "logical_tensor": "skip_p4",
+      "bytes": 204800,
+      "shape": [
+        128,
+        40,
+        40
+      ],
+      "src": {
+        "instance": "F_skip_p4",
+        "port": 0
+      },
+      "dst": {
+        "instance": "P3",
+        "port": 0
+      },
+      "role": "backbone skip fork branch 0"
+    },
+    {
+      "id": "ch_skip_p4__p4",
+      "logical_tensor": "skip_p4",
+      "bytes": 204800,
+      "shape": [
+        128,
+        40,
+        40
+      ],
+      "src": {
+        "instance": "F_skip_p4",
+        "port": 1
+      },
+      "dst": {
+        "instance": "P4",
+        "port": 0
+      },
+      "role": "backbone skip fork branch 1"
+    },
+    {
+      "id": "ch_skip_p5__to_fork",
+      "logical_tensor": "skip_p5",
+      "bytes": 51200,
+      "shape": [
+        128,
+        20,
+        20
+      ],
+      "src": {
+        "instance": "P3",
+        "port": 0
+      },
+      "dst": {
+        "instance": "F_skip_p5",
+        "port": 0
+      },
+      "role": "top feature producer-to-fork"
+    },
+    {
+      "id": "ch_skip_p5__p4",
+      "logical_tensor": "skip_p5",
+      "bytes": 51200,
+      "shape": [
+        128,
+        20,
+        20
+      ],
+      "src": {
+        "instance": "F_skip_p5",
+        "port": 0
+      },
+      "dst": {
+        "instance": "P4",
+        "port": 1
+      },
+      "role": "top feature fork branch 0"
+    },
+    {
+      "id": "ch_skip_p5__p9",
+      "logical_tensor": "skip_p5",
+      "bytes": 51200,
+      "shape": [
+        128,
+        20,
+        20
+      ],
+      "src": {
+        "instance": "F_skip_p5",
+        "port": 1
+      },
+      "dst": {
+        "instance": "P9",
+        "port": 0
+      },
+      "role": "top feature fork branch 1"
+    },
+    {
+      "id": "ch_mid_p4__to_fork",
+      "logical_tensor": "mid_p4",
+      "bytes": 102400,
+      "shape": [
+        64,
+        40,
+        40
+      ],
+      "src": {
+        "instance": "P4",
+        "port": 0
+      },
+      "dst": {
+        "instance": "F_mid_p4",
+        "port": 0
+      },
+      "role": "neck intermediate producer-to-fork"
+    },
+    {
+      "id": "ch_mid_p4__p5",
+      "logical_tensor": "mid_p4",
+      "bytes": 102400,
+      "shape": [
+        64,
+        40,
+        40
+      ],
+      "src": {
+        "instance": "F_mid_p4",
+        "port": 0
+      },
+      "dst": {
+        "instance": "P5",
+        "port": 1
+      },
+      "role": "neck intermediate fork branch 0"
+    },
+    {
+      "id": "ch_mid_p4__p7",
+      "logical_tensor": "mid_p4",
+      "bytes": 102400,
+      "shape": [
+        64,
+        40,
+        40
+      ],
+      "src": {
+        "instance": "F_mid_p4",
+        "port": 1
+      },
+      "dst": {
+        "instance": "P7",
+        "port": 0
+      },
+      "role": "neck intermediate fork branch 1"
+    },
+    {
+      "id": "ch_p3__to_fork",
+      "logical_tensor": "p3",
+      "bytes": 409600,
+      "shape": [
+        64,
+        80,
+        80
+      ],
+      "src": {
+        "instance": "P5",
+        "port": 0
+      },
+      "dst": {
+        "instance": "F_p3",
+        "port": 0
+      },
+      "role": "detect scale input producer-to-fork"
+    },
+    {
+      "id": "ch_p3__p6",
+      "logical_tensor": "p3",
+      "bytes": 409600,
+      "shape": [
+        64,
+        80,
+        80
+      ],
+      "src": {
+        "instance": "F_p3",
+        "port": 0
+      },
+      "dst": {
+        "instance": "P6",
+        "port": 0
+      },
+      "role": "detect scale input fork branch 0"
+    },
+    {
+      "id": "ch_p3__p7",
+      "logical_tensor": "p3",
+      "bytes": 409600,
+      "shape": [
+        64,
+        80,
+        80
+      ],
+      "src": {
+        "instance": "F_p3",
+        "port": 1
+      },
+      "dst": {
+        "instance": "P7",
+        "port": 1
+      },
+      "role": "detect scale input fork branch 1"
+    },
+    {
+      "id": "ch_p4__to_fork",
+      "logical_tensor": "p4",
+      "bytes": 204800,
+      "shape": [
+        128,
+        40,
+        40
+      ],
+      "src": {
+        "instance": "P7",
+        "port": 0
+      },
+      "dst": {
+        "instance": "F_p4",
+        "port": 0
+      },
+      "role": "detect scale input producer-to-fork"
+    },
+    {
+      "id": "ch_p4__p8",
+      "logical_tensor": "p4",
+      "bytes": 204800,
+      "shape": [
+        128,
+        40,
+        40
+      ],
+      "src": {
+        "instance": "F_p4",
+        "port": 0
+      },
+      "dst": {
+        "instance": "P8",
+        "port": 0
+      },
+      "role": "detect scale input fork branch 0"
+    },
+    {
+      "id": "ch_p4__p9",
+      "logical_tensor": "p4",
+      "bytes": 204800,
+      "shape": [
+        128,
+        40,
+        40
+      ],
+      "src": {
+        "instance": "F_p4",
+        "port": 1
+      },
+      "dst": {
+        "instance": "P9",
+        "port": 1
+      },
+      "role": "detect scale input fork branch 1"
+    },
+    {
+      "id": "ch_p5",
+      "logical_tensor": "p5",
+      "bytes": 102400,
+      "shape": [
+        256,
+        20,
+        20
+      ],
+      "src": {
+        "instance": "P9",
+        "port": 0
+      },
+      "dst": {
+        "instance": "P10",
+        "port": 0
+      },
+      "role": "detect scale input"
+    }
+  ],
+  "externals": {
+    "input": {
+      "name": "input",
+      "shape": [
+        3,
+        640,
+        640
+      ],
+      "bytes": 1228800
+    },
+    "terminal_outputs": [
+      {
+        "name": "p3_box",
+        "producer": "P6",
+        "consumers": [],
+        "shape": [
+          64,
+          80,
+          80
+        ],
+        "bytes": 409600,
+        "role": "terminal output"
+      },
+      {
+        "name": "p3_cls",
+        "producer": "P6",
+        "consumers": [],
+        "shape": [
+          80,
+          80,
+          80
+        ],
+        "bytes": 512000,
+        "role": "terminal output"
+      },
+      {
+        "name": "p4_box",
+        "producer": "P8",
+        "consumers": [],
+        "shape": [
+          64,
+          40,
+          40
+        ],
+        "bytes": 102400,
+        "role": "terminal output"
+      },
+      {
+        "name": "p4_cls",
+        "producer": "P8",
+        "consumers": [],
+        "shape": [
+          80,
+          40,
+          40
+        ],
+        "bytes": 128000,
+        "role": "terminal output"
+      },
+      {
+        "name": "p5_box",
+        "producer": "P10",
+        "consumers": [],
+        "shape": [
+          64,
+          20,
+          20
+        ],
+        "bytes": 25600,
+        "role": "terminal output"
+      },
+      {
+        "name": "p5_cls",
+        "producer": "P10",
+        "consumers": [],
+        "shape": [
+          80,
+          20,
+          20
+        ],
+        "bytes": 32000,
+        "role": "terminal output"
+      }
+    ]
+  }
+}

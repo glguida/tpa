@@ -1,0 +1,8 @@
+pdef dnn_tree_src_pdef user 301 dnn_tree_src_start 16384
+port dnn_tree_src_pdef 0 out
+pdef dnn_tree_add_pdef user 302 dnn_tree_add_recv_lhs 49152
+port dnn_tree_add_pdef 0 in
+port dnn_tree_add_pdef 1 in
+port dnn_tree_add_pdef 2 out
+pdef dnn_tree_sink_pdef user 303 dnn_tree_sink_start 16384
+port dnn_tree_sink_pdef 0 in

@@ -194,8 +194,8 @@ ported. Missing or partial areas include:
 - queue/scheduler tests;
 - negative expected-failure tests;
 - YOLO block-test CTest wiring;
-- DNN demos;
-- ltfarm;
+- active DNN demo and LTFarm build targets (sources are archived under
+  `docs/archive/`);
 - YOLO model regeneration tools and model artifact policy;
 - broader metadata extraction coverage;
 - full cooperative runtime scheduler completion.

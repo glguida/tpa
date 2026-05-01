@@ -1,0 +1,2517 @@
+{
+  "model": "yolov5n",
+  "input_shape": [
+    3,
+    640,
+    640
+  ],
+  "layer_count": 76,
+  "layers": [
+    {
+      "index": 0,
+      "name": "model.0",
+      "kind": "CBS",
+      "c_in": 3,
+      "c_out": 16,
+      "k_h": 6,
+      "k_w": 6,
+      "stride_h": 2,
+      "stride_w": 2,
+      "pad_h": 2,
+      "pad_w": 2,
+      "out_c": 16,
+      "out_h": 320,
+      "out_w": 320,
+      "has_silu": true,
+      "w_stride": 128,
+      "k_inner": 108,
+      "k_out_pad": 16,
+      "quant_bytes": 2432
+    },
+    {
+      "index": 1,
+      "name": "model.1",
+      "kind": "CBS",
+      "c_in": 16,
+      "c_out": 32,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 2,
+      "stride_w": 2,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 32,
+      "out_h": 160,
+      "out_w": 160,
+      "has_silu": true,
+      "w_stride": 192,
+      "k_inner": 144,
+      "k_out_pad": 32,
+      "quant_bytes": 6656
+    },
+    {
+      "index": 2,
+      "name": "model.2.cv1",
+      "kind": "CBS",
+      "c_in": 32,
+      "c_out": 16,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 16,
+      "out_h": 160,
+      "out_w": 160,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 32,
+      "k_out_pad": 16,
+      "quant_bytes": 1408
+    },
+    {
+      "index": 3,
+      "name": "model.2.m.0.cv1",
+      "kind": "CBS",
+      "c_in": 16,
+      "c_out": 16,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 16,
+      "out_h": 160,
+      "out_w": 160,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 16,
+      "k_out_pad": 16,
+      "quant_bytes": 1408
+    },
+    {
+      "index": 4,
+      "name": "model.2.m.0.cv2",
+      "kind": "CBS",
+      "c_in": 16,
+      "c_out": 16,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 16,
+      "out_h": 160,
+      "out_w": 160,
+      "has_silu": true,
+      "w_stride": 192,
+      "k_inner": 144,
+      "k_out_pad": 16,
+      "quant_bytes": 3456
+    },
+    {
+      "index": 5,
+      "name": "model.2.cv2",
+      "kind": "CBS",
+      "c_in": 32,
+      "c_out": 16,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 16,
+      "out_h": 160,
+      "out_w": 160,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 32,
+      "k_out_pad": 16,
+      "quant_bytes": 1408
+    },
+    {
+      "index": 6,
+      "name": "model.2.cv3",
+      "kind": "CBS",
+      "c_in": 32,
+      "c_out": 32,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 32,
+      "out_h": 160,
+      "out_w": 160,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 32,
+      "k_out_pad": 32,
+      "quant_bytes": 2560
+    },
+    {
+      "index": 7,
+      "name": "model.3",
+      "kind": "CBS",
+      "c_in": 32,
+      "c_out": 64,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 2,
+      "stride_w": 2,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 64,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 320,
+      "k_inner": 288,
+      "k_out_pad": 64,
+      "quant_bytes": 21248
+    },
+    {
+      "index": 8,
+      "name": "model.4.cv1",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 32,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 32,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 64,
+      "k_out_pad": 32,
+      "quant_bytes": 2560
+    },
+    {
+      "index": 9,
+      "name": "model.4.m.0.cv1",
+      "kind": "CBS",
+      "c_in": 32,
+      "c_out": 32,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 32,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 32,
+      "k_out_pad": 32,
+      "quant_bytes": 2560
+    },
+    {
+      "index": 10,
+      "name": "model.4.m.0.cv2",
+      "kind": "CBS",
+      "c_in": 32,
+      "c_out": 32,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 32,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 320,
+      "k_inner": 288,
+      "k_out_pad": 32,
+      "quant_bytes": 10752
+    },
+    {
+      "index": 11,
+      "name": "model.4.m.1.cv1",
+      "kind": "CBS",
+      "c_in": 32,
+      "c_out": 32,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 32,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 32,
+      "k_out_pad": 32,
+      "quant_bytes": 2560
+    },
+    {
+      "index": 12,
+      "name": "model.4.m.1.cv2",
+      "kind": "CBS",
+      "c_in": 32,
+      "c_out": 32,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 32,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 320,
+      "k_inner": 288,
+      "k_out_pad": 32,
+      "quant_bytes": 10752
+    },
+    {
+      "index": 13,
+      "name": "model.4.cv2",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 32,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 32,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 64,
+      "k_out_pad": 32,
+      "quant_bytes": 2560
+    },
+    {
+      "index": 14,
+      "name": "model.4.cv3",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 64,
+      "k_out_pad": 64,
+      "quant_bytes": 4864
+    },
+    {
+      "index": 15,
+      "name": "model.5",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 128,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 2,
+      "stride_w": 2,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 128,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 576,
+      "k_inner": 576,
+      "k_out_pad": 128,
+      "quant_bytes": 75008
+    },
+    {
+      "index": 16,
+      "name": "model.6.cv1",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 128,
+      "k_inner": 128,
+      "k_out_pad": 64,
+      "quant_bytes": 8960
+    },
+    {
+      "index": 17,
+      "name": "model.6.m.0.cv1",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 64,
+      "k_out_pad": 64,
+      "quant_bytes": 4864
+    },
+    {
+      "index": 18,
+      "name": "model.6.m.0.cv2",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 576,
+      "k_inner": 576,
+      "k_out_pad": 64,
+      "quant_bytes": 37632
+    },
+    {
+      "index": 19,
+      "name": "model.6.m.1.cv1",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 64,
+      "k_out_pad": 64,
+      "quant_bytes": 4864
+    },
+    {
+      "index": 20,
+      "name": "model.6.m.1.cv2",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 576,
+      "k_inner": 576,
+      "k_out_pad": 64,
+      "quant_bytes": 37632
+    },
+    {
+      "index": 21,
+      "name": "model.6.m.2.cv1",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 64,
+      "k_out_pad": 64,
+      "quant_bytes": 4864
+    },
+    {
+      "index": 22,
+      "name": "model.6.m.2.cv2",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 576,
+      "k_inner": 576,
+      "k_out_pad": 64,
+      "quant_bytes": 37632
+    },
+    {
+      "index": 23,
+      "name": "model.6.cv2",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 128,
+      "k_inner": 128,
+      "k_out_pad": 64,
+      "quant_bytes": 8960
+    },
+    {
+      "index": 24,
+      "name": "model.6.cv3",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 128,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 128,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 128,
+      "k_inner": 128,
+      "k_out_pad": 128,
+      "quant_bytes": 17664
+    },
+    {
+      "index": 25,
+      "name": "model.7",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 256,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 2,
+      "stride_w": 2,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 256,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 1152,
+      "k_inner": 1152,
+      "k_out_pad": 256,
+      "quant_bytes": 297216
+    },
+    {
+      "index": 26,
+      "name": "model.8.cv1",
+      "kind": "CBS",
+      "c_in": 256,
+      "c_out": 128,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 128,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 256,
+      "k_inner": 256,
+      "k_out_pad": 128,
+      "quant_bytes": 34048
+    },
+    {
+      "index": 27,
+      "name": "model.8.m.0.cv1",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 128,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 128,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 128,
+      "k_inner": 128,
+      "k_out_pad": 128,
+      "quant_bytes": 17664
+    },
+    {
+      "index": 28,
+      "name": "model.8.m.0.cv2",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 128,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 128,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 1152,
+      "k_inner": 1152,
+      "k_out_pad": 128,
+      "quant_bytes": 148736
+    },
+    {
+      "index": 29,
+      "name": "model.8.cv2",
+      "kind": "CBS",
+      "c_in": 256,
+      "c_out": 128,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 128,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 256,
+      "k_inner": 256,
+      "k_out_pad": 128,
+      "quant_bytes": 34048
+    },
+    {
+      "index": 30,
+      "name": "model.8.cv3",
+      "kind": "CBS",
+      "c_in": 256,
+      "c_out": 256,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 256,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 256,
+      "k_inner": 256,
+      "k_out_pad": 256,
+      "quant_bytes": 67840
+    },
+    {
+      "index": 31,
+      "name": "model.9.cv1",
+      "kind": "CBS",
+      "c_in": 256,
+      "c_out": 128,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 128,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 256,
+      "k_inner": 256,
+      "k_out_pad": 128,
+      "quant_bytes": 34048
+    },
+    {
+      "index": 32,
+      "name": "model.9.cv2",
+      "kind": "CBS",
+      "c_in": 512,
+      "c_out": 256,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 256,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 512,
+      "k_inner": 512,
+      "k_out_pad": 256,
+      "quant_bytes": 133376
+    },
+    {
+      "index": 33,
+      "name": "model.10",
+      "kind": "CBS",
+      "c_in": 256,
+      "c_out": 128,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 128,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 256,
+      "k_inner": 256,
+      "k_out_pad": 128,
+      "quant_bytes": 34048
+    },
+    {
+      "index": 34,
+      "name": "model.13.cv1",
+      "kind": "CBS",
+      "c_in": 256,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 256,
+      "k_inner": 256,
+      "k_out_pad": 64,
+      "quant_bytes": 17152
+    },
+    {
+      "index": 35,
+      "name": "model.13.m.0.cv1",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 64,
+      "k_out_pad": 64,
+      "quant_bytes": 4864
+    },
+    {
+      "index": 36,
+      "name": "model.13.m.0.cv2",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 576,
+      "k_inner": 576,
+      "k_out_pad": 64,
+      "quant_bytes": 37632
+    },
+    {
+      "index": 37,
+      "name": "model.13.cv2",
+      "kind": "CBS",
+      "c_in": 256,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 256,
+      "k_inner": 256,
+      "k_out_pad": 64,
+      "quant_bytes": 17152
+    },
+    {
+      "index": 38,
+      "name": "model.13.cv3",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 128,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 128,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 128,
+      "k_inner": 128,
+      "k_out_pad": 128,
+      "quant_bytes": 17664
+    },
+    {
+      "index": 39,
+      "name": "model.14",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 128,
+      "k_inner": 128,
+      "k_out_pad": 64,
+      "quant_bytes": 8960
+    },
+    {
+      "index": 40,
+      "name": "model.17.cv1",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 32,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 32,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 128,
+      "k_inner": 128,
+      "k_out_pad": 32,
+      "quant_bytes": 4608
+    },
+    {
+      "index": 41,
+      "name": "model.17.m.0.cv1",
+      "kind": "CBS",
+      "c_in": 32,
+      "c_out": 32,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 32,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 32,
+      "k_out_pad": 32,
+      "quant_bytes": 2560
+    },
+    {
+      "index": 42,
+      "name": "model.17.m.0.cv2",
+      "kind": "CBS",
+      "c_in": 32,
+      "c_out": 32,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 32,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 320,
+      "k_inner": 288,
+      "k_out_pad": 32,
+      "quant_bytes": 10752
+    },
+    {
+      "index": 43,
+      "name": "model.17.cv2",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 32,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 32,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 128,
+      "k_inner": 128,
+      "k_out_pad": 32,
+      "quant_bytes": 4608
+    },
+    {
+      "index": 44,
+      "name": "model.17.cv3",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 64,
+      "k_out_pad": 64,
+      "quant_bytes": 4864
+    },
+    {
+      "index": 45,
+      "name": "model.18",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 2,
+      "stride_w": 2,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 576,
+      "k_inner": 576,
+      "k_out_pad": 64,
+      "quant_bytes": 37632
+    },
+    {
+      "index": 46,
+      "name": "model.20.cv1",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 128,
+      "k_inner": 128,
+      "k_out_pad": 64,
+      "quant_bytes": 8960
+    },
+    {
+      "index": 47,
+      "name": "model.20.m.0.cv1",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 64,
+      "k_inner": 64,
+      "k_out_pad": 64,
+      "quant_bytes": 4864
+    },
+    {
+      "index": 48,
+      "name": "model.20.m.0.cv2",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 576,
+      "k_inner": 576,
+      "k_out_pad": 64,
+      "quant_bytes": 37632
+    },
+    {
+      "index": 49,
+      "name": "model.20.cv2",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 128,
+      "k_inner": 128,
+      "k_out_pad": 64,
+      "quant_bytes": 8960
+    },
+    {
+      "index": 50,
+      "name": "model.20.cv3",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 128,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 128,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 128,
+      "k_inner": 128,
+      "k_out_pad": 128,
+      "quant_bytes": 17664
+    },
+    {
+      "index": 51,
+      "name": "model.21",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 128,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 2,
+      "stride_w": 2,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 128,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 1152,
+      "k_inner": 1152,
+      "k_out_pad": 128,
+      "quant_bytes": 148736
+    },
+    {
+      "index": 52,
+      "name": "model.23.cv1",
+      "kind": "CBS",
+      "c_in": 256,
+      "c_out": 128,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 128,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 256,
+      "k_inner": 256,
+      "k_out_pad": 128,
+      "quant_bytes": 34048
+    },
+    {
+      "index": 53,
+      "name": "model.23.m.0.cv1",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 128,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 128,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 128,
+      "k_inner": 128,
+      "k_out_pad": 128,
+      "quant_bytes": 17664
+    },
+    {
+      "index": 54,
+      "name": "model.23.m.0.cv2",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 128,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 128,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 1152,
+      "k_inner": 1152,
+      "k_out_pad": 128,
+      "quant_bytes": 148736
+    },
+    {
+      "index": 55,
+      "name": "model.23.cv2",
+      "kind": "CBS",
+      "c_in": 256,
+      "c_out": 128,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 128,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 256,
+      "k_inner": 256,
+      "k_out_pad": 128,
+      "quant_bytes": 34048
+    },
+    {
+      "index": 56,
+      "name": "model.23.cv3",
+      "kind": "CBS",
+      "c_in": 256,
+      "c_out": 256,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 256,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 256,
+      "k_inner": 256,
+      "k_out_pad": 256,
+      "quant_bytes": 67840
+    },
+    {
+      "index": 57,
+      "name": "model.24.cv2.0.0",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 64,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 576,
+      "k_inner": 576,
+      "k_out_pad": 64,
+      "quant_bytes": 37632
+    },
+    {
+      "index": 58,
+      "name": "model.24.cv2.0.1",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 64,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 576,
+      "k_inner": 576,
+      "k_out_pad": 64,
+      "quant_bytes": 37632
+    },
+    {
+      "index": 59,
+      "name": "model.24.cv2.1.0",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 64,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 1152,
+      "k_inner": 1152,
+      "k_out_pad": 64,
+      "quant_bytes": 74496
+    },
+    {
+      "index": 60,
+      "name": "model.24.cv2.1.1",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 576,
+      "k_inner": 576,
+      "k_out_pad": 64,
+      "quant_bytes": 37632
+    },
+    {
+      "index": 61,
+      "name": "model.24.cv2.2.0",
+      "kind": "CBS",
+      "c_in": 256,
+      "c_out": 64,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 64,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 2304,
+      "k_inner": 2304,
+      "k_out_pad": 64,
+      "quant_bytes": 148224
+    },
+    {
+      "index": 62,
+      "name": "model.24.cv2.2.1",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 64,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 576,
+      "k_inner": 576,
+      "k_out_pad": 64,
+      "quant_bytes": 37632
+    },
+    {
+      "index": 63,
+      "name": "model.24.cv3.0.0",
+      "kind": "CBS",
+      "c_in": 64,
+      "c_out": 80,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 80,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 576,
+      "k_inner": 576,
+      "k_out_pad": 80,
+      "quant_bytes": 46976
+    },
+    {
+      "index": 64,
+      "name": "model.24.cv3.0.1",
+      "kind": "CBS",
+      "c_in": 80,
+      "c_out": 80,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 80,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": true,
+      "w_stride": 768,
+      "k_inner": 720,
+      "k_out_pad": 80,
+      "quant_bytes": 62336
+    },
+    {
+      "index": 65,
+      "name": "model.24.cv3.1.0",
+      "kind": "CBS",
+      "c_in": 128,
+      "c_out": 80,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 80,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 1152,
+      "k_inner": 1152,
+      "k_out_pad": 80,
+      "quant_bytes": 93056
+    },
+    {
+      "index": 66,
+      "name": "model.24.cv3.1.1",
+      "kind": "CBS",
+      "c_in": 80,
+      "c_out": 80,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 80,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": true,
+      "w_stride": 768,
+      "k_inner": 720,
+      "k_out_pad": 80,
+      "quant_bytes": 62336
+    },
+    {
+      "index": 67,
+      "name": "model.24.cv3.2.0",
+      "kind": "CBS",
+      "c_in": 256,
+      "c_out": 80,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 80,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 2304,
+      "k_inner": 2304,
+      "k_out_pad": 80,
+      "quant_bytes": 185216
+    },
+    {
+      "index": 68,
+      "name": "model.24.cv3.2.1",
+      "kind": "CBS",
+      "c_in": 80,
+      "c_out": 80,
+      "k_h": 3,
+      "k_w": 3,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 1,
+      "pad_w": 1,
+      "out_c": 80,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": true,
+      "w_stride": 768,
+      "k_inner": 720,
+      "k_out_pad": 80,
+      "quant_bytes": 62336
+    },
+    {
+      "index": 69,
+      "name": "model.24.cv2.0.2",
+      "kind": "RAW",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": false,
+      "w_stride": 64,
+      "k_inner": 64,
+      "k_out_pad": 64,
+      "quant_bytes": 4608
+    },
+    {
+      "index": 70,
+      "name": "model.24.cv2.1.2",
+      "kind": "RAW",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": false,
+      "w_stride": 64,
+      "k_inner": 64,
+      "k_out_pad": 64,
+      "quant_bytes": 4608
+    },
+    {
+      "index": 71,
+      "name": "model.24.cv2.2.2",
+      "kind": "RAW",
+      "c_in": 64,
+      "c_out": 64,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 64,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": false,
+      "w_stride": 64,
+      "k_inner": 64,
+      "k_out_pad": 64,
+      "quant_bytes": 4608
+    },
+    {
+      "index": 72,
+      "name": "model.24.cv3.0.2",
+      "kind": "RAW",
+      "c_in": 80,
+      "c_out": 80,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 80,
+      "out_h": 80,
+      "out_w": 80,
+      "has_silu": false,
+      "w_stride": 128,
+      "k_inner": 80,
+      "k_out_pad": 80,
+      "quant_bytes": 10880
+    },
+    {
+      "index": 73,
+      "name": "model.24.cv3.1.2",
+      "kind": "RAW",
+      "c_in": 80,
+      "c_out": 80,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 80,
+      "out_h": 40,
+      "out_w": 40,
+      "has_silu": false,
+      "w_stride": 128,
+      "k_inner": 80,
+      "k_out_pad": 80,
+      "quant_bytes": 10880
+    },
+    {
+      "index": 74,
+      "name": "model.24.cv3.2.2",
+      "kind": "RAW",
+      "c_in": 80,
+      "c_out": 80,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 80,
+      "out_h": 20,
+      "out_w": 20,
+      "has_silu": false,
+      "w_stride": 128,
+      "k_inner": 80,
+      "k_out_pad": 80,
+      "quant_bytes": 10880
+    },
+    {
+      "index": 75,
+      "name": "model.24.dfl.conv",
+      "kind": "RAW",
+      "c_in": 16,
+      "c_out": 1,
+      "k_h": 1,
+      "k_w": 1,
+      "stride_h": 1,
+      "stride_w": 1,
+      "pad_h": 0,
+      "pad_w": 0,
+      "out_c": 1,
+      "out_h": 4,
+      "out_w": 8400,
+      "has_silu": false,
+      "w_stride": 64,
+      "k_inner": 16,
+      "k_out_pad": 16,
+      "quant_bytes": 192
+    }
+  ],
+  "processes": [
+    {
+      "id": "P0",
+      "kind": "yolo_stage_stem",
+      "model_blocks": [
+        0,
+        1,
+        2
+      ],
+      "layer_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "layer_names": [
+        "model.0",
+        "model.1",
+        "model.2.cv1",
+        "model.2.m.0.cv1",
+        "model.2.m.0.cv2",
+        "model.2.cv2",
+        "model.2.cv3"
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "shape": [
+            3,
+            640,
+            640
+          ],
+          "bytes": 1228800
+        }
+      ],
+      "outputs": [
+        "t2"
+      ],
+      "output_shape": [
+        32,
+        160,
+        160
+      ],
+      "output_bytes": 819200,
+      "weight_bytes": 19328,
+      "scratch_est_bytes": 2048000,
+      "scratch_basis": "C3_1 naive: cv2 + bottleneck tmp0/tmp1 + concat staging",
+      "notes": "Straight-line stem; no useful split before the first saved feature map."
+    },
+    {
+      "id": "P1",
+      "kind": "yolo_stage_down",
+      "model_blocks": [
+        3,
+        4
+      ],
+      "layer_indices": [
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "layer_names": [
+        "model.3",
+        "model.4.cv1",
+        "model.4.m.0.cv1",
+        "model.4.m.0.cv2",
+        "model.4.m.1.cv1",
+        "model.4.m.1.cv2",
+        "model.4.cv2",
+        "model.4.cv3"
+      ],
+      "inputs": [
+        {
+          "name": "t2",
+          "shape": [
+            32,
+            160,
+            160
+          ],
+          "bytes": 819200
+        }
+      ],
+      "outputs": [
+        "skip_p3"
+      ],
+      "output_shape": [
+        64,
+        80,
+        80
+      ],
+      "output_bytes": 409600,
+      "weight_bytes": 57856,
+      "scratch_est_bytes": 1024000,
+      "scratch_basis": "C3_2 naive scratch bound, bottleneck temps reused across iterations",
+      "notes": "First backbone skip output; natural process boundary."
+    },
+    {
+      "id": "P2",
+      "kind": "yolo_stage_down",
+      "model_blocks": [
+        5,
+        6
+      ],
+      "layer_indices": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "layer_names": [
+        "model.5",
+        "model.6.cv1",
+        "model.6.m.0.cv1",
+        "model.6.m.0.cv2",
+        "model.6.m.1.cv1",
+        "model.6.m.1.cv2",
+        "model.6.m.2.cv1",
+        "model.6.m.2.cv2",
+        "model.6.cv2",
+        "model.6.cv3"
+      ],
+      "inputs": [
+        {
+          "name": "skip_p3",
+          "shape": [
+            64,
+            80,
+            80
+          ],
+          "bytes": 409600
+        }
+      ],
+      "outputs": [
+        "skip_p4"
+      ],
+      "output_shape": [
+        128,
+        40,
+        40
+      ],
+      "output_bytes": 204800,
+      "weight_bytes": 238080,
+      "scratch_est_bytes": 512000,
+      "scratch_basis": "C3_3 naive scratch bound, bottleneck temps reused across iterations",
+      "notes": "Second backbone skip output; natural process boundary."
+    },
+    {
+      "id": "P3",
+      "kind": "yolo_stage_top",
+      "model_blocks": [
+        7,
+        8,
+        9,
+        10
+      ],
+      "layer_indices": [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33
+      ],
+      "layer_names": [
+        "model.7",
+        "model.8.cv1",
+        "model.8.m.0.cv1",
+        "model.8.m.0.cv2",
+        "model.8.cv2",
+        "model.8.cv3",
+        "model.9.cv1",
+        "model.9.cv2",
+        "model.10"
+      ],
+      "inputs": [
+        {
+          "name": "skip_p4",
+          "shape": [
+            128,
+            40,
+            40
+          ],
+          "bytes": 204800
+        }
+      ],
+      "outputs": [
+        "skip_p5"
+      ],
+      "output_shape": [
+        128,
+        20,
+        20
+      ],
+      "output_bytes": 51200,
+      "weight_bytes": 801024,
+      "scratch_est_bytes": 409600,
+      "scratch_basis": "SPPF dominates: cv1 + 3 pooled maps + concat staging",
+      "notes": "Top backbone stage; C3/SPPF/CBS kept fused to avoid exposing large temporaries."
+    },
+    {
+      "id": "P4",
+      "kind": "yolo_neck_up",
+      "model_blocks": [
+        11,
+        12,
+        13,
+        14
+      ],
+      "layer_indices": [
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "layer_names": [
+        "model.13.cv1",
+        "model.13.m.0.cv1",
+        "model.13.m.0.cv2",
+        "model.13.cv2",
+        "model.13.cv3",
+        "model.14"
+      ],
+      "inputs": [
+        {
+          "name": "skip_p5",
+          "shape": [
+            128,
+            20,
+            20
+          ],
+          "bytes": 51200
+        },
+        {
+          "name": "skip_p4",
+          "shape": [
+            128,
+            40,
+            40
+          ],
+          "bytes": 204800
+        }
+      ],
+      "outputs": [
+        "mid_p4"
+      ],
+      "output_shape": [
+        64,
+        40,
+        40
+      ],
+      "output_bytes": 102400,
+      "weight_bytes": 103424,
+      "scratch_est_bytes": 512000,
+      "scratch_basis": "Concat staging + C3_1 scratch, sequentially reused",
+      "notes": "Upsample/concat/C3/CBS chain kept in one process."
+    },
+    {
+      "id": "P5",
+      "kind": "yolo_neck_up",
+      "model_blocks": [
+        15,
+        16,
+        17
+      ],
+      "layer_indices": [
+        40,
+        41,
+        42,
+        43,
+        44
+      ],
+      "layer_names": [
+        "model.17.cv1",
+        "model.17.m.0.cv1",
+        "model.17.m.0.cv2",
+        "model.17.cv2",
+        "model.17.cv3"
+      ],
+      "inputs": [
+        {
+          "name": "mid_p4",
+          "shape": [
+            64,
+            40,
+            40
+          ],
+          "bytes": 102400
+        },
+        {
+          "name": "skip_p3",
+          "shape": [
+            64,
+            80,
+            80
+          ],
+          "bytes": 409600
+        }
+      ],
+      "outputs": [
+        "p3"
+      ],
+      "output_shape": [
+        64,
+        80,
+        80
+      ],
+      "output_bytes": 409600,
+      "weight_bytes": 27392,
+      "scratch_est_bytes": 1024000,
+      "scratch_basis": "Concat staging + C3_1 scratch, sequentially reused",
+      "notes": "Produces the finest detection scale input."
+    },
+    {
+      "id": "P6",
+      "kind": "yolo_detect_scale",
+      "model_blocks": [
+        24
+      ],
+      "layer_indices": [
+        57,
+        58,
+        69,
+        63,
+        64,
+        72
+      ],
+      "layer_names": [
+        "model.24.cv2.0.0",
+        "model.24.cv2.0.1",
+        "model.24.cv2.0.2",
+        "model.24.cv3.0.0",
+        "model.24.cv3.0.1",
+        "model.24.cv3.0.2"
+      ],
+      "inputs": [
+        {
+          "name": "p3",
+          "shape": [
+            64,
+            80,
+            80
+          ],
+          "bytes": 409600
+        }
+      ],
+      "outputs": [
+        "p3_box",
+        "p3_cls"
+      ],
+      "output_shape": [
+        [
+          64,
+          80,
+          80
+        ],
+        [
+          80,
+          80,
+          80
+        ]
+      ],
+      "output_bytes": [
+        409600,
+        512000
+      ],
+      "weight_bytes": 200064,
+      "scratch_est_bytes": 512000,
+      "scratch_basis": "Sequential box/cls branches; largest branch intermediate dominates",
+      "notes": "One process per detect scale; box and cls branches stay fused."
+    },
+    {
+      "id": "P7",
+      "kind": "yolo_neck_down",
+      "model_blocks": [
+        18,
+        19,
+        20
+      ],
+      "layer_indices": [
+        45,
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      "layer_names": [
+        "model.18",
+        "model.20.cv1",
+        "model.20.m.0.cv1",
+        "model.20.m.0.cv2",
+        "model.20.cv2",
+        "model.20.cv3"
+      ],
+      "inputs": [
+        {
+          "name": "p3",
+          "shape": [
+            64,
+            80,
+            80
+          ],
+          "bytes": 409600
+        },
+        {
+          "name": "mid_p4",
+          "shape": [
+            64,
+            40,
+            40
+          ],
+          "bytes": 102400
+        }
+      ],
+      "outputs": [
+        "p4"
+      ],
+      "output_shape": [
+        128,
+        40,
+        40
+      ],
+      "output_bytes": 204800,
+      "weight_bytes": 115712,
+      "scratch_est_bytes": 512000,
+      "scratch_basis": "Downsample + concat + C3_1 sequential scratch",
+      "notes": "Middle detection scale producer."
+    },
+    {
+      "id": "P8",
+      "kind": "yolo_detect_scale",
+      "model_blocks": [
+        24
+      ],
+      "layer_indices": [
+        59,
+        60,
+        70,
+        65,
+        66,
+        73
+      ],
+      "layer_names": [
+        "model.24.cv2.1.0",
+        "model.24.cv2.1.1",
+        "model.24.cv2.1.2",
+        "model.24.cv3.1.0",
+        "model.24.cv3.1.1",
+        "model.24.cv3.1.2"
+      ],
+      "inputs": [
+        {
+          "name": "p4",
+          "shape": [
+            128,
+            40,
+            40
+          ],
+          "bytes": 204800
+        }
+      ],
+      "outputs": [
+        "p4_box",
+        "p4_cls"
+      ],
+      "output_shape": [
+        [
+          64,
+          40,
+          40
+        ],
+        [
+          80,
+          40,
+          40
+        ]
+      ],
+      "output_bytes": [
+        102400,
+        128000
+      ],
+      "weight_bytes": 283008,
+      "scratch_est_bytes": 128000,
+      "scratch_basis": "Sequential box/cls branches; largest branch intermediate dominates",
+      "notes": "One process per detect scale; box and cls branches stay fused."
+    },
+    {
+      "id": "P9",
+      "kind": "yolo_neck_down",
+      "model_blocks": [
+        21,
+        22,
+        23
+      ],
+      "layer_indices": [
+        51,
+        52,
+        53,
+        54,
+        55,
+        56
+      ],
+      "layer_names": [
+        "model.21",
+        "model.23.cv1",
+        "model.23.m.0.cv1",
+        "model.23.m.0.cv2",
+        "model.23.cv2",
+        "model.23.cv3"
+      ],
+      "inputs": [
+        {
+          "name": "p4",
+          "shape": [
+            128,
+            40,
+            40
+          ],
+          "bytes": 204800
+        },
+        {
+          "name": "skip_p5",
+          "shape": [
+            128,
+            20,
+            20
+          ],
+          "bytes": 51200
+        }
+      ],
+      "outputs": [
+        "p5"
+      ],
+      "output_shape": [
+        256,
+        20,
+        20
+      ],
+      "output_bytes": 102400,
+      "weight_bytes": 451072,
+      "scratch_est_bytes": 256000,
+      "scratch_basis": "Downsample + concat + C3_1 sequential scratch",
+      "notes": "Coarsest detection scale producer."
+    },
+    {
+      "id": "P10",
+      "kind": "yolo_detect_scale",
+      "model_blocks": [
+        24
+      ],
+      "layer_indices": [
+        61,
+        62,
+        71,
+        67,
+        68,
+        74
+      ],
+      "layer_names": [
+        "model.24.cv2.2.0",
+        "model.24.cv2.2.1",
+        "model.24.cv2.2.2",
+        "model.24.cv3.2.0",
+        "model.24.cv3.2.1",
+        "model.24.cv3.2.2"
+      ],
+      "inputs": [
+        {
+          "name": "p5",
+          "shape": [
+            256,
+            20,
+            20
+          ],
+          "bytes": 102400
+        }
+      ],
+      "outputs": [
+        "p5_box",
+        "p5_cls"
+      ],
+      "output_shape": [
+        [
+          64,
+          20,
+          20
+        ],
+        [
+          80,
+          20,
+          20
+        ]
+      ],
+      "output_bytes": [
+        25600,
+        32000
+      ],
+      "weight_bytes": 448896,
+      "scratch_est_bytes": 32000,
+      "scratch_basis": "Sequential box/cls branches; largest branch intermediate dominates",
+      "notes": "One process per detect scale; box and cls branches stay fused."
+    }
+  ],
+  "channels": [
+    {
+      "name": "t2",
+      "producer": "P0",
+      "consumers": [
+        "P1"
+      ],
+      "shape": [
+        32,
+        160,
+        160
+      ],
+      "bytes": 819200,
+      "role": "sequential stage handoff"
+    },
+    {
+      "name": "skip_p3",
+      "producer": "P1",
+      "consumers": [
+        "P2",
+        "P5"
+      ],
+      "shape": [
+        64,
+        80,
+        80
+      ],
+      "bytes": 409600,
+      "role": "backbone skip"
+    },
+    {
+      "name": "skip_p4",
+      "producer": "P2",
+      "consumers": [
+        "P3",
+        "P4"
+      ],
+      "shape": [
+        128,
+        40,
+        40
+      ],
+      "bytes": 204800,
+      "role": "backbone skip"
+    },
+    {
+      "name": "skip_p5",
+      "producer": "P3",
+      "consumers": [
+        "P4",
+        "P9"
+      ],
+      "shape": [
+        128,
+        20,
+        20
+      ],
+      "bytes": 51200,
+      "role": "top feature"
+    },
+    {
+      "name": "mid_p4",
+      "producer": "P4",
+      "consumers": [
+        "P5",
+        "P7"
+      ],
+      "shape": [
+        64,
+        40,
+        40
+      ],
+      "bytes": 102400,
+      "role": "neck intermediate"
+    },
+    {
+      "name": "p3",
+      "producer": "P5",
+      "consumers": [
+        "P6",
+        "P7"
+      ],
+      "shape": [
+        64,
+        80,
+        80
+      ],
+      "bytes": 409600,
+      "role": "detect scale input"
+    },
+    {
+      "name": "p4",
+      "producer": "P7",
+      "consumers": [
+        "P8",
+        "P9"
+      ],
+      "shape": [
+        128,
+        40,
+        40
+      ],
+      "bytes": 204800,
+      "role": "detect scale input"
+    },
+    {
+      "name": "p5",
+      "producer": "P9",
+      "consumers": [
+        "P10"
+      ],
+      "shape": [
+        256,
+        20,
+        20
+      ],
+      "bytes": 102400,
+      "role": "detect scale input"
+    },
+    {
+      "name": "p3_box",
+      "producer": "P6",
+      "consumers": [],
+      "shape": [
+        64,
+        80,
+        80
+      ],
+      "bytes": 409600,
+      "role": "terminal output"
+    },
+    {
+      "name": "p3_cls",
+      "producer": "P6",
+      "consumers": [],
+      "shape": [
+        80,
+        80,
+        80
+      ],
+      "bytes": 512000,
+      "role": "terminal output"
+    },
+    {
+      "name": "p4_box",
+      "producer": "P8",
+      "consumers": [],
+      "shape": [
+        64,
+        40,
+        40
+      ],
+      "bytes": 102400,
+      "role": "terminal output"
+    },
+    {
+      "name": "p4_cls",
+      "producer": "P8",
+      "consumers": [],
+      "shape": [
+        80,
+        40,
+        40
+      ],
+      "bytes": 128000,
+      "role": "terminal output"
+    },
+    {
+      "name": "p5_box",
+      "producer": "P10",
+      "consumers": [],
+      "shape": [
+        64,
+        20,
+        20
+      ],
+      "bytes": 25600,
+      "role": "terminal output"
+    },
+    {
+      "name": "p5_cls",
+      "producer": "P10",
+      "consumers": [],
+      "shape": [
+        80,
+        20,
+        20
+      ],
+      "bytes": 32000,
+      "role": "terminal output"
+    }
+  ],
+  "representative_block_tests": [
+    {
+      "name": "CBS",
+      "layers": [
+        40
+      ],
+      "why": "representative mid-neck 1x1 CBS"
+    },
+    {
+      "name": "Bottleneck",
+      "layers": [
+        27,
+        28
+      ],
+      "why": "first non-trivial residual block"
+    },
+    {
+      "name": "C3_1",
+      "layers": [
+        40,
+        41,
+        42,
+        43,
+        44
+      ],
+      "why": "smallest CSP-style fused block"
+    },
+    {
+      "name": "C3_3",
+      "layers": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "why": "heavier backbone C3 block"
+    },
+    {
+      "name": "SPPF",
+      "layers": [
+        31,
+        32
+      ],
+      "why": "special pooling/concat topology"
+    },
+    {
+      "name": "neck_up",
+      "layers": [
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "why": "upsample+concat+C3 fusion"
+    },
+    {
+      "name": "neck_down",
+      "layers": [
+        45,
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      "why": "downsample+concat+C3 fusion"
+    },
+    {
+      "name": "detect_p3",
+      "layers": [
+        57,
+        58,
+        69,
+        63,
+        64,
+        72
+      ],
+      "why": "terminal branch pair at finest scale"
+    }
+  ],
+  "first_subgraph": {
+    "processes": [
+      "P3",
+      "P4",
+      "P5",
+      "P6"
+    ],
+    "why": "first meaningful TPA subgraph with skip reuse, upsample, concat, and one detect branch"
+  }
+}
