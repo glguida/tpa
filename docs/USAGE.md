@@ -48,6 +48,26 @@ header defines `TPA_HAL_NR_HARTS`, `TPA_HAL_CACHELINE_BYTES`, and
 - `examples/platform_etsoc1.c` demonstrates ET-SoC-1 platform selection and
   compile-time channel policy.
 
+## Planner/mapper workflow
+
+The offline Python planner/mapper package lives in `planner/`, with topology
+inputs in `machines/`. Install and smoke-test it from the repository root:
+
+```sh
+python3 -m venv .venv-planner
+. .venv-planner/bin/activate
+python -m pip install -e planner
+python -m unittest discover -s planner/tests
+
+tpa-map-program --help
+tpa-plan-program --help
+tpa-extract-process-json --help
+```
+
+The package currently ports the original extract/map/plan Python entry points
+and the machine topology inputs used by the mapper. See `planner/README.md` for
+example mapper commands.
+
 ## Limitations
 
 The repository is still in the extraction/integration phase. There is not yet a
@@ -55,3 +75,7 @@ single finalized build invocation or complete runtime startup example. The
 examples are intentionally small and are validated with strict syntax checks
 against the current public headers. Full platform execution still requires the
 appropriate Erbium or ET-SoC-1 runtime/toolchain integration.
+
+The planner/mapper tooling is Python-only for now. CMake targets that build real
+process objects and extract process JSON metadata have not yet been ported, so a
+full demo still needs the process-build and runtime integration work.

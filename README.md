@@ -14,6 +14,9 @@ static TPA library per supported HAL platform.
 - `tpa/lib/src/` — platform-independent core module implementations.
 - `examples/` — syntax-checkable snippets showing the intended include and
   usage pattern.
+- `planner/` — Python offline process metadata extraction, mapping, and
+  planning tools.
+- `machines/` — machine topology JSON inputs consumed by the planner/mapper.
 
 ## Configure, build, and test
 
@@ -59,4 +62,21 @@ and `<tpa/hal/etsoc1.h>`.
 Core code should include `tpa/hal.h` or the core headers only; it must not
 include Erbium or ET-SoC-1 private implementation files.
 
-See `docs/USAGE.md` for details and current integration limitations.
+## Planner/mapper tools
+
+The offline planner package can be installed in editable mode from the
+repository root:
+
+```sh
+python3 -m venv .venv-planner
+. .venv-planner/bin/activate
+python -m pip install -e planner
+python -m unittest discover -s planner/tests
+
+tpa-map-program --help
+tpa-plan-program --help
+tpa-extract-process-json --help
+```
+
+See `planner/README.md` for mapper command examples and current limitations.
+See `docs/USAGE.md` for runtime details and current integration limitations.

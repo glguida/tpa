@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tpa-planner"
+version = "0.1.0"
+description = "Offline TPA process metadata extraction and program planning tools"
+requires-python = ">=3.10"
+dependencies = ["networkx"]
+
+[project.scripts]
+tpa-extract-process-json = "tpa_planner.extract_process_metadata:main"
+tpa-plan-program = "tpa_planner.plan_program:main"
+tpa-map-program = "tpa_planner.map_program:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
