@@ -17,7 +17,7 @@ Read these before making changes:
 8. `docs/MISSING_ORIGINAL_ARTIFACTS.md`
 9. `docs/USAGE.md`
 10. `planner/README.md` when touching planner/mapper code
-11. `docs/yolo-demo.md` when it exists and you are touching YOLO paths
+11. `docs/yolo-demo.md` when touching YOLO paths
 
 ## Core rules
 
@@ -191,7 +191,11 @@ because the current YOLO mapping uses the full-card machine JSON.
 - Forgetting to install/select the planner Python environment for YOLO CMake
   planner/map targets.
 - Claiming YOLO block CTests or model regeneration tools are integrated before
-  they are actually ported.
+  they are actually ported. YOLO tools/models and representative block tests are
+  ported; check `docs/yolo-demo.md` for current scope.
+- Claiming ported message/queue/negative test ELFs prove full scheduler runtime
+  behavior before the cooperative runtime scheduler executes process
+  continuations.
 - Claiming archived DNN demos or LTFarm are active build targets; they are
   preserved under `docs/archive/` until their dependencies/harnesses are
   revived.
@@ -207,7 +211,8 @@ build targets, ET-SoC-1 default `tpa_core`, the host launcher target, planner
 tests, and host smoke-test doubles.
 
 Important follow-up areas remain documented in
-`docs/MISSING_ORIGINAL_ARTIFACTS.md`: YOLO block-test CTest wiring, YOLO
-tools/models, broader generated reports, and full cooperative runtime scheduler
-work. DNN demos, LTFarm, trace tools, and historical generated YOLO reports have
-explicit port/archive status.
+`docs/MISSING_ORIGINAL_ARTIFACTS.md`: full cooperative runtime scheduler work.
+Message/queue/negative test ELFs are ported, but full behavioral validation
+remains scheduler follow-up. YOLO tools/models and representative block tests
+are documented in `docs/yolo-demo.md`. DNN demos, LTFarm, trace tools, and
+historical generated YOLO reports have explicit port/archive status.

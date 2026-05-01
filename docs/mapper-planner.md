@@ -311,9 +311,9 @@ Current limitations are explicit and should not be hidden:
 - machine JSONs are mapper-visible approximations, not full ET architecture
   specifications;
 - broader process metadata extraction coverage remains follow-up;
-- YOLO full/demo host launcher integration and YOLO block-test CTest wiring are
-  not yet complete;
-- old YOLO model regeneration tools and model artifacts are not ported;
+- YOLO full/demo host launcher integration is not yet complete;
+- YOLO model artifacts and regeneration tools are ported, but heavyweight
+  regeneration dependencies are not part of normal planner validation;
 - message, queue, and negative test assets are ported as structured ELF targets,
   but full behavioral validation still depends on the cooperative scheduler
   follow-up;

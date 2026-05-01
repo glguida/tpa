@@ -204,8 +204,9 @@ The current edge-buffer path is real but still evolving:
 - original message/channel, queue, and negative test assets are ported as
   structured ELF targets, but full behavioral validation still depends on the
   cooperative scheduler follow-up;
-- YOLO block CTest wiring is still missing/follow-up;
-- old YOLO regeneration/model tools are not ported;
+- YOLO model artifacts and regeneration tools are ported under `models/` and
+  `tools/yolo/`, but heavyweight regeneration dependencies are not part of
+  normal validation;
 - the full cooperative runtime scheduler remains separate follow-up work.
 
 See `docs/MISSING_ORIGINAL_ARTIFACTS.md` for the broader missing-artifact

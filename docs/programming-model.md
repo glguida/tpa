@@ -266,9 +266,10 @@ Currently integrated generated TPA programs include:
 
 Original message, queue, and negative regression assets are also integrated as
 structured test ELF targets, though their full behavioral validation depends on
-the cooperative scheduler follow-up. YOLO block-test CTest wiring remains
-follow-up work. Original DNN demos and LTFarm are archived under `docs/archive/`
-as reference material, not active generated program targets.
+the cooperative scheduler follow-up. YOLO tools/models and representative block
+tests are ported; full YOLO host/demo integration remains follow-up work.
+Original DNN demos and LTFarm are archived under `docs/archive/` as reference
+material, not active generated program targets.
 
 ## Current runtime limitation
 

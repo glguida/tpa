@@ -28,8 +28,10 @@ smoke-test doubles; they are not ET platform validation.
 - `tests/tpa_msg/`, `tests/tpa_queue/`, `tests/tpa_negative/` — ported
   original message/channel, scheduler/queue, and expected-failure runtime test
   assets integrated through the structured TPA process/program build path.
-- `tests/yolo/` — YOLO block-test sources/assets retained for follow-up CTest
-  integration.
+- `tests/yolo/` — YOLO block-test sources/assets with representative structured
+  Erbium block-test targets.
+- `tools/yolo/` and `models/` — YOLO regeneration/quantization tools and source
+  model artifacts.
 - `planner/` — Python metadata extraction, planning, and mapping package.
 - `machines/` — mapper machine topology JSON inputs.
 - `tools/trace/` — Erbium emulator trace splitting and symbol-attribution tools.
@@ -46,6 +48,7 @@ smoke-test doubles; they are not ET platform validation.
 - `docs/mapper-planner.md` — planner/mapper inputs, algorithms, outputs, and
   commands.
 - `docs/memory-and-edge-buffers.md` — memory taxonomy and edge-buffer planning.
+- `docs/yolo-demo.md` — YOLO downstream, tools/models policy, and block tests.
 - `docs/MISSING_ORIGINAL_ARTIFACTS.md` — ported vs missing original artifacts.
 - `docs/USAGE.md` — current runtime usage notes and caveats.
 - `planner/README.md` — quick reference for the Python planner package.
@@ -195,8 +198,9 @@ Ported and validated today:
   analysis under `docs/archive/`.
 - Host smoke-test-double mode for non-platform syntax/unit smoke.
 
-Important missing or partial areas remain: YOLO block-test CTest wiring, YOLO
-model regeneration tools/model artifacts, full YOLO end-user host pipeline, and
+Important missing or partial areas remain: full YOLO end-user host pipeline and
 the full cooperative runtime scheduler. Message/queue/negative test ELFs are
 ported, but full behavioral validation remains tied to the cooperative scheduler
-follow-up. See `docs/MISSING_ORIGINAL_ARTIFACTS.md` for the detailed inventory.
+follow-up. YOLO tools/models and representative block tests are now ported; DNN
+and LTFarm sources are archived/reference material. See `docs/yolo-demo.md` and
+`docs/MISSING_ORIGINAL_ARTIFACTS.md` for the detailed inventory.

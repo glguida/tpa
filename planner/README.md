@@ -107,4 +107,9 @@ Generated mapper outputs can include:
 - a generated edge-buffer configuration header for mapped TPA channels.
 
 Remaining follow-up work is broader integration, not absence of all integration:
-YOLO full/demo host launcher support, YOLO block-test CTest wiring, broader metadata extraction coverage, ltfarm experiments, and the full cooperative runtime scheduler are still tracked as follow-up work in `docs/USAGE.md`. Message/queue/negative test ELFs are ported, while their full behavioral validation depends on the full cooperative scheduler follow-up.
+YOLO full/demo host launcher support, broader metadata extraction coverage,
+ltfarm experiments, and the full cooperative runtime scheduler are still tracked
+as follow-up work in `docs/USAGE.md`. YOLO tools/models and representative block
+tests are documented in `docs/yolo-demo.md`. Message/queue/negative test ELFs
+are ported, while their full behavioral validation depends on the full
+cooperative scheduler follow-up.

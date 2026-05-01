@@ -15,8 +15,7 @@ if (NOT DEFINED MAX_CYCLES)
 endif()
 
 execute_process(
-    COMMAND "${EMU}" -minions 0xff -mins_dis -max_cycles "${MAX_CYCLES}"
-            -elf_load "${ELF}"
+    COMMAND "${EMU}" -max_cycles "${MAX_CYCLES}" -elf_load "${ELF}"
     RESULT_VARIABLE rc
     OUTPUT_VARIABLE out
     ERROR_VARIABLE err
