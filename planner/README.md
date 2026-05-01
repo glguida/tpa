@@ -10,8 +10,11 @@ It was ported from the original TPA repository and currently provides:
 - `tpa-plan-program` — produce program planning reports from process metadata.
 - Machine topology inputs in the repository-level `machines/` directory.
 
-The planner is intentionally Python-only in this structured runtime repository;
-CMake integration for extracting real process JSON is not yet ported.
+The planner remains a Python package, but it is now used by structured CMake
+integration for the ported ET demo paths. The `kernels/` simple demos build
+through `add_tpa_process()` / `add_tpa_program()`, and the YOLOv5n downstream
+path has CMake targets that extract process metadata, generate planner reports,
+map the program, and build a generated device ELF.
 
 ## Setup
 
@@ -36,7 +39,32 @@ tpa-extract-process-json --help
 The tests exercise the checked-in machine topologies and a synthetic tensor
 matmul mapping workload. They do not require the original TPA build tree.
 
-## Example mapper invocation
+## CMake-integrated planner targets
+
+With an ET platform root and the planner package installed in the selected
+Python environment, the top-level ET superbuild forwards the currently ported
+planner/demo targets:
+
+```sh
+cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python)
+cmake --build build-et-erbium --target tpa_pipe_demo.elf
+cmake --build build-et-erbium --target tpa_empty.elf
+cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
+cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
+cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+```
+
+The YOLO downstream planner/map targets use the structured `machines/` JSONs and
+write generated planner JSON, mapped-program JSON, placement, scratch config,
+and edge-buffer config artifacts under the device build tree. The generated
+`kernels/` and `yolov5n/` ELFs can be loaded with `erbium_emu` as documented in
+the repository-level `README.md` and `docs/USAGE.md`.
+
+These ET builds are platform validation. Host smoke-test-double builds are only
+local syntax/unit smoke tests and must not be treated as Erbium or ET-SoC-1
+validation.
+
+## Example standalone mapper invocation
 
 After installing the package, provide a program file, process metadata JSON,
 optional compute-cost hints, and one of the checked-in machine topology files:
@@ -73,8 +101,11 @@ Generated mapper outputs can include:
 - a mapped-program artifact containing mapped instances, mapped connections,
   scratch domains, and memory summary;
 - a generated `.place` file;
-- a temporary scratch header containing one arena-size macro per minion.
+- a generated scratch header containing one arena-size macro per minion;
+- a generated edge-buffer configuration header for mapped TPA channels.
 
-Full end-to-end demo execution still requires porting the process builds,
-metadata extraction CMake targets, and runtime/demo integration from the
-original repository.
+Remaining follow-up work is broader integration, not absence of all integration:
+YOLO full/demo host launcher support, YOLO block-test CTest wiring, broader
+metadata extraction coverage, message tests, ltfarm experiments, and the full
+cooperative runtime scheduler are still tracked as follow-up work in
+`docs/USAGE.md`.
