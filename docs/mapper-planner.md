@@ -295,6 +295,8 @@ cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 `yolov5n/CMakeLists.txt` wires these steps by:
 
 - selecting `machines/erbium.json` or `machines/etsoc1.json`;
+- prepending this repository's `planner/src` to `PYTHONPATH` for CMake planner
+  commands so stale globally installed `tpa_planner` packages are not used;
 - checking that the selected Python can import `tpa_planner`;
 - extracting process metadata for each YOLO process target;
 - producing planner reports with `tpa_planner.plan_program`;

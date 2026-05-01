@@ -52,8 +52,11 @@ cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
 ```
 
-The downstream planner/map artifact path is integrated. The downstream device
-ELF links on Erbium and reports a PASS marker under `erbium_emu`:
+The downstream planner/map artifact path is integrated. CMake prepends this
+repository's `planner/src` to `PYTHONPATH` for these planner commands so a stale
+globally installed `tpa_planner` package cannot generate mismatched headers. The
+downstream device ELF links on Erbium and reports a PASS marker under
+`erbium_emu`:
 
 ```sh
 cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf

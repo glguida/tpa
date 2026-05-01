@@ -78,7 +78,8 @@ Important points:
 - The current mapper is performance-first under a hard memory budget, with
   optional greedy context-collapse repair.
 
-Install the planner package before using CMake targets that import it:
+Install the planner package before using planner CLI entry points directly and
+before running planner package tests:
 
 ```sh
 python3 -m venv .venv-planner
@@ -87,7 +88,10 @@ python -m pip install -e planner
 python -m unittest discover -s planner/tests
 ```
 
-Configure with `-DPYTHON=$(command -v python)` when using that environment.
+CMake-integrated YOLO planner/map targets prepend this repository's
+`planner/src` to `PYTHONPATH` so stale globally installed planner packages are
+not used. Configure with `-DPYTHON=$(command -v python)` when using a selected
+Python environment.
 
 ## Validation
 

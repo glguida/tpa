@@ -4,6 +4,10 @@ set(TPA_YOLOV5N_INCLUDES
     "${TPA_ROOT_DIR}/tests/yolo"
 )
 set(TPA_PLANNER_ROOT "${TPA_ROOT_DIR}/planner")
+set(TPA_PLANNER_PYTHONPATH "${TPA_PLANNER_ROOT}/src")
+if (DEFINED ENV{PYTHONPATH} AND NOT "$ENV{PYTHONPATH}" STREQUAL "")
+    set(TPA_PLANNER_PYTHONPATH "${TPA_PLANNER_PYTHONPATH}:$ENV{PYTHONPATH}")
+endif()
 set(TPA_PLANNER_EXTRACT "${TPA_PLANNER_ROOT}/src/tpa_planner/extract_process_metadata.py")
 set(TPA_PLANNER_PLAN "${TPA_PLANNER_ROOT}/src/tpa_planner/plan_program.py")
 set(TPA_PLANNER_MAP "${TPA_PLANNER_ROOT}/src/tpa_planner/map_program.py")
@@ -36,7 +40,8 @@ if (NOT PYTHON)
 endif()
 
 execute_process(
-    COMMAND "${PYTHON}" -c
+    COMMAND "${CMAKE_COMMAND}" -E env "PYTHONPATH=${TPA_PLANNER_PYTHONPATH}"
+        "${PYTHON}" -c
         "import tpa_planner.extract_process_metadata; import tpa_planner.plan_program; import tpa_planner.map_program"
     RESULT_VARIABLE TPA_PLANNER_IMPORT_RESULT
     ERROR_VARIABLE TPA_PLANNER_IMPORT_ERROR
@@ -63,7 +68,8 @@ function(yolov5n_add_process_metadata TARGET_NAME MANIFEST_PATH OUT_VAR)
     add_custom_command(
         OUTPUT "${JSON_OUT}"
         COMMAND "${CMAKE_COMMAND}" -E make_directory "${TPA_YOLOV5N_METADATA_DIR}"
-        COMMAND "${PYTHON}" -m tpa_planner.extract_process_metadata
+        COMMAND "${CMAKE_COMMAND}" -E env "PYTHONPATH=${TPA_PLANNER_PYTHONPATH}"
+            "${PYTHON}" -m tpa_planner.extract_process_metadata
             --label "${TARGET_NAME}"
             --manifest "${MANIFEST_PATH}"
             --output "${JSON_OUT}"
@@ -103,7 +109,8 @@ function(yolov5n_add_plan_report NAME PROGRAM_PATH PLACEMENT_PATH)
     add_custom_command(
         OUTPUT "${JSON_OUT}"
         COMMAND "${CMAKE_COMMAND}" -E make_directory "${TPA_YOLOV5N_REPORT_DIR}"
-        COMMAND "${PYTHON}" -m tpa_planner.plan_program
+        COMMAND "${CMAKE_COMMAND}" -E env "PYTHONPATH=${TPA_PLANNER_PYTHONPATH}"
+            "${PYTHON}" -m tpa_planner.plan_program
             --program "${PROGRAM_PATH}"
             --placement "${PLACEMENT_PATH}"
             --output "${JSON_OUT}"
@@ -181,7 +188,8 @@ function(yolov5n_add_mapped_program NAME PROGRAM_PATH)
             "${SCRATCH_HEADER_OUT}"
             "${EDGE_HEADER_OUT}"
         COMMAND "${CMAKE_COMMAND}" -E make_directory "${TPA_YOLOV5N_REPORT_DIR}"
-        COMMAND "${PYTHON}" -m tpa_planner.map_program ${MAP_ARGS}
+        COMMAND "${CMAKE_COMMAND}" -E env "PYTHONPATH=${TPA_PLANNER_PYTHONPATH}"
+            "${PYTHON}" -m tpa_planner.map_program ${MAP_ARGS}
         DEPENDS
             ${PROCESS_JSON_TARGETS}
             "${PROGRAM_PATH}"
