@@ -84,12 +84,14 @@ tpa-map-program \
 
 ## Current model and limitations
 
-The mapper uses a simplified model:
+The mapper uses a simplified but current memory model:
 
-- process data includes outputs;
-- edge buffers are not yet first-class memory objects;
-- mapping starts with a HEFT-like performance-first list scheduler using
-  explicit process execution-cost hints;
+- process metadata includes mutable/static object sections, but known embedded
+  edge-payload symbols may be reclassified out of process data;
+- edge buffers are first-class in the current mapped-program memory model
+  (`edge-planned-v0`) and generated edge-buffer configuration header path;
+- mapping remains acyclic and starts with a HEFT-like performance-first list
+  scheduler using explicit process execution-cost hints;
 - communication costs are machine-described by `machines/single-minion.json`,
   `machines/erbium.json`, and `machines/etsoc1.json`;
 - if a memory budget is provided, greedy repair collapses contexts only until
@@ -105,7 +107,6 @@ Generated mapper outputs can include:
 - a generated edge-buffer configuration header for mapped TPA channels.
 
 Remaining follow-up work is broader integration, not absence of all integration:
-YOLO full/demo host launcher support, YOLO block-test CTest wiring, broader
-metadata extraction coverage, message tests, ltfarm experiments, and the full
+YOLO full/demo host launcher support, YOLO block-test CTest wiring, broader metadata extraction coverage, message tests, ltfarm experiments, and the full
 cooperative runtime scheduler are still tracked as follow-up work in
 `docs/USAGE.md`.
