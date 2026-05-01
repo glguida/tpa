@@ -194,9 +194,9 @@ targets, not archived generated JSON.
 
 - The structured host project ports the original `tpa_launcher` implementation
   for loading generated ELFs through ET runtime device layers.
-- The structured demo link harness currently proves generated process/image metadata compile, link, and load/pass in `erbium_emu`; it does not yet implement the complete cooperative runtime scheduler that executes every generated process continuation.
+- Generated graph-program ELFs now link the cooperative runtime scheduler instead of the former PASS-only demo harness. `tpa_empty.elf` and `tpa_pipe_demo.elf` execute continuations and report PASS under Erbium emulator validation; broader tensor/YOLO/message/queue behavioral hardening remains follow-up.
 - YOLO full/demo host launcher integration still needs ordered porting into the structured tree. Representative YOLO block-test CMake/CTest coverage is now available under `tests/yolo/`.
-- Message/queue/negative test ELFs are ported, but complete behavioral validation remains tied to full cooperative scheduler work.
+- Message/queue/negative test ELFs are ported, but complete behavioral validation remains tied to scheduler hardening work.
 - DNN demos and LTFarm are preserved as archived/reference material with
   dependency/status notes rather than active build targets.
 - Python mapper/planner commands are ported and the YOLO downstream CMake planner/map targets use them; broader CMake metadata extraction coverage remains follow-up work.

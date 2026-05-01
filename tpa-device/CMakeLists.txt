@@ -80,6 +80,7 @@ set(TPA_CORE_SOURCES
     "${TPA_ROOT_DIR}/tpa/lib/src/channel.c"
     "${TPA_ROOT_DIR}/tpa/lib/src/process.c"
     "${TPA_ROOT_DIR}/tpa/lib/src/scheduler.c"
+    "${TPA_ROOT_DIR}/tpa/lib/src/tpa_runtime.c"
 )
 
 if (TPA_PLATFORM_ID STREQUAL "erbium")
@@ -108,7 +109,7 @@ target_include_directories(tpa_core
 )
 
 target_compile_features(tpa_core PUBLIC c_std_11)
-target_compile_options(tpa_core PRIVATE -Wall -Wextra -Werror)
+target_compile_options(tpa_core PRIVATE -Wall -Wextra -Werror -fno-builtin-memset -fno-tree-loop-distribute-patterns)
 target_compile_definitions(tpa_core PUBLIC TPA_DEVICE_BUILD=1 TPA_ETSOC1_NR_SHIRES=${TPA_ETSOC1_NR_SHIRES})
 target_compile_options(tpa_core PUBLIC $<$<COMPILE_LANGUAGE:C>:-include> $<$<COMPILE_LANGUAGE:C>:${TPA_PLATFORM_HEADER}>)
 target_link_libraries(tpa_core PUBLIC et-common-libs::cm-umode)

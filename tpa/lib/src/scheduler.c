@@ -69,6 +69,17 @@ void tpa_sched_node_init(struct tpa_sched_node *node, uint32_t hartid)
     tpa_hal_flush(node, sizeof(*node));
 }
 
+static void runq_lock(struct tpa_sched_runq *q)
+{
+    while (tpa_hal_atomic_compare_exchange_u32(&q->lock, 0, 1) != 0)
+        ;
+}
+
+static void runq_unlock(struct tpa_sched_runq *q)
+{
+    tpa_hal_atomic_exchange_u32(&q->lock, 0);
+}
+
 static void runq_push(struct tpa_sched_runq *q, struct tpa_sched_node *node)
 {
     struct tpa_sched_node *head;
@@ -98,10 +109,12 @@ int tpa_sched_run(struct tpa_sched_node *node)
     if (!valid_hart(hartid))
         return 0;
 
+    runq_lock(&runq[hartid]);
     runq_push(&runq[hartid], node);
     flush_runq(hartid);
     tpa_hal_flush(node, sizeof(*node));
     tpa_hal_fence_rw();
+    runq_unlock(&runq[hartid]);
     return 1;
 }
 
@@ -114,19 +127,21 @@ struct tpa_sched_node *tpa_sched_pop(uint32_t hartid)
         return 0;
 
     q = &runq[hartid];
+    runq_lock(q);
     node = q->head;
-    if (!node)
-        return 0;
+    if (node) {
+        q->head = node->next;
+        if (!q->head)
+            q->tail = 0;
 
-    q->head = node->next;
-    if (!q->head)
-        q->tail = 0;
+        node->next = 0;
+        node->state = TPA_SCHED_RUN;
+        tpa_hal_flush(node, sizeof(*node));
+    }
 
-    node->next = 0;
-    node->state = TPA_SCHED_RUN;
     flush_runq(hartid);
-    tpa_hal_flush(node, sizeof(*node));
     tpa_hal_fence_rw();
+    runq_unlock(q);
 
     return node;
 }

@@ -59,7 +59,12 @@ uint64_t tpa_hal_hartid(void)
 
 uint32_t tpa_hal_runtime_hartid(void)
 {
-    return (uint32_t)tpa_hal_hartid();
+    uint32_t physical_hart = (uint32_t)tpa_hal_hartid();
+
+    if (!hart_hi(physical_hart))
+        return UINT32_MAX;
+
+    return hart_minion(physical_hart) * TPA_HAL_ERBIUM_HARTS_PER_MINION;
 }
 
 uint32_t tpa_hal_cacheline_bytes(void)
@@ -277,10 +282,8 @@ void tpa_hal_wake_hart(uint32_t hartid)
 #if TPA_HAL_ERBIUM_HAS_PLATFORM
     uint32_t minionid = hart_minion(hartid);
 
-    if (hart_hi(hartid))
-        *((volatile uint64_t *)ET_ESR_FCC_CREDINC_H1) = UINT64_C(1) << minionid;
-    else
-        *((volatile uint64_t *)ET_ESR_FCC_CREDINC_H0) = UINT64_C(1) << minionid;
+    (void)hartid;
+    *((volatile uint64_t *)ET_ESR_FCC_CREDINC_H1) = UINT64_C(1) << minionid;
 #else
     (void)hartid;
 #endif
