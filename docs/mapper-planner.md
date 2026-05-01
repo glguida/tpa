@@ -314,7 +314,7 @@ Current limitations are explicit and should not be hidden:
 - YOLO full/demo host launcher integration and YOLO block-test CTest wiring are
   not yet complete;
 - old YOLO model regeneration tools and model artifacts are not ported;
-- message tests, queue tests, negative tests, tensor matmul, DNN demos, and
+- message tests, queue tests, negative tests, DNN demos, and
   ltfarm remain missing/follow-up items;
 - the full cooperative runtime scheduler remains a runtime implementation
   follow-up separate from mapper documentation.

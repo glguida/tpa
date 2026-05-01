@@ -194,7 +194,7 @@ ported. Missing or partial areas include:
 - queue/scheduler tests;
 - negative expected-failure tests;
 - YOLO block-test CTest wiring;
-- tensor matmul and DNN demos;
+- DNN demos;
 - ltfarm;
 - YOLO model regeneration tools and model artifact policy;
 - broader metadata extraction coverage;
