@@ -274,8 +274,10 @@ generated programs that use mapped channel storage.
 
 ## CMake-integrated YOLO downstream path
 
-The current structured repo has an integrated YOLO downstream planner/map/device
-path. With a planner-enabled Python environment:
+The current structured repo has integrated YOLO downstream planner/map artifact
+paths. The downstream device ELF/runtime path currently needs revalidation
+before it can be claimed as a PASS path. With a planner-enabled Python
+environment:
 
 ```sh
 python3 -m venv .venv-planner
@@ -284,7 +286,8 @@ python -m pip install -e planner
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python)
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
-cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+# Revalidation target only; current phase-3 status is not YOLO runtime PASS.
+# cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 ```
 
 `yolov5n/CMakeLists.txt` wires these steps by:

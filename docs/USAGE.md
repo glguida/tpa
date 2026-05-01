@@ -51,12 +51,15 @@ cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_empty.elf
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
-cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+# Downstream YOLO device ELF/runtime is currently follow-up; see below before
+# claiming this target as validated.
+# cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 cmake --build build-et-erbium --target tpa_queue_basic.elf tpa_queue_yield.elf tpa_queue_many.elf tpa_queue_wake.elf
 cmake --build build-et-erbium --target tpa_msg_same_send_first.elf tpa_msg_cross_send_first.elf tpa_msg_fabric_send_first.elf
 cmake --build build-et-erbium --target tpa_negative_expected_fail.elf
 /opt/et/bin/erbium_emu -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf -max_cycles 10000
-/opt/et/bin/erbium_emu -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf -max_cycles 10000
+# Revalidation target only; current phase-3 status is not YOLO runtime PASS.
+# /opt/et/bin/erbium_emu -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf -max_cycles 10000
 
 cmake -S . -B build-et-etsoc1 -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=etsoc1
 cmake --build build-et-etsoc1 --target tpa_core
@@ -65,7 +68,13 @@ cmake --build build-et-etsoc1 --target tpa_core
 The top-level CMake discovers `ProjectFunctions.cmake`, calls
 `DeviceProjectNoInstall(tpa-device ...)`, and calls
 `HostProjectNoInstall(tpa-host ...)`. `tpa-device` fails during configure if the
-ET RISC-V toolchain or required ET CMake packages are unavailable. The `tpa_host_tools` target builds `tpa_launcher` in the host subproject. The `tpa_pipe_demo.elf`, `tpa_empty.elf`, and `tpa_yolov5n_downstream.elf` targets are generated through the TPA process/program flow, not as handcrafted standalone executables.
+ET RISC-V toolchain or required ET CMake packages are unavailable. The
+`tpa_host_tools` target builds `tpa_launcher` in the host subproject. The
+`tpa_pipe_demo.elf`, `tpa_empty.elf`, and representative runtime-regression ELF
+targets are generated through the TPA process/program flow, not as handcrafted
+standalone executables. The YOLO downstream planner/map artifact targets are
+integrated; `tpa_yolov5n_downstream.elf` currently needs revalidation because
+this phase-3 pass observed a duplicate-`memset` link failure before runtime.
 
 ### Host launcher
 

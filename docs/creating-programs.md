@@ -295,7 +295,9 @@ python -m pip install -e planner
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python)
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
-cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+# Downstream device ELF/runtime is currently a revalidation target, not a
+# validated PASS path in the phase-3 scheduler-hardening status.
+# cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 ```
 
 ET-SoC-1 core build:

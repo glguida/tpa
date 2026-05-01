@@ -14,10 +14,9 @@ Read these before making changes:
 5. `docs/creating-programs.md`
 6. `docs/mapper-planner.md`
 7. `docs/memory-and-edge-buffers.md`
-8. `docs/MISSING_ORIGINAL_ARTIFACTS.md`
-9. `docs/USAGE.md`
-10. `planner/README.md` when touching planner/mapper code
-11. `docs/yolo-demo.md` when touching YOLO paths
+8. `docs/USAGE.md`
+9. `planner/README.md` when touching planner/mapper code
+10. `docs/yolo-demo.md` when touching YOLO paths
 
 ## Core rules
 
@@ -34,7 +33,8 @@ Read these before making changes:
   syntax/unit smoke-test doubles.
 - Do not hide missing ET toolchain/HAL behavior behind host fallbacks.
 - Do not claim missing original tests, demos, tools, or model artifacts are
-  complete. Check `docs/MISSING_ORIGINAL_ARTIFACTS.md`.
+  complete. Check current status docs such as `docs/USAGE.md` and
+  `docs/yolo-demo.md`.
 - Keep process state, scratch, immutable model data, and edge/channel data
   distinct in code and documentation.
 - Warnings are errors for current process/device targets; do not introduce new
@@ -139,7 +139,7 @@ cmake --build build-et-erbium --target tpa_tensor_matmul.elf
   -max_cycles 10000
 ```
 
-For YOLO downstream:
+For YOLO downstream planner/map artifact validation:
 
 ```sh
 python3 -m venv .venv-planner
@@ -148,11 +148,10 @@ python -m pip install -e planner
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python)
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
-cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
-/opt/et/bin/erbium_emu \
-  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf \
-  -max_cycles 10000
 ```
+
+The downstream YOLO device ELF/runtime path currently needs revalidation before
+it can be claimed as a PASS path.
 
 ### Host launcher validation
 
@@ -205,14 +204,14 @@ because the current YOLO mapping uses the full-card machine JSON.
 
 ## Current status notes
 
-Validated current paths include Erbium simple demo ELFs, the tensor matmul demo
-ELF, YOLO downstream planner/map/device ELF, message/queue/negative test ELF
-build targets, ET-SoC-1 default `tpa_core`, the host launcher target, planner
-tests, and host smoke-test doubles.
+Validated current paths include Erbium simple demo ELFs, representative
+message/channel and queue runtime regression ELFs, the negative expected-failure
+ELF's intentional FAIL marker, ET-SoC-1 default `tpa_core`, the host launcher
+target, planner tests, and host smoke-test doubles.
 
-Important follow-up areas remain documented in
-`docs/MISSING_ORIGINAL_ARTIFACTS.md`: full cooperative runtime scheduler work.
-Message/queue/negative test ELFs are ported, but full behavioral validation
-remains scheduler follow-up. YOLO tools/models and representative block tests
-are documented in `docs/yolo-demo.md`. DNN demos, LTFarm, trace tools, and
-historical generated YOLO reports have explicit port/archive status.
+Important follow-up areas remain: `tpa_tensor_matmul.elf` runtime PASS, YOLO
+downstream device ELF/runtime validation, broader scheduler hardening beyond the
+representative runtime regressions, and full YOLO host/demo integration. YOLO
+tools/models and representative block tests are documented in
+`docs/yolo-demo.md`. DNN demos, LTFarm, trace tools, and historical generated
+YOLO reports have explicit port/archive status.

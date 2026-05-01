@@ -8,7 +8,7 @@ block-test integration.
 ## Current ported pieces
 
 - `yolov5n/` — process sources, manifests, planner/map CMake integration, and
-  `tpa_yolov5n_downstream.elf`.
+  downstream device ELF revalidation target.
 - `tests/yolo/` — original representative block-test sources/assets and
   structured CMake targets.
 - `tools/yolo/` — original generation, quantization, tensor-weight, and

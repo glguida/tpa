@@ -56,11 +56,17 @@ and HAL validate.
 
 Erbium generated ELFs use the structured platform/startup assets under
 `platform/` and the selected Erbium HAL implementation under `tpa/hal/erbium/`.
-Current validated Erbium targets include:
+Current validated Erbium runtime targets include:
 
-- `tpa_pipe_demo.elf`;
 - `tpa_empty.elf`;
-- `tpa_yolov5n_downstream.elf`.
+- `tpa_pipe_demo.elf`;
+- representative message/channel and queue regression ELFs;
+- `tpa_negative_expected_fail.elf` as an intentional FAIL-marker test.
+
+`tpa_tensor_matmul.elf` builds but still reports FAIL under current runtime
+validation. YOLO downstream planner/map artifacts are integrated, but the
+downstream device ELF/runtime path remains scheduler/toolchain hardening
+follow-up.
 
 `erbium_emu` validation is ET platform validation. Host smoke-test-double builds
 are not.
