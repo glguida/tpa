@@ -1,0 +1,314 @@
+{
+  "name": "eight_minion_pipeline_with_local_forks",
+  "rationale": [
+    "Keep each generated fork on the same minion as its producer.",
+    "Colocate detect processes with their feature-map producers.",
+    "Use a forward pipeline over minions 0..7 for the coarse chain."
+  ],
+  "instances": [
+    {
+      "id": "P0",
+      "kind": "yolo_stage_stem",
+      "minion": 0,
+      "hart": "h0"
+    },
+    {
+      "id": "P1",
+      "kind": "yolo_stage_down",
+      "minion": 1,
+      "hart": "h0"
+    },
+    {
+      "id": "F_skip_p3",
+      "kind": "tpa_fork2",
+      "minion": 1,
+      "hart": "h0"
+    },
+    {
+      "id": "P2",
+      "kind": "yolo_stage_down",
+      "minion": 2,
+      "hart": "h0"
+    },
+    {
+      "id": "F_skip_p4",
+      "kind": "tpa_fork2",
+      "minion": 2,
+      "hart": "h0"
+    },
+    {
+      "id": "P3",
+      "kind": "yolo_stage_top",
+      "minion": 3,
+      "hart": "h0"
+    },
+    {
+      "id": "F_skip_p5",
+      "kind": "tpa_fork2",
+      "minion": 3,
+      "hart": "h0"
+    },
+    {
+      "id": "P4",
+      "kind": "yolo_neck_up",
+      "minion": 4,
+      "hart": "h0"
+    },
+    {
+      "id": "F_mid_p4",
+      "kind": "tpa_fork2",
+      "minion": 4,
+      "hart": "h0"
+    },
+    {
+      "id": "P5",
+      "kind": "yolo_neck_up",
+      "minion": 5,
+      "hart": "h0"
+    },
+    {
+      "id": "F_p3",
+      "kind": "tpa_fork2",
+      "minion": 5,
+      "hart": "h0"
+    },
+    {
+      "id": "P6",
+      "kind": "yolo_detect_scale",
+      "minion": 5,
+      "hart": "h0"
+    },
+    {
+      "id": "P7",
+      "kind": "yolo_neck_down",
+      "minion": 6,
+      "hart": "h0"
+    },
+    {
+      "id": "F_p4",
+      "kind": "tpa_fork2",
+      "minion": 6,
+      "hart": "h0"
+    },
+    {
+      "id": "P8",
+      "kind": "yolo_detect_scale",
+      "minion": 6,
+      "hart": "h0"
+    },
+    {
+      "id": "P9",
+      "kind": "yolo_neck_down",
+      "minion": 7,
+      "hart": "h0"
+    },
+    {
+      "id": "P10",
+      "kind": "yolo_detect_scale",
+      "minion": 7,
+      "hart": "h0"
+    }
+  ],
+  "edges": [
+    {
+      "channel": "ch_t2",
+      "logical_tensor": "t2",
+      "src_instance": "P0",
+      "dst_instance": "P1",
+      "src_minion": 0,
+      "dst_minion": 1,
+      "transport_kind": "local",
+      "bytes": 819200
+    },
+    {
+      "channel": "ch_skip_p3__to_fork",
+      "logical_tensor": "skip_p3",
+      "src_instance": "P1",
+      "dst_instance": "F_skip_p3",
+      "src_minion": 1,
+      "dst_minion": 1,
+      "transport_kind": "direct",
+      "bytes": 409600
+    },
+    {
+      "channel": "ch_skip_p3__p2",
+      "logical_tensor": "skip_p3",
+      "src_instance": "F_skip_p3",
+      "dst_instance": "P2",
+      "src_minion": 1,
+      "dst_minion": 2,
+      "transport_kind": "local",
+      "bytes": 409600
+    },
+    {
+      "channel": "ch_skip_p3__p5",
+      "logical_tensor": "skip_p3",
+      "src_instance": "F_skip_p3",
+      "dst_instance": "P5",
+      "src_minion": 1,
+      "dst_minion": 5,
+      "transport_kind": "local",
+      "bytes": 409600
+    },
+    {
+      "channel": "ch_skip_p4__to_fork",
+      "logical_tensor": "skip_p4",
+      "src_instance": "P2",
+      "dst_instance": "F_skip_p4",
+      "src_minion": 2,
+      "dst_minion": 2,
+      "transport_kind": "direct",
+      "bytes": 204800
+    },
+    {
+      "channel": "ch_skip_p4__p3",
+      "logical_tensor": "skip_p4",
+      "src_instance": "F_skip_p4",
+      "dst_instance": "P3",
+      "src_minion": 2,
+      "dst_minion": 3,
+      "transport_kind": "local",
+      "bytes": 204800
+    },
+    {
+      "channel": "ch_skip_p4__p4",
+      "logical_tensor": "skip_p4",
+      "src_instance": "F_skip_p4",
+      "dst_instance": "P4",
+      "src_minion": 2,
+      "dst_minion": 4,
+      "transport_kind": "local",
+      "bytes": 204800
+    },
+    {
+      "channel": "ch_skip_p5__to_fork",
+      "logical_tensor": "skip_p5",
+      "src_instance": "P3",
+      "dst_instance": "F_skip_p5",
+      "src_minion": 3,
+      "dst_minion": 3,
+      "transport_kind": "direct",
+      "bytes": 51200
+    },
+    {
+      "channel": "ch_skip_p5__p4",
+      "logical_tensor": "skip_p5",
+      "src_instance": "F_skip_p5",
+      "dst_instance": "P4",
+      "src_minion": 3,
+      "dst_minion": 4,
+      "transport_kind": "local",
+      "bytes": 51200
+    },
+    {
+      "channel": "ch_skip_p5__p9",
+      "logical_tensor": "skip_p5",
+      "src_instance": "F_skip_p5",
+      "dst_instance": "P9",
+      "src_minion": 3,
+      "dst_minion": 7,
+      "transport_kind": "local",
+      "bytes": 51200
+    },
+    {
+      "channel": "ch_mid_p4__to_fork",
+      "logical_tensor": "mid_p4",
+      "src_instance": "P4",
+      "dst_instance": "F_mid_p4",
+      "src_minion": 4,
+      "dst_minion": 4,
+      "transport_kind": "direct",
+      "bytes": 102400
+    },
+    {
+      "channel": "ch_mid_p4__p5",
+      "logical_tensor": "mid_p4",
+      "src_instance": "F_mid_p4",
+      "dst_instance": "P5",
+      "src_minion": 4,
+      "dst_minion": 5,
+      "transport_kind": "local",
+      "bytes": 102400
+    },
+    {
+      "channel": "ch_mid_p4__p7",
+      "logical_tensor": "mid_p4",
+      "src_instance": "F_mid_p4",
+      "dst_instance": "P7",
+      "src_minion": 4,
+      "dst_minion": 6,
+      "transport_kind": "local",
+      "bytes": 102400
+    },
+    {
+      "channel": "ch_p3__to_fork",
+      "logical_tensor": "p3",
+      "src_instance": "P5",
+      "dst_instance": "F_p3",
+      "src_minion": 5,
+      "dst_minion": 5,
+      "transport_kind": "direct",
+      "bytes": 409600
+    },
+    {
+      "channel": "ch_p3__p6",
+      "logical_tensor": "p3",
+      "src_instance": "F_p3",
+      "dst_instance": "P6",
+      "src_minion": 5,
+      "dst_minion": 5,
+      "transport_kind": "direct",
+      "bytes": 409600
+    },
+    {
+      "channel": "ch_p3__p7",
+      "logical_tensor": "p3",
+      "src_instance": "F_p3",
+      "dst_instance": "P7",
+      "src_minion": 5,
+      "dst_minion": 6,
+      "transport_kind": "local",
+      "bytes": 409600
+    },
+    {
+      "channel": "ch_p4__to_fork",
+      "logical_tensor": "p4",
+      "src_instance": "P7",
+      "dst_instance": "F_p4",
+      "src_minion": 6,
+      "dst_minion": 6,
+      "transport_kind": "direct",
+      "bytes": 204800
+    },
+    {
+      "channel": "ch_p4__p8",
+      "logical_tensor": "p4",
+      "src_instance": "F_p4",
+      "dst_instance": "P8",
+      "src_minion": 6,
+      "dst_minion": 6,
+      "transport_kind": "direct",
+      "bytes": 204800
+    },
+    {
+      "channel": "ch_p4__p9",
+      "logical_tensor": "p4",
+      "src_instance": "F_p4",
+      "dst_instance": "P9",
+      "src_minion": 6,
+      "dst_minion": 7,
+      "transport_kind": "local",
+      "bytes": 204800
+    },
+    {
+      "channel": "ch_p5",
+      "logical_tensor": "p5",
+      "src_instance": "P9",
+      "dst_instance": "P10",
+      "src_minion": 7,
+      "dst_minion": 7,
+      "transport_kind": "direct",
+      "bytes": 102400
+    }
+  ]
+}

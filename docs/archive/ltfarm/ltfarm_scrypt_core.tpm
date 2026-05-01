@@ -1,0 +1,3 @@
+pdef ltfarm_scrypt_worker_pdef user 601 ltfarm_scrypt_worker_start 272
+port ltfarm_scrypt_worker_pdef 0 in
+port ltfarm_scrypt_worker_pdef 1 out

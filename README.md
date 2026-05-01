@@ -29,6 +29,9 @@ smoke-test doubles; they are not ET platform validation.
   integration.
 - `planner/` — Python metadata extraction, planning, and mapping package.
 - `machines/` — mapper machine topology JSON inputs.
+- `tools/trace/` — Erbium emulator trace splitting and symbol-attribution tools.
+- `docs/archive/` — preserved original-reference material that is not an active
+  runtime input, including DNN demos, LTFarm, and historical YOLO analysis.
 - `docs/` — detailed project documentation.
 
 ## Read next
@@ -123,6 +126,20 @@ YOLO mapping uses the full-card `machines/etsoc1.json` model. The device project
 therefore keeps YOLO off by default for ET-SoC-1 unless configured with
 `TPA_ETSOC1_NR_SHIRES=32`.
 
+## Quick start: trace tools
+
+Trace tools operate on `erbium_emu` logs and built ELFs:
+
+```sh
+tools/trace/split_trace_by_hart.sh /tmp/erbium.log /tmp/tpa-trace-by-hart
+tools/trace/analyze_trace_by_hart.sh \
+  build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf \
+  /tmp/tpa-trace-by-hart/m0_h0.inst.log \
+  --top
+```
+
+See `tools/trace/README.md` for gzip and cycle-window options.
+
 ## Host smoke-test double
 
 For local syntax/unit smoke without et-platform:
@@ -148,10 +165,12 @@ Ported and validated today:
 - ET-SoC-1 default one-shire `tpa_core` build.
 - `tpa_launcher` host tool target.
 - Python planner package, checked-in machine JSONs, and planner tests.
+- Trace analysis tools under `tools/trace/`.
+- Archived/reference DNN demos, LTFarm experiment, and historical generated YOLO
+  analysis under `docs/archive/`.
 - Host smoke-test-double mode for non-platform syntax/unit smoke.
 
 Important missing or partial areas remain: original message/queue/negative test
-suites, YOLO block-test CTest wiring, DNN demos, ltfarm,
-YOLO model regeneration tools/model artifacts, full YOLO end-user host pipeline,
-and the full cooperative runtime scheduler. See
-`docs/MISSING_ORIGINAL_ARTIFACTS.md` for the detailed inventory.
+suites, YOLO block-test CTest wiring, YOLO model regeneration tools/model
+artifacts, full YOLO end-user host pipeline, and the full cooperative runtime
+scheduler. See `docs/MISSING_ORIGINAL_ARTIFACTS.md` for the detailed inventory.
