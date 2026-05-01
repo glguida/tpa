@@ -19,8 +19,8 @@ are not platform validation.
 - `tests/yolo/` — representative original YOLO block test sources/assets retained for follow-up block-test integration.
 - `cmake/tpa-kernel.cmake` — structured `add_tpa_process()` / `add_tpa_program()` helpers.
 - `platform/` — Erbium startup/linker assets used by generated demo ELFs.
-- `tpa-host/` — structured ET host integration project. Full launcher/demo
-  tooling is still being ported.
+- `tpa-host/` — structured ET host integration project with the `tpa_launcher`
+  executable for loading generated ELFs through ET runtime device layers.
 - `tpa/hal/include/tpa/hal.h` — core-facing HAL API used by `tpa/lib`.
 - `tpa/hal/erbium/` — Erbium compile-time configuration and HAL operations.
 - `tpa/hal/etsoc1/` — ET-SoC-1 compile-time configuration and HAL operations.
@@ -42,6 +42,7 @@ Erbium:
 
 ```sh
 cmake -S . -B build-et-erbium -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=erbium
+cmake --build build-et-erbium --target tpa_host_tools
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_empty.elf
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
@@ -67,10 +68,29 @@ Forwarded top-level targets currently include:
 - `tpa_yolov5n_downstream_plan_planner_json` — extracts process metadata and writes the planner JSON report.
 - `tpa_yolov5n_downstream_map_mapped_program` — writes mapped-program JSON, generated placement, scratch config, and edge-buffer config.
 - `tpa_yolov5n_downstream.elf` — generated YOLO downstream device ELF linked with the structured runtime harness.
-- `tpa_host_tools` — host subproject package-discovery target documenting that
-  full host launcher tooling remains follow-up work.
+- `tpa_host_tools` — builds the structured `tpa_launcher` host executable.
 
 For ET-SoC-1, YOLO mapping uses the full-card machine JSON. The device project therefore defaults `BUILD_TPA_YOLOV5N=OFF` unless `TPA_ETSOC1_NR_SHIRES=32` is provided; `tpa_core` still builds in the default one-shire ET-SoC-1 configuration.
+
+## Host launcher
+
+Build the host launcher through the ET host subproject:
+
+```sh
+cmake --build build-et-erbium --target tpa_host_tools
+```
+
+Run a generated ELF through the launcher with the ET runtime sysemu device layer:
+
+```sh
+build-et-erbium/tpa-host-prefix/src/tpa-host-build/tpa_launcher \
+  --kernel build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf \
+  --mode sysemu \
+  --timeout 300
+```
+
+The launcher also accepts `--mode pcie` for silicon and `--mode fake` for host
+runtime API smoke checks. Use `--help` for the complete option list.
 
 ## Local smoke-test doubles
 

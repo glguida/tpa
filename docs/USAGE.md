@@ -14,8 +14,8 @@ The runtime is organized around a narrow HAL boundary and ET platform build:
 5. `kernels/` contains ported original TPA demo assets (`.c`, `.tpm`, `.tpp`, `.place`).
 6. `cmake/tpa-kernel.cmake` provides structured `add_tpa_process()` and `add_tpa_program()` helpers that generate image metadata with `gen_tpa_image.cmake`.
 7. `yolov5n/` ports the original YOLOv5n process sources/manifests and CMake planner/mapper targets for the downstream graph.
-8. `tpa-host/` configures against et-platform host packages. The full launcher
-   is explicit follow-up work.
+8. `tpa-host/` builds the structured `tpa_launcher` executable against
+   et-platform host/runtime packages.
 9. `planner/` provides Python-only offline process metadata extraction,
    mapping, and planning commands; `machines/` provides mapper topology inputs.
 
@@ -43,6 +43,7 @@ header defines `TPA_HAL_NR_HARTS`, `TPA_HAL_CACHELINE_BYTES`, and
 
 ```sh
 cmake -S . -B build-et-erbium -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=erbium
+cmake --build build-et-erbium --target tpa_host_tools
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_empty.elf
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
@@ -58,7 +59,20 @@ cmake --build build-et-etsoc1 --target tpa_core
 The top-level CMake discovers `ProjectFunctions.cmake`, calls
 `DeviceProjectNoInstall(tpa-device ...)`, and calls
 `HostProjectNoInstall(tpa-host ...)`. `tpa-device` fails during configure if the
-ET RISC-V toolchain or required ET CMake packages are unavailable. The `tpa_pipe_demo.elf`, `tpa_empty.elf`, and `tpa_yolov5n_downstream.elf` targets are generated through the TPA process/program flow, not as handcrafted standalone executables.
+ET RISC-V toolchain or required ET CMake packages are unavailable. The `tpa_host_tools` target builds `tpa_launcher` in the host subproject. The `tpa_pipe_demo.elf`, `tpa_empty.elf`, and `tpa_yolov5n_downstream.elf` targets are generated through the TPA process/program flow, not as handcrafted standalone executables.
+
+### Host launcher
+
+```sh
+build-et-erbium/tpa-host-prefix/src/tpa-host-build/tpa_launcher \
+  --kernel build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf \
+  --mode sysemu \
+  --timeout 300
+```
+
+`tpa_launcher` supports `--mode sysemu`, `--mode pcie`, and `--mode fake`, plus
+sysemu firmware/log/options arguments. Run `tpa_launcher --help` for the full
+option list.
 
 YOLO targets currently port the downstream planner/map/device path. On ET-SoC-1, `BUILD_TPA_YOLOV5N` defaults OFF unless `TPA_ETSOC1_NR_SHIRES=32` because the original YOLO mapping uses the full-card machine description.
 
@@ -119,8 +133,8 @@ example mapper commands.
 
 ## Current limitations / follow-up
 
-- The structured host project validates ET host package discovery but does not
-  yet port the original `tpa_launcher` implementation.
+- The structured host project ports the original `tpa_launcher` implementation
+  for loading generated ELFs through ET runtime device layers.
 - The structured demo link harness currently proves generated process/image metadata compile, link, and load/pass in `erbium_emu`; it does not yet implement the complete cooperative runtime scheduler that executes every generated process continuation.
 - YOLO full/demo host launcher integration, YOLO block-test CTest wiring, message tests, and ltfarm experiments still need ordered porting into the structured tree.
 - Python mapper/planner commands are ported and the YOLO downstream CMake planner/map targets use them; broader CMake metadata extraction coverage remains follow-up work.
