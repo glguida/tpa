@@ -113,10 +113,10 @@ cmake --build build-et-erbium --target tpa_negative_expected_fail.elf
 ```
 
 Representative ELFs can be loaded with `erbium_emu` in the same way as the demo
-ELFs. The negative target intentionally calls `TEST_FAIL` when the full
-cooperative runtime scheduler executes process continuations; the current
-structured demo link harness still reports loader PASS before running process
-continuations, so expected-failure runtime semantics remain a scheduler follow-up.
+ELFs. The negative target intentionally calls `TEST_FAIL` when the cooperative runtime
+scheduler executes process continuations. Expected-failure runtime semantics and
+broader message/queue/negative behavioral coverage remain scheduler-hardening
+follow-up work.
 
 ## Quick start: host launcher
 
@@ -187,7 +187,9 @@ Ported and validated today:
 - ET superbuild integration for device and host subprojects.
 - Erbium `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_tensor_matmul.elf`,
   and `tpa_yolov5n_downstream.elf` build paths.
-- Erbium emulator validation for `tpa_pipe_demo.elf` and YOLO downstream.
+- Cooperative runtime scheduler execution for generated graph programs, with
+  Erbium emulator PASS validation for `tpa_empty.elf` and `tpa_pipe_demo.elf`.
+- Erbium emulator validation for YOLO downstream.
 - ET-SoC-1 default one-shire `tpa_core` build.
 - `tpa_launcher` host tool target.
 - Python planner package, checked-in machine JSONs, and planner tests.

@@ -5,6 +5,7 @@ set(TPA_CORE_SOURCES
     lib/src/channel.c
     lib/src/process.c
     lib/src/scheduler.c
+    lib/src/tpa_runtime.c
 )
 
 function(tpa_add_platform_library target hal_source platform_include_dir platform_header)
@@ -28,6 +29,7 @@ function(tpa_add_platform_library target hal_source platform_include_dir platfor
                 -include ${platform_header}
             PRIVATE
                 -Wall -Wextra -Werror
+                -fno-builtin-memset -fno-tree-loop-distribute-patterns
         )
     endif()
 endfunction()

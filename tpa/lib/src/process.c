@@ -5,7 +5,13 @@
 
 #include "tpa/process.h"
 
-#include <string.h>
+static void process_zero(void *ptr, size_t bytes)
+{
+    unsigned char *p = (unsigned char *)ptr;
+
+    for (size_t i = 0; i < bytes; i++)
+        p[i] = 0;
+}
 
 static void process_flush_obj(const volatile void *ptr, size_t bytes)
 {
@@ -41,7 +47,7 @@ void tpa_process_table_init(struct tpa_process_table *table)
     if (!table)
         return;
 
-    memset(table, 0, sizeof(*table));
+    process_zero(table, sizeof(*table));
     process_flush_obj(table, sizeof(*table));
     tpa_hal_fence_rw();
 }

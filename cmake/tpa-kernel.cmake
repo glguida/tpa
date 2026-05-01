@@ -45,7 +45,7 @@ function(add_tpa_process)
         ${TPAPROC_INCLUDES}
     )
     target_compile_features(${TPAPROC_NAME} PRIVATE c_std_11)
-    target_compile_options(${TPAPROC_NAME} PRIVATE -Wall -Wextra -Werror -Wno-cast-qual -Wno-unused-function -Wno-unused-const-variable)
+    target_compile_options(${TPAPROC_NAME} PRIVATE -Wall -Wextra -Werror -Wno-cast-qual -Wno-unused-function -Wno-unused-const-variable -fno-builtin-memset -fno-tree-loop-distribute-patterns)
     set_target_properties(${TPAPROC_NAME} PROPERTIES TPA_MANIFEST "${TPAPROC_MANIFEST}")
 endfunction()
 
@@ -118,7 +118,7 @@ function(add_tpa_program)
 
     add_riscv_executable(${TPAPROG_NAME}
         ${TPA_PLATFORM_SOURCES}
-        "${TPA_ROOT_DIR}/tpa-device/runtime/demo_runtime.c"
+        "${TPA_ROOT_DIR}/tpa-device/runtime/tpa_scheduler.c"
         "${tpa_img_src}"
         ${proc_objs}
     )
