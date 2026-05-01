@@ -6,9 +6,9 @@
 /*
  * Erbium implementation of the TPA HAL.
  *
- * The RISC-V/Erbium path mirrors the legacy arch helpers. Host fallback code
- * exists only for repository syntax checks on machines that cannot assemble
- * Erbium-specific instructions.
+ * The RISC-V/Erbium path mirrors the legacy arch helpers. Host test-double
+ * behavior is available only when TPA_HOST_SMOKE_TEST_DOUBLE is explicitly set;
+ * real device builds never silently replace platform operations.
  */
 
 #include "tpa/hal/erbium.h"
@@ -18,8 +18,10 @@
 
 #if defined(__riscv)
 #define TPA_HAL_ERBIUM_HAS_PLATFORM 1
-#else
+#elif defined(TPA_HOST_SMOKE_TEST_DOUBLE)
 #define TPA_HAL_ERBIUM_HAS_PLATFORM 0
+#else
+#error "Erbium HAL requires the ET RISC-V device toolchain. Use TPA_HOST_SMOKE_TEST_DOUBLE only for local smoke tests."
 #endif
 
 #define ET_ESR_FCC_CREDINC_H0      0x00803400C0ULL

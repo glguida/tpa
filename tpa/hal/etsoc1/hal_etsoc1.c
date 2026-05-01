@@ -6,9 +6,9 @@
 /*
  * ET-SoC-1 implementation of the TPA HAL.
  *
- * The real platform path uses cm-umode/ET-SoC-1 headers. The host fallback is
- * deliberately conservative and exists only so this foundation can be checked
- * in a repository that does not yet carry the ET-SoC SDK headers.
+ * The real platform path uses cm-umode/ET-SoC-1 headers. Host test-double
+ * behavior is available only when TPA_HOST_SMOKE_TEST_DOUBLE is explicitly set;
+ * real device builds never silently replace platform operations.
  */
 
 #include "tpa/hal/etsoc1.h"
@@ -19,8 +19,10 @@
     __has_include(<etsoc/isa/syscall.h>) &&                                  \
     __has_include(<etsoc/isa/utils.h>)
 #define TPA_HAL_ETSOC1_HAS_PLATFORM 1
-#else
+#elif defined(TPA_HOST_SMOKE_TEST_DOUBLE)
 #define TPA_HAL_ETSOC1_HAS_PLATFORM 0
+#else
+#error "ET-SoC-1 HAL requires ET platform headers. Use TPA_HOST_SMOKE_TEST_DOUBLE only for local smoke tests."
 #endif
 
 #if TPA_HAL_ETSOC1_HAS_PLATFORM
