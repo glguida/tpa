@@ -1,43 +1,73 @@
 # TPA Structured Runtime
 
 This repository is being split into a platform-independent TPA core,
-platform-specific HAL implementations, and a CMake build that produces one
-static TPA library per supported HAL platform.
+platform-specific HAL implementations, and ET platform CMake projects. The
+primary build is the ET superbuild path: the top-level project discovers
+et-platform's `ProjectFunctions.cmake` and configures structured `tpa-device`
+and `tpa-host` subprojects through `DeviceProjectNoInstall()` and
+`HostProjectNoInstall()`.
+
+Host-only builds are retained only as explicitly named smoke-test doubles; they
+are not platform validation.
 
 ## Layout
 
+- `CMakeLists.txt` — ET superbuild entry point.
+- `tpa-device/` — structured ET RISC-V device project.
+- `tpa-host/` — structured ET host integration project. Full launcher/demo
+  tooling is still being ported.
 - `tpa/hal/include/tpa/hal.h` — core-facing HAL API used by `tpa/lib`.
 - `tpa/hal/erbium/` — Erbium compile-time configuration and HAL operations.
 - `tpa/hal/etsoc1/` — ET-SoC-1 compile-time configuration and HAL operations.
 - `tpa/lib/include/tpa/` — public core headers for scheduler, process, and
   channel modules.
 - `tpa/lib/src/` — platform-independent core module implementations.
-- `examples/` — syntax-checkable snippets showing the intended include and
-  usage pattern.
+- `examples/` — syntax-checkable snippets showing include and usage patterns.
 
-## Configure, build, and test
+## ET platform configure and build
 
-```sh
-cmake -S . -B build
-cmake --build build
-ctest --test-dir build --output-on-failure
-```
+Set either `ET_ROOT` or `ET_PLATFORM_PATH` to an et-platform install/root that
+contains `ProjectFunctions.cmake`, `riscv64-ec-toolchain.cmake`, and the ET
+CMake packages.
 
-The default configuration builds all currently supported platform variants:
-
-- `tpa_erbium`
-- `tpa_etsoc1`
-
-## Selecting platforms
-
-Use the CMake options below at configure time to enable or disable individual
-platform variants:
+Erbium:
 
 ```sh
-cmake -S . -B build -DTPA_BUILD_ERBIUM=ON -DTPA_BUILD_ETSOC1=ON
-cmake -S . -B build -DTPA_BUILD_ERBIUM=OFF
-cmake -S . -B build -DTPA_BUILD_ETSOC1=OFF
+cmake -S . -B build-et-erbium -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=erbium
+cmake --build build-et-erbium --target tpa_pipe_demo.elf
 ```
+
+ET-SoC-1:
+
+```sh
+cmake -S . -B build-et-etsoc1 -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=etsoc1
+cmake --build build-et-etsoc1 --target tpa_core
+```
+
+Forwarded top-level targets currently include:
+
+- `tpa_core` — selected-platform structured runtime archive in the device
+  subproject.
+- `tpa_pipe_demo.elf` — minimal real ET RISC-V executable linked against the
+  selected HAL/core while full legacy mapper/demo integration is ported.
+- `tpa_host_tools` — host subproject package-discovery target documenting that
+  full host launcher tooling remains follow-up work.
+
+## Local smoke-test doubles
+
+For machines without et-platform, a syntax/build smoke mode is available:
+
+```sh
+cmake -S . -B build-smoke -DTPA_HOST_SMOKE_TEST_DOUBLE=ON
+cmake --build build-smoke
+ctest --test-dir build-smoke --output-on-failure
+```
+
+This mode defines `TPA_HOST_SMOKE_TEST_DOUBLE=1` and builds host test doubles
+only. It must not be used as evidence that Erbium or ET-SoC-1 device platform
+integration works.
+
+## Platform selection in code
 
 Code that needs public TPA core types must select exactly one platform before
 including core headers that depend on layout constants:
@@ -49,14 +79,7 @@ including core headers that depend on layout constants:
 #include <tpa/channel.h>
 ```
 
-Platform selection supplies compile-time constants such as
-`TPA_HAL_NR_HARTS`, `TPA_HAL_CACHELINE_BYTES`, and `TPA_HAL_CH_KIND()`. Each
-platform library publishes the common TPA headers and the selected platform's
-own HAL include directory. Platform configuration comes from the per-platform
-headers under `tpa/hal/<platform>/include`, for example `<tpa/hal/erbium.h>`
-and `<tpa/hal/etsoc1.h>`.
-
 Core code should include `tpa/hal.h` or the core headers only; it must not
 include Erbium or ET-SoC-1 private implementation files.
 
-See `docs/USAGE.md` for details and current integration limitations.
+See `docs/USAGE.md` for details, smoke-test caveats, and current limitations.

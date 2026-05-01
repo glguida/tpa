@@ -1,3 +1,6 @@
+option(TPA_BUILD_ERBIUM "Build the Erbium TPA host smoke-test-double library" ON)
+option(TPA_BUILD_ETSOC1 "Build the ET-SoC-1 TPA host smoke-test-double library" ON)
+
 set(TPA_CORE_SOURCES
     lib/src/channel.c
     lib/src/process.c
@@ -5,7 +8,8 @@ set(TPA_CORE_SOURCES
 )
 
 function(tpa_add_platform_library target hal_source platform_include_dir platform_header)
-    add_library(${target} STATIC ${TPA_CORE_SOURCES} ${hal_source})
+    add_library(${target}_host_smoke STATIC ${TPA_CORE_SOURCES} ${hal_source})
+    set(target ${target}_host_smoke)
     add_library(tpa::${target} ALIAS ${target})
 
     target_include_directories(${target}
@@ -16,6 +20,7 @@ function(tpa_add_platform_library target hal_source platform_include_dir platfor
     )
 
     target_compile_features(${target} PUBLIC c_std_11)
+    target_compile_definitions(${target} PUBLIC TPA_HOST_SMOKE_TEST_DOUBLE=1)
 
     if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
         target_compile_options(${target}
@@ -46,7 +51,7 @@ if(TPA_BUILD_ETSOC1)
 endif()
 
 if(BUILD_TESTING)
-    foreach(platform IN ITEMS tpa_erbium tpa_etsoc1)
+    foreach(platform IN ITEMS tpa_erbium_host_smoke tpa_etsoc1_host_smoke)
         if(TARGET ${platform})
             add_executable(${platform}_smoke tests/smoke.c)
             target_link_libraries(${platform}_smoke PRIVATE ${platform})
