@@ -369,6 +369,7 @@ set(portv_defs)
 set(ws_defs)
 set(proc_defs)
 set(boot_defs)
+set(boot_vector_defs)
 
 list(LENGTH pdef_names npdefs)
 if (npdefs GREATER 0)
@@ -804,8 +805,11 @@ if (nplaces GREATER 0)
 "    .nr_portv = ${nportv},\n"
 "};\n\n")
 
+        set(boot_sym "__tpa_boot_ent_${i}")
         string(APPEND boot_defs
-"TPA_BOOT(${hartid}, ${slot}, ${start}, ${ws_expr}, ${portv_expr}, ${nportv}, ${proc_sym});\n\n")
+"TPA_BOOT_NAMED(${boot_sym}, ${hartid}, ${slot}, ${start}, ${ws_expr}, ${portv_expr}, ${nportv}, ${proc_sym});\n\n")
+        string(APPEND boot_vector_defs
+"    &${boot_sym},\n")
     endforeach()
 endif()
 
@@ -871,3 +875,19 @@ if (proc_defs)
 endif()
 
 file(APPEND "${OUTPUT}" "${boot_defs}")
+
+if (nplaces GREATER 0)
+    file(APPEND "${OUTPUT}"
+"const struct tpa_boot_ent * const __tpa_boot_vector[]\n"
+"__attribute__((used, retain, section(\".tpa.bootvec\"), aligned(8))) = {\n"
+"${boot_vector_defs}"
+"};\n"
+"const uint32_t __tpa_boot_count\n"
+"__attribute__((used, retain, section(\".tpa.bootvec\"), aligned(4))) = ${nplaces}u;\n")
+else()
+    file(APPEND "${OUTPUT}"
+"const struct tpa_boot_ent * const __tpa_boot_vector[1]\n"
+"__attribute__((used, retain, section(\".tpa.bootvec\"), aligned(8))) = { 0 };\n"
+"const uint32_t __tpa_boot_count\n"
+"__attribute__((used, retain, section(\".tpa.bootvec\"), aligned(4))) = 0u;\n")
+endif()

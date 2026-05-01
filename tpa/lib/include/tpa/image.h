@@ -68,6 +68,26 @@ struct tpa_boot_ent {
     struct tpa_proc *proc;
 };
 
+/* Runtime boot metadata contract.
+ *
+ * Generated images place one tpa_boot_ent per placed process in .tpa.boot via
+ * TPA_BOOT/TPA_BOOT_NAMED. Platforms whose linker script collects .tpa.boot
+ * expose the original boundary-symbol view as [__tpa_boot_start,
+ * __tpa_boot_end). Generated images also publish __tpa_boot_vector and
+ * __tpa_boot_count in .tpa.bootvec; these are ordinary C symbols and are the
+ * preferred phase-2 scheduler input when section boundary support is
+ * unavailable or inconvenient.
+ *
+ * tpa_init()/tpa_boot_hart() should iterate __tpa_boot_vector[0..count), select
+ * entries whose hartid matches the current runtime hart, initialize ent->proc
+ * from the immutable fields below, register it in ent->slot, and enqueue it.
+ * Empty programs set __tpa_boot_count to zero.
+ */
+extern const struct tpa_boot_ent __tpa_boot_start[];
+extern const struct tpa_boot_ent __tpa_boot_end[];
+extern const struct tpa_boot_ent * const __tpa_boot_vector[];
+extern const uint32_t __tpa_boot_count;
+
 enum {
     TPA_PROC_MEM_META_V1 = 1u,
 };
@@ -157,8 +177,8 @@ struct tpa_proc_mem_meta {
     TPA_SYS_PDEF_PORTS(TPA_CAT(__tpa_pdef_sys_, __LINE__),                   \
                        (pid), (k0), (ws_sz0), (ports0))
 
-#define TPA_BOOT(hartid0, slot0, k0, ws0, portv0, nr_portv0, pobj)           \
-    static const struct tpa_boot_ent TPA_CAT(__tpa_boot_, __LINE__)          \
+#define TPA_BOOT_NAMED(name, hartid0, slot0, k0, ws0, portv0, nr_portv0, pobj) \
+    static const struct tpa_boot_ent name                                    \
     __attribute__((used, section(".tpa.boot"), aligned(8))) = {              \
         .hartid = (uint32_t)(hartid0),                                       \
         .slot = (uint16_t)(slot0),                                           \
@@ -168,6 +188,11 @@ struct tpa_proc_mem_meta {
         .portv = (portv0),                                                   \
         .proc = &(pobj),                                                     \
     }
+
+#define TPA_BOOT(hartid0, slot0, k0, ws0, portv0, nr_portv0, pobj)           \
+    TPA_BOOT_NAMED(TPA_CAT(__tpa_boot_, __LINE__),                           \
+                   (hartid0), (slot0), (k0), (ws0), (portv0),                \
+                   (nr_portv0), pobj)
 
 #define TPA_PROG(name, instv0, nr_insts0, connv0, nr_conns0)                 \
     static const struct tpa_prog name                                        \
