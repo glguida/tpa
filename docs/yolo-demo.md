@@ -8,7 +8,7 @@ block-test integration.
 ## Current ported pieces
 
 - `yolov5n/` — process sources, manifests, planner/map CMake integration, and
-  downstream device ELF revalidation target.
+  downstream device ELF/PASS-marker runtime path.
 - `tests/yolo/` — original representative block-test sources/assets and
   structured CMake targets.
 - `tools/yolo/` — original generation, quantization, tensor-weight, and
@@ -52,16 +52,18 @@ cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
 ```
 
-The downstream planner/map artifact path is integrated. The downstream device
-ELF and Erbium runtime smoke are currently scheduler/toolchain hardening
-follow-up and should be revalidated before claiming YOLO downstream runtime
-PASS:
+The downstream planner/map artifact path is integrated. CMake prepends this
+repository's `planner/src` to `PYTHONPATH` for these planner commands so a stale
+globally installed `tpa_planner` package cannot generate mismatched headers. The
+downstream device ELF links on Erbium and reports a PASS marker under
+`erbium_emu`:
 
 ```sh
 cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 /opt/et/bin/erbium_emu \
+  -minions 0x1f \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf \
-  -max_cycles 10000
+  -max_cycles 100000000
 ```
 
 ## Representative block tests
@@ -106,6 +108,6 @@ ET-SoC-1 default one-shire configuration validates `tpa_core`; YOLO requires
 ## Remaining follow-up
 
 The full original YOLO end-user host pipeline is still separate follow-up work.
-The current validated paths are the downstream planner/map artifacts and the
-representative Erbium block-test ELFs documented above. Downstream device ELF
-and runtime PASS validation remains scheduler/toolchain hardening follow-up.
+The current validated paths are the downstream planner/map/device ELF path, its
+Erbium PASS-marker runtime validation, and the representative Erbium block-test
+ELFs documented above.

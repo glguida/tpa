@@ -10,7 +10,8 @@ The runtime is organized around a narrow HAL boundary and ET platform build:
    cache maintenance, fences, hart wake/wait, lifecycle hooks, and tracing.
 3. Core modules under `tpa/lib/` use only the HAL-facing API.
 4. `tpa-device/` configures with the ET RISC-V toolchain and links the real
-   selected HAL against `et-common-libs::cm-umode`.
+   selected HAL against the platform-appropriate device libraries. Erbium uses
+   the toolchain `libc_nano`; ET-SoC-1 links `et-common-libs::cm-umode`.
 5. `kernels/` contains ported original TPA demo assets (`.c`, `.tpm`, `.tpp`, `.place`).
 6. `cmake/tpa-kernel.cmake` provides structured `add_tpa_process()` and `add_tpa_program()` helpers that generate image metadata with `gen_tpa_image.cmake`.
 7. `yolov5n/` ports the original YOLOv5n process sources/manifests and CMake planner/mapper targets for the downstream graph.
@@ -49,17 +50,16 @@ cmake -S . -B build-et-erbium -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=erbi
 cmake --build build-et-erbium --target tpa_host_tools
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_empty.elf
+cmake --build build-et-erbium --target tpa_tensor_matmul.elf
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
-# Downstream YOLO device ELF/runtime is currently follow-up; see below before
-# claiming this target as validated.
-# cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 cmake --build build-et-erbium --target tpa_queue_basic.elf tpa_queue_yield.elf tpa_queue_many.elf tpa_queue_wake.elf
 cmake --build build-et-erbium --target tpa_msg_same_send_first.elf tpa_msg_cross_send_first.elf tpa_msg_fabric_send_first.elf
 cmake --build build-et-erbium --target tpa_negative_expected_fail.elf
-/opt/et/bin/erbium_emu -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf -max_cycles 10000
-# Revalidation target only; current phase-3 status is not YOLO runtime PASS.
-# /opt/et/bin/erbium_emu -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf -max_cycles 10000
+/opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf -max_cycles 10000
+/opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_tensor_matmul.elf -max_cycles 2000000
+/opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf -max_cycles 100000000
 
 cmake -S . -B build-et-etsoc1 -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=etsoc1
 cmake --build build-et-etsoc1 --target tpa_core
@@ -70,11 +70,11 @@ The top-level CMake discovers `ProjectFunctions.cmake`, calls
 `HostProjectNoInstall(tpa-host ...)`. `tpa-device` fails during configure if the
 ET RISC-V toolchain or required ET CMake packages are unavailable. The
 `tpa_host_tools` target builds `tpa_launcher` in the host subproject. The
-`tpa_pipe_demo.elf`, `tpa_empty.elf`, and representative runtime-regression ELF
-targets are generated through the TPA process/program flow, not as handcrafted
-standalone executables. The YOLO downstream planner/map artifact targets are
-integrated; `tpa_yolov5n_downstream.elf` currently needs revalidation because
-this phase-3 pass observed a duplicate-`memset` link failure before runtime.
+`tpa_pipe_demo.elf`, `tpa_empty.elf`, `tpa_tensor_matmul.elf`, and
+representative runtime-regression ELF targets are generated through the TPA
+process/program flow, not as handcrafted standalone executables. The YOLO
+downstream planner/map artifact targets and downstream device ELF are
+integrated and have Erbium emulator PASS-marker validation.
 
 ### Host launcher
 
@@ -210,13 +210,12 @@ targets, not archived generated JSON.
 - Representative message/channel and queue regression ELFs report PASS under
   Erbium emulator validation; `tpa_negative_expected_fail.elf` reports the
   intended FAIL marker.
-- `tpa_tensor_matmul.elf` builds, but current Erbium runtime validation still
-  reports FAIL and remains scheduler/tensor hardening follow-up.
-- YOLO downstream planner/map artifact generation is integrated. In the current
-  Erbium scheduler-hardening pass, the downstream ELF/runtime path was not
-  revalidated successfully and remains follow-up together with the full YOLO
-  host/demo launcher integration. Representative YOLO block-test CMake/CTest
-  coverage is available under `tests/yolo/`.
+- `tpa_tensor_matmul.elf` builds and reports a PASS marker under Erbium
+  emulator validation.
+- YOLO downstream planner/map artifact generation, device ELF link, and Erbium
+  emulator PASS-marker validation are integrated. The full YOLO host/demo
+  launcher integration remains follow-up. Representative YOLO block-test
+  CMake/CTest coverage is available under `tests/yolo/`.
 - DNN demos and LTFarm are preserved as archived/reference material with
   dependency/status notes rather than active build targets.
 - Python mapper/planner commands are ported and the YOLO downstream CMake planner/map targets use them; broader CMake metadata extraction coverage remains follow-up work.

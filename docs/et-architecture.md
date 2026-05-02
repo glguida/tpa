@@ -50,7 +50,10 @@ For the current structured Erbium path, the useful model is:
 
 TPA treats runtime harts as placement targets. Conceptually, a minion is the
 natural transputer-like node, with `H0` and `H1` corresponding to low/high
-priority lanes in the transputer inspiration. The current structured docs should
+priority lanes in the transputer inspiration. The current structured Erbium HAL
+runs TPA placements on the even `H0` lane ids; `H1` harts remain non-runtime
+waiters in this path. This keeps tensor processes on the only Erbium hart lane
+that supports the tensor instruction set. The current structured docs should
 not overclaim full priority/preemption semantics beyond what the current runtime
 and HAL validate.
 
@@ -60,13 +63,10 @@ Current validated Erbium runtime targets include:
 
 - `tpa_empty.elf`;
 - `tpa_pipe_demo.elf`;
+- `tpa_tensor_matmul.elf`;
 - representative message/channel and queue regression ELFs;
-- `tpa_negative_expected_fail.elf` as an intentional FAIL-marker test.
-
-`tpa_tensor_matmul.elf` builds but still reports FAIL under current runtime
-validation. YOLO downstream planner/map artifacts are integrated, but the
-downstream device ELF/runtime path remains scheduler/toolchain hardening
-follow-up.
+- `tpa_negative_expected_fail.elf` as an intentional FAIL-marker test;
+- YOLO downstream planner/map/device ELF and PASS-marker runtime path.
 
 `erbium_emu` validation is ET platform validation. Host smoke-test-double builds
 are not.
@@ -171,7 +171,9 @@ The structured repo's primary build is the ET superbuild:
   `ET_ROOT`, `ET_PLATFORM_PATH`, `CMAKE_MODULE_PATH`, or `/opt/et`;
 - `DeviceProjectNoInstall(tpa-device ...)` configures the device project;
 - `HostProjectNoInstall(tpa-host ...)` configures the host project;
-- `tpa-device` requires the ET RISC-V toolchain and `et-common-libs::cm-umode`;
+- `tpa-device` requires the ET RISC-V toolchain and platform-specific device
+  libraries; Erbium uses the toolchain `libc_nano`, while ET-SoC-1 links
+  `et-common-libs::cm-umode`;
 - `tpa-host` builds `tpa_launcher` against ET host/runtime/device packages.
 
 Do not describe old CMake presets as the current structured workflow. Use the
