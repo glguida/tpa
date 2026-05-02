@@ -42,6 +42,18 @@ smoke-test doubles; they are not ET platform validation.
 ## Read next
 
 - `docs/overview.md` — conceptual overview and current validated paths.
+- `docs/theory/HOARE.md` — CSP theoretical foundation.
+- `docs/theory/TRANSPUTER.md` — transputer/occam runtime model.
+- `docs/theory/TPA.md` — core TPA architecture and ET mapping principles.
+- `docs/theory/PROCESS_MODEL.md` — process, process-kind, and program-model
+  terminology.
+- `docs/design/TPA_IMPL.md` — implementation decisions and rationale.
+- `docs/design/MEMORY.md` — memory model and hierarchy.
+- `docs/design/MAPPING.md` — mapping algorithms and strategy.
+- `docs/design/EDGE_BUFFER.md` — edge-buffer design and management.
+- `docs/design/TOPOLOGY.md` — topology considerations and machine JSONs.
+- `docs/design/GENERATION.md` — code/image generation approach.
+- `docs/design/EDGE_BUFFER_PLAN.md` — edge-buffer planning strategy.
 - `docs/programming-model.md` — process, channel, image, and artifact terms.
 - `docs/et-architecture.md` — Erbium/ET-SoC-1 topology relevant to TPA.
 - `docs/creating-programs.md` — practical guide for creating TPA programs.
