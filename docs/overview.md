@@ -9,9 +9,9 @@ device ELF.
 TPA is not only a library. The useful unit is the whole flow:
 
 ```text
-process code + process manifests
-        + program graph
-        + hand placement or mapper output
+hardware-independent process code + process manifests
+        + hardware-independent program graph
+        + mapper-generated or small/debug hand placement
         -> generated image C
         -> ET device ELF
         -> emulator / launcher / hardware validation
@@ -73,8 +73,10 @@ The virtual layer is the program model:
 - program graphs;
 - mapped-program artifacts.
 
-This layer should stay independent of whether a connection is direct, local,
-fabric-backed, or eventually external.
+This layer should stay independent of runtime hart ids, minions, shires, and
+whether a connection is direct, local, fabric-backed, or eventually external.
+A `.tpp` graph expresses dataflow between process instances; it is not a
+placement file.
 
 ### Physical layer
 
@@ -87,7 +89,8 @@ The physical layer is the ET realization:
 - `erbium_emu`, `tpa_launcher`, sysemu, pcie, and fake host modes.
 
 The mapper and HAL bridge the two layers. Process code should not need to know
-which exact ET transport is chosen for every edge.
+which exact ET transport is chosen for every edge, and ports should not be used
+as transport-class labels.
 
 ## Main repository pieces
 
@@ -149,15 +152,18 @@ remains follow-up.
 ### Image generation
 
 TPA programs are not assembled manually at runtime. `add_tpa_program()` invokes
-`gen_tpa_image.cmake`, which reads process manifests, program graphs, and
-placement files or mapper output. The generated image C contains concrete
-processes, channels, port bindings, and boot entries.
+`gen_tpa_image.cmake`, which reads process manifests, hardware-independent
+program graphs, and separate placement files or mapper output. The generated
+image C contains concrete processes, channels, port bindings, and boot entries.
 
 ### Planner/mapper
 
 The Python planner package can extract process metadata from built objects,
-produce planning reports, and map a program onto machine JSON topology. The YOLO
-downstream CMake path uses the planner to produce metadata JSON, planner JSON,
+produce planning reports, and map a program onto machine JSON topology. It is the
+scalable path for non-trivial or topology-sensitive placement; small hand
+`.place` files remain useful for worked examples, deterministic smoke tests, and
+mapper/debug inspection. The YOLO downstream CMake path uses the planner to
+produce metadata JSON, planner JSON,
 map reports, mapped-program JSON, generated placement, scratch config, and edge
 config.
 

@@ -2,18 +2,21 @@
 
 This guide shows the practical path from a computation to a built and validated
 TPA device program. For terminology, read `docs/programming-model.md` first. For
-hardware/topology background, read `docs/et-architecture.md`.
+hardware/topology background, read `docs/et-architecture.md`; for the dataflow
+vs. mapping split, read `docs/hardware-agnostic-programming.md`.
 
 ## The end-to-end pipeline
 
-A TPA program is authored as a graph of continuation-style processes and then
-built through the ET superbuild. The normal flow is:
+A TPA program is authored as a hardware-independent graph of continuation-style
+processes and then built through the ET superbuild. The normal flow is:
 
-1. Decompose the computation into process kinds and ports.
+1. Decompose the computation into process kinds and ports without choosing
+   harts, minions, shires, or transport classes.
 2. Write C process code that returns TPA runtime operations.
 3. Declare process kinds and ports in one or more `.tpm` manifests.
 4. Instantiate process kinds and connect ports in a `.tpp` program graph.
-5. Choose placement with either a hand `.place` file or mapper-generated output.
+5. Supply placement as a separate artifact, either with a small/debug hand
+   `.place` file or mapper-generated output.
 6. Integrate the sources with CMake using `add_tpa_process()` and
    `add_tpa_program()`.
 7. Configure and build through the top-level ET superbuild.
@@ -27,7 +30,9 @@ process/graph/image path.
 
 ## Step 1: decompose the computation
 
-Start from dataflow boundaries, not from hardware details.
+Start from dataflow boundaries, not from hardware details. Process code and
+`.tpp` graphs should describe logical communication and reusable behavior; they
+should not name runtime hart ids, minions, shires, or channel transport classes.
 
 Good process-kind boundaries are usually:
 
@@ -130,13 +135,15 @@ conn 203 1 204 0 8
 
 This graph uses one source, two instances of the same stage process kind, one
 sink, and one checker. Each edge has an 8-byte capacity. The graph does not say
-where the instances run.
+where the instances run or whether a connection is direct, local, fabric, or
+external; those are placement/mapping decisions.
 
-## Step 5: choose hand placement or mapper output
+## Step 5: supply placement as a separate artifact
 
 ### Hand `.place`
 
-For small examples, write a placement file by hand:
+For small examples, deterministic smoke tests, tutorials, or mapper/debug
+experiments, a placement file may be written by hand:
 
 ```text
 <inst_id> <runtime_hart_id>
@@ -159,15 +166,16 @@ chan <src_inst> <src_port> <dst_inst> <dst_port> <direct|local|fabric|external>
 ```
 
 Hand placement is best when the graph is small, deterministic, and intended as a
-worked example or smoke target.
+worked example or smoke target. It is still a mapping artifact: do not move these
+hart ids or channel class choices into process code or `.tpp` dataflow graphs.
 
 ### Mapper-generated output
 
-Use the mapper for larger graphs where manual placement is error-prone or where
-scratch/edge memory and topology costs matter. The YOLO downstream path is the
-current integrated example. Its CMake flow extracts process metadata, runs the
-planner/mapper against `machines/erbium.json` or `machines/etsoc1.json`, and
-emits:
+Use mapper-generated placement for larger, production, or topology-sensitive
+graphs where manual placement is error-prone or where scratch/edge memory and
+topology costs matter. The YOLO downstream path is the current integrated
+example. Its CMake flow extracts process metadata, runs the planner/mapper
+against `machines/erbium.json` or `machines/etsoc1.json`, and emits:
 
 - mapped `.place`;
 - mapped-program JSON;
@@ -175,9 +183,8 @@ emits:
 - scratch config header;
 - edge config header.
 
-The detailed mapper guide is planned for `docs/mapper-planner.md`. Until that
-exists, use `planner/README.md` and `yolov5n/CMakeLists.txt` as implementation
-references.
+See `docs/mapper-planner.md` for the current mapper guide, and use
+`planner/README.md` plus `yolov5n/CMakeLists.txt` as implementation references.
 
 ## Step 6: integrate with CMake
 
@@ -439,6 +446,7 @@ Avoid these common mistakes:
 
 - Bypassing `.tpm`, `.tpp`, `.place`, and `gen_tpa_image.cmake` for a graph
   program.
+- Encoding placement or channel transport in process code or `.tpp` graphs.
 - Inventing an alternate CMake path instead of the top-level ET superbuild.
 - Treating host smoke tests as Erbium or ET-SoC-1 validation.
 - Confusing process kind ids with process instance ids.
