@@ -1,0 +1,3 @@
+pdef attention_score_pdef user 1202 attention_score_recv 4096
+port attention_score_pdef 0 in
+port attention_score_pdef 1 out

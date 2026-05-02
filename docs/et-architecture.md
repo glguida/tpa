@@ -64,6 +64,7 @@ Current validated Erbium runtime targets include:
 - `tpa_empty.elf`;
 - `tpa_pipe_demo.elf`;
 - `tpa_tensor_matmul.elf`;
+- `tpa_fast_attention.elf` and `tpa_fast_attention_serial.elf`;
 - representative message/channel and queue regression ELFs;
 - `tpa_negative_expected_fail.elf` as an intentional FAIL-marker test;
 - YOLO downstream planner/map/device ELF and PASS-marker runtime path.

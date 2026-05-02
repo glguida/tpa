@@ -102,6 +102,8 @@ Current structured pieces are:
   generates image C.
 - `kernels/` — currently ported TPA programs: `tpa_empty`,
   `tpa_pipe_demo`, and the generated tensor matmul demo.
+- `attention/` — fixed-size structured fast-attention demo with parallel and
+  serial Erbium placements.
 - `yolov5n/` — currently ported YOLO downstream process sources and CMake
   planner/map/device targets.
 - `tests/yolo/` — YOLO block-test sources/assets with representative Erbium
@@ -116,9 +118,11 @@ The current structured repo validates these paths:
 
 - Erbium ET configure and build through the ET superbuild;
 - `tpa_host_tools` builds `tpa_launcher`;
-- `tpa_empty.elf`, `tpa_pipe_demo.elf`, and `tpa_tensor_matmul.elf` build
-  through the generated TPA process/program flow;
-- `tpa_empty.elf`, `tpa_pipe_demo.elf`, and `tpa_tensor_matmul.elf` run under
+- `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_tensor_matmul.elf`,
+  `tpa_fast_attention.elf`, and `tpa_fast_attention_serial.elf` build through
+  the generated TPA process/program flow;
+- `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_tensor_matmul.elf`,
+  `tpa_fast_attention.elf`, and `tpa_fast_attention_serial.elf` run under
   `erbium_emu` and report PASS markers;
 - representative message/channel and queue regression ELFs build and report
   PASS markers under `erbium_emu`;
