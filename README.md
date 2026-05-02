@@ -5,6 +5,26 @@ It describes programs as graphs of continuation-style processes, maps those
 graphs onto ET topologies, generates image metadata, and builds ET device ELFs
 for Erbium or ET-SoC-1.
 
+## Programming model at a glance
+
+TPA keeps program dataflow separate from hardware realization:
+
+```text
+Program author writes:
+  process C + .tpm manifests + .tpp graph
+  (hardware-independent process behavior and logical dataflow)
+
+Mapping/build supplies:
+  mapper-generated or small/debug hand .place
+  + channel classes + generated image C + ET device ELF
+```
+
+Process code and `.tpp` graphs must not name harts, minions, shires, or channel
+transport classes. Mapper-generated placement is the normal scalable path for
+large or topology-sensitive programs, while hand `.place` files remain valid for
+small worked examples, deterministic smoke tests, and mapper/debug inspection.
+See `docs/hardware-agnostic-programming.md` for the detailed guide.
+
 The primary build is the ET superbuild path. The top-level project discovers
 et-platform's `ProjectFunctions.cmake` and configures structured `tpa-device`
 and `tpa-host` subprojects through `DeviceProjectNoInstall()` and
@@ -57,6 +77,8 @@ smoke-test doubles; they are not ET platform validation.
 - `docs/programming-model.md` — process, channel, image, and artifact terms.
 - `docs/et-architecture.md` — Erbium/ET-SoC-1 topology relevant to TPA.
 - `docs/creating-programs.md` — practical guide for creating TPA programs.
+- `docs/hardware-agnostic-programming.md` — how to keep process code and `.tpp`
+  graphs hardware-independent while using placement/mapping artifacts.
 - `docs/mapper-planner.md` — planner/mapper inputs, algorithms, outputs, and
   commands.
 - `docs/memory-and-edge-buffers.md` — memory taxonomy and edge-buffer planning.

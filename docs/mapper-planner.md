@@ -8,6 +8,25 @@ mapped device program.
 The package lives in `planner/`. This document is the deeper conceptual guide;
 `planner/README.md` remains the package quick reference.
 
+## Program author quick start
+
+Author process code, `.tpm` manifests, and `.tpp` graphs as hardware-independent
+dataflow first. Keep runtime hart ids and channel transport classes out of those
+files.
+
+Then choose one of the current placement paths:
+
+- For tiny worked examples, deterministic smoke tests, or mapper/debug
+  inspection, write a small `.place` file and optionally inspect it with
+  `tpa-plan-program`.
+- For non-trivial, production, or topology-sensitive graphs, use
+  `tpa-map-program` to generate placement and mapped artifacts from the `.tpp`,
+  process metadata JSON, and a machine JSON.
+
+The generated or hand `.place` is then consumed by `add_tpa_program(PROGRAM ...
+PLACEMENT ...)` through `cmake/gen_tpa_image.cmake`. Do not introduce alternate
+CMake paths or stale CLI names.
+
 ## What the planner and mapper do
 
 A `.tpp` program says which process instances exist and how their ports are

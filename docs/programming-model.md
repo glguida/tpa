@@ -2,7 +2,8 @@
 
 This document defines the core terms and artifacts used by TPA. It is meant to
 be normative: use these meanings in docs, code review, and future implementation
-work.
+work. For a programmer-facing guide to the hardware-independent dataflow layer,
+see `docs/hardware-agnostic-programming.md`.
 
 ## Core terms
 
@@ -26,8 +27,9 @@ A process kind is not a placement and not a particular runtime object.
 ### Process instance
 
 A **process instance** is one use of a process kind in a program graph. It has an
-instance id and concrete connections to other instances. After mapping, it also
-has a home runtime hart and a slot in the generated image.
+instance id and concrete connections to other instances. The graph-level
+instance is hardware-independent; after mapping, it also has a home runtime hart
+and a slot in the generated image.
 
 Many instances may use the same process kind. Instance ids do not imply separate
 code.
@@ -60,12 +62,15 @@ object.
 ### Program graph
 
 A **program graph** is the set of process instances and connections between
-ports. In the current textual representation this is mostly the `.tpp` file.
+ports. In the current textual representation this is mostly the `.tpp` file. It
+expresses logical dataflow and byte capacities, not runtime harts, minions,
+shires, or channel transport classes.
 
 ### Mapped program
 
-A **mapped program** is the program graph plus realization decisions. It may be
-represented by several generated artifacts:
+A **mapped program** is the program graph plus realization decisions such as
+runtime hart ids, channel classes, scratch domains, and edge-buffer placement. It
+may be represented by several generated artifacts:
 
 - mapped `.place`;
 - mapped-program JSON;
@@ -158,7 +163,8 @@ conn 202 1 203 0 8
 ```
 
 The `.tpp` is a program-level graph description. It does not decide where
-instances run.
+instances run and does not classify channels as direct, local, fabric, or
+external.
 
 ### Placement: `.place`
 
@@ -181,7 +187,9 @@ Example:
 ```
 
 A hand-written `.place` is useful for small examples such as
-`kernels/tpa_pipe_demo.*`.
+`kernels/tpa_pipe_demo.*`, deterministic smoke tests, and mapper/debug
+inspection. It is still a mapping artifact, not part of process code or `.tpp`
+dataflow.
 
 For mapped programs, the mapper may generate the `.place` along with scratch and
 edge configuration artifacts.
@@ -191,10 +199,10 @@ edge configuration artifacts.
 Hand placement is explicit and simple. It is appropriate when:
 
 - the graph is small;
-- the purpose is a smoke test or tutorial;
+- the purpose is a smoke test, tutorial, or mapper/debug experiment;
 - the user wants deterministic placement by inspection.
 
-Mapper-generated placement is appropriate when:
+Mapper-generated placement is the scalable path and is appropriate when:
 
 - there are many process instances;
 - scratch and edge-memory pressure matter;
@@ -253,8 +261,9 @@ Process code should normally:
 5. use scratch only as transient compute storage;
 6. avoid baking placement or channel transport assumptions into the process.
 
-The process code owns behavior. The graph owns connections. The mapper owns
-placement and memory realization.
+The process code owns behavior. The graph owns connections. The mapper or hand
+placement owns runtime hart assignment, channel transport classification, and
+memory realization.
 
 ## Current supported examples
 
