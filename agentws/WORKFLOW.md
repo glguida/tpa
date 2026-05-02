@@ -113,7 +113,7 @@ Example: `hal-interface-fix-memory-barriers` or `extract-scheduler-fix-atomics`
 - `main`: Stable, all tests passing
 - `feature/{task-name}`: One branch per code job
 - Commits are atomic and well-documented
-- No force pushes after review starts
+- No remote pushes by agents
 - Clean history (squash if needed during commit)
 
 ## Success Metrics
