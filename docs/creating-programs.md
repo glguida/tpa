@@ -447,13 +447,13 @@ Avoid these common mistakes:
 - Hiding required ET toolchain or HAL behavior behind host fallbacks.
 - Claiming original tests/demos/tools are integrated before they are ported.
 
-Current missing or partial areas include tensor matmul runtime PASS, YOLO
-downstream device-runtime PASS, full YOLO host/demo integration, and broader
-scheduler coverage. Representative message/channel and queue test assets report
-PASS under Erbium, and the negative expected-failure ELF reports the intended
-FAIL marker; do not generalize those representative checks into exhaustive
-scheduler validation. YOLO tools/models and representative block tests are
-ported; mention remaining items only as follow-up until implementation jobs port
-or validate them. Original DNN demos and LTFarm are preserved under
+Current missing or partial areas include full YOLO host/demo integration and
+broader scheduler coverage. Tensor matmul and YOLO downstream device-runtime now
+have Erbium PASS-marker validation. Representative message/channel and queue
+test assets report PASS under Erbium, and the negative expected-failure ELF
+reports the intended FAIL marker; do not generalize those representative checks
+into exhaustive scheduler validation. YOLO tools/models and representative block
+tests are ported; mention remaining items only as follow-up until implementation
+jobs port or validate them. Original DNN demos and LTFarm are preserved under
 `docs/archive/` as reference material with future port steps, not active program
 examples.

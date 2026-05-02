@@ -175,7 +175,8 @@ TPA documentation must not imply that every original repository artifact is
 ported. Representative message/channel and queue runtime regression ELFs now
 report PASS under Erbium, and the negative expected-failure ELF reports the
 intended FAIL marker; broader scheduler coverage remains hardening work. YOLO
-tools/models and representative block-test CMake/CTest coverage are ported;
-YOLO downstream device-runtime validation and full YOLO host/demo integration
-remain follow-up. DNN demos, `ltfarm`, and historical generated YOLO analysis
-are archived reference material rather than active runtime inputs.
+tools/models, representative block-test CMake/CTest coverage, and YOLO
+downstream planner/map/device ELF plus Erbium PASS-marker runtime validation are
+ported. Full YOLO host/demo integration remains follow-up. DNN demos, `ltfarm`,
+and historical generated YOLO analysis are archived reference material rather
+than active runtime inputs.
