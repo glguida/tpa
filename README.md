@@ -91,6 +91,7 @@ Examples below use `/opt/et`.
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_tensor_matmul.elf
+cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
 cmake --build build-et-erbium --target tpa_fast_attention.elf
 cmake --build build-et-erbium --target tpa_fast_attention_serial.elf
 /opt/et/bin/erbium_emu \

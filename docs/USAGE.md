@@ -53,6 +53,7 @@ cmake --build build-et-erbium --target tpa_host_tools
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_empty.elf
 cmake --build build-et-erbium --target tpa_tensor_matmul.elf
+cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
 cmake --build build-et-erbium --target tpa_fast_attention.elf
 cmake --build build-et-erbium --target tpa_fast_attention_serial.elf
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json

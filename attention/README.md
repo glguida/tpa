@@ -14,10 +14,12 @@ reference in `attention_output.c`.
 
 ## Targets
 
-Build through the top-level ET superbuild:
+Build through the top-level ET superbuild. Pass `-DPYTHON` when selecting a
+specific planner Python environment:
 
 ```sh
-cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium
+cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python3)
+cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
 cmake --build build-et-erbium --target tpa_fast_attention.elf
 cmake --build build-et-erbium --target tpa_fast_attention_serial.elf
 ```
@@ -35,12 +37,18 @@ Run under Erbium emulator:
   -max_cycles 5000000
 ```
 
-`attention.place` distributes the four score/softmax head pipelines across
-runtime harts `2`, `4`, `6`, and `8`, with source and output/check on hart `0`.
-`attention_serial.place` keeps source/output on hart `0` but maps every
-score/softmax stage to hart `2` for a trace-inspectable baseline. The repository
-must not treat that layout as a measured speedup claim unless traces are measured
-and compared separately.
+The primary `tpa_fast_attention.elf` target uses `tpa-map-program` during the
+CMake device build. The mapper reads `attention.tpp`, process metadata extracted
+from the built process objects, `attention_compute_costs.json`, and
+`machines/erbium.json`, then writes the consumed placement and map artifacts
+under the build-tree `attention/planner/` directory. The current mapper output
+distributes the four score/softmax head pipelines across four Erbium runtime
+harts inside the documented `-minions 0x1f` mask.
+
+`attention_serial.place` is a checked-in baseline placement: it keeps
+source/output on hart `0` and maps every score/softmax stage to hart `2` for a
+trace-inspectable comparison target. The repository must not treat either layout
+as a measured speedup claim unless traces are measured and compared separately.
 
 ## Trace tags
 
