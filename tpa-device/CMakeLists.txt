@@ -140,6 +140,7 @@ option(BUILD_TPA_YOLOV5N "Build structured YOLOv5n planner/demo targets" ${TPA_Y
 
 if (BUILD_TPA_KERNELS)
     add_subdirectory("${TPA_ROOT_DIR}/kernels" "${CMAKE_BINARY_DIR}/kernels")
+    add_subdirectory("${TPA_ROOT_DIR}/attention" "${CMAKE_BINARY_DIR}/attention")
 endif()
 
 if (BUILD_TPA_YOLOV5N)

@@ -1,0 +1,3 @@
+pdef attention_softmax_pdef user 1203 attention_softmax_recv 4096
+port attention_softmax_pdef 0 in
+port attention_softmax_pdef 1 out

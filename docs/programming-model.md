@@ -272,14 +272,17 @@ Currently integrated generated TPA programs include:
 - `kernels/tpa_empty.*` -> `tpa_empty.elf`;
 - `kernels/tpa_pipe_demo.*` -> `tpa_pipe_demo.elf`;
 - `kernels/tpa_tensor_matmul.*` -> `tpa_tensor_matmul.elf`;
+- `attention/attention.*` -> `tpa_fast_attention.elf` and
+  `tpa_fast_attention_serial.elf`;
 - `yolov5n/` downstream planner/map path -> `tpa_yolov5n_downstream.elf`.
 
 Original message, queue, and negative regression assets are also integrated as
 structured test ELF targets. Representative message/channel and queue ELFs now
 report PASS under Erbium, and the negative expected-failure ELF reports the
-intended FAIL marker. Tensor matmul and YOLO downstream device-runtime paths now
-have Erbium PASS-marker validation. YOLO tools/models and representative block
-tests are ported; full YOLO host/demo integration remains follow-up work.
+intended FAIL marker. Tensor matmul, fast attention, and YOLO downstream
+device-runtime paths now have Erbium PASS-marker validation. YOLO tools/models
+and representative block tests are ported; full YOLO host/demo integration
+remains follow-up work.
 Original DNN demos and LTFarm are archived under `docs/archive/` as reference
 material, not active generated program targets.
 
@@ -288,7 +291,8 @@ material, not active generated program targets.
 Generated graph-program ELFs now link the cooperative runtime scheduler and
 execute process continuations. The validated Erbium PASS-marker set is still
 representative rather than exhaustive: `tpa_empty.elf`, `tpa_pipe_demo.elf`,
-`tpa_tensor_matmul.elf`, YOLO downstream, representative message/channel tests,
-and representative queue tests pass. Broader scheduler coverage and full YOLO
-host/demo integration remain follow-up. Documentation and tests should be
-explicit about that distinction.
+`tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
+`tpa_fast_attention_serial.elf`, YOLO downstream, representative
+message/channel tests, and representative queue tests pass. Broader scheduler
+coverage and full YOLO host/demo integration remain follow-up. Documentation
+and tests should be explicit about that distinction.
