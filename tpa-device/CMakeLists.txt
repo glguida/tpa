@@ -137,6 +137,9 @@ if (TPA_PLATFORM_ID STREQUAL "etsoc1" AND TPA_ETSOC1_NR_SHIRES LESS 32)
     set(TPA_YOLOV5N_DEFAULT OFF)
 endif()
 option(BUILD_TPA_YOLOV5N "Build structured YOLOv5n planner/demo targets" ${TPA_YOLOV5N_DEFAULT})
+option(BUILD_TPA_YOLOV8N "Build structured YOLOv8n external-header targets" OFF)
+set(TPA_YOLOV8N_EXTERNAL_WEIGHTS_HEADER "" CACHE FILEPATH "External generated YOLOv8n weight header")
+set(TPA_YOLOV8N_EXTERNAL_WEIGHTS_MANIFEST "" CACHE FILEPATH "External generated YOLOv8n weight manifest")
 
 if (BUILD_TPA_KERNELS)
     add_subdirectory("${TPA_ROOT_DIR}/kernels" "${CMAKE_BINARY_DIR}/kernels")
@@ -146,6 +149,10 @@ endif()
 
 if (BUILD_TPA_YOLOV5N)
     add_subdirectory("${TPA_ROOT_DIR}/yolov5n" "${CMAKE_BINARY_DIR}/yolov5n")
+endif()
+
+if (BUILD_TPA_YOLOV8N)
+    add_subdirectory("${TPA_ROOT_DIR}/yolov8n" "${CMAKE_BINARY_DIR}/yolov8n")
 endif()
 
 if (BUILD_TPA_TESTS)

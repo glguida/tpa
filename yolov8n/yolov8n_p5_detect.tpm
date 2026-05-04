@@ -1,0 +1,9 @@
+pdef yolov8n_p5_source_pdef user 810 yolov8n_p5_source_start 0
+port yolov8n_p5_source_pdef 0 out
+
+pdef yolov8n_p5_detect_pdef user 811 yolov8n_p5_detect_start 24
+port yolov8n_p5_detect_pdef 0 in
+port yolov8n_p5_detect_pdef 1 out
+
+pdef yolov8n_p5_checker_pdef user 812 yolov8n_p5_checker_start 16
+port yolov8n_p5_checker_pdef 0 in

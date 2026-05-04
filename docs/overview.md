@@ -110,8 +110,10 @@ Current structured pieces are:
 - `depth/` — no-weights stereo SAD depth demo for deterministic 96x64
   synthetic grayscale input, using a source/four-worker/checker graph and hand
   Erbium placement.
-- `yolov5n/` — currently ported YOLO downstream process sources and CMake
+- `yolov5n/` — currently ported YOLOv5n downstream process sources and CMake
   planner/map/device targets.
+- `yolov8n/` — opt-in external-header YOLOv8n P5 Detect/DFL downstream
+  milestone with mapper-generated placement/edge config.
 - `tests/yolo/` — YOLO block-test sources/assets with representative Erbium
   CMake/CTest coverage.
 - `planner/` — Python metadata extraction, planning, and mapping package.
@@ -134,8 +136,11 @@ The current structured repo validates these paths:
   PASS markers under `erbium_emu`;
 - `tpa_negative_expected_fail.elf` builds and reports the expected FAIL marker
   under `erbium_emu`;
-- YOLO downstream planner JSON, mapped-program artifacts, downstream device
+- YOLOv5n downstream planner JSON, mapped-program artifacts, downstream device
   ELF, and Erbium PASS-marker runtime path build through CMake;
+- YOLOv8n P5 Detect/DFL external-header mapper/device target builds when
+  explicitly configured with generated header/manifest paths; it validates only
+  deterministic synthetic-calibration P5 plumbing hashes;
 - ET-SoC-1 default one-shire `tpa_core` builds;
 - host smoke-test-double builds and tests pass, but those are not platform
   validation.
@@ -155,9 +160,11 @@ pipe, tensor matmul, fast-attention, and no-weights stereo SAD demos plus
 representative message/channel and queue regression tests. The stereo SAD demo
 uses deterministic synthetic input and does not depend on external images,
 datasets, model weights, or third-party stereo code. It uses hand placement;
-mapper-generated placement/report work remains follow-up. YOLO downstream
+mapper-generated placement/report work remains follow-up. YOLOv5n downstream
 device-runtime validation covers the CMake planner/map/device path and Erbium
-PASS marker; the full YOLO host/demo pipeline remains follow-up.
+PASS marker. YOLOv8n has an opt-in P5 Detect/DFL external-header milestone;
+full P3/P4/P5 Detect, C2f source modules, full-model validation, and the full
+YOLO host/demo pipeline remain follow-up.
 
 ### Image generation
 
@@ -191,8 +198,9 @@ TPA documentation must not imply that every original repository artifact is
 ported. Representative message/channel and queue runtime regression ELFs now
 report PASS under Erbium, and the negative expected-failure ELF reports the
 intended FAIL marker; broader scheduler coverage remains hardening work. YOLO
-tools/models, representative block-test CMake/CTest coverage, and YOLO
-downstream planner/map/device ELF plus Erbium PASS-marker runtime validation are
-ported. Full YOLO host/demo integration remains follow-up. DNN demos, `ltfarm`,
-and historical generated YOLO analysis are archived reference material rather
-than active runtime inputs.
+tools/models, representative block-test CMake/CTest coverage, YOLOv5n
+downstream planner/map/device ELF plus Erbium PASS-marker runtime validation,
+and the opt-in YOLOv8n P5 Detect/DFL external-header milestone are ported. Full
+YOLOv8n graph/model validation and full YOLO host/demo integration remain
+follow-up. DNN demos, `ltfarm`, and historical generated YOLO analysis are
+archived reference material rather than active runtime inputs.

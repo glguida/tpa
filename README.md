@@ -47,8 +47,11 @@ smoke-test doubles; they are not ET platform validation.
   serial Erbium placements.
 - `depth/` — no-weights stereo SAD depth demo with source, four worker stripes,
   checker, and hand Erbium placement.
-- `yolov5n/` — current YOLO downstream process sources and planner/map/device
+- `yolov5n/` — current YOLOv5n downstream process sources and planner/map/device
   targets.
+- `yolov8n/` — explicit external-header YOLOv8n P5 Detect/DFL downstream
+  milestone, gated by `BUILD_TPA_YOLOV8N=ON` and external generated weight
+  header/manifest cache variables.
 - `tests/tpa_msg/`, `tests/tpa_queue/`, `tests/tpa_negative/` — ported
   original message/channel, scheduler/queue, and expected-failure runtime test
   assets integrated through the structured TPA process/program build path.
@@ -164,6 +167,22 @@ cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
   -max_cycles 100000000
 ```
 
+YOLOv8n P5 Detect/DFL is an explicit external-header milestone. It requires the
+external generated header/manifest and uses synthetic-calibration hashes only;
+it is not full YOLOv8n model or accuracy validation:
+
+```sh
+cmake -S . -B build-et-erbium-yolov8n-p5 \
+  -DET_ROOT=/opt/et \
+  -DTPA_PLATFORM=erbium \
+  -DPYTHON=$(command -v python) \
+  -DBUILD_TPA_YOLOV8N=ON \
+  -DTPA_YOLOV8N_EXTERNAL_WEIGHTS_HEADER=/path/to/yolov8n_external_detect_c2f_weights.h \
+  -DTPA_YOLOV8N_EXTERNAL_WEIGHTS_MANIFEST=/path/to/yolov8n_external_detect_c2f_generated_manifest.json
+cmake --build build-et-erbium-yolov8n-p5 --target tpa_yolov8n_p5_detect_map_mapped_program
+cmake --build build-et-erbium-yolov8n-p5 --target tpa_yolov8n_p5_detect.elf
+```
+
 ## Quick start: runtime regression test ELFs
 
 Build representative original message, queue, and negative regression tests
@@ -262,8 +281,11 @@ Ported and validated today:
   `tpa_stereo_sad_mapped.elf`, representative message/channel tests, and
   representative queue tests.
 - Negative expected-failure execution reports the intended Erbium FAIL marker.
-- YOLO downstream planner/map artifact generation, downstream device ELF link,
-  and Erbium emulator PASS-marker runtime validation.
+- YOLOv5n downstream planner/map artifact generation, downstream device ELF
+  link, and Erbium emulator PASS-marker runtime validation.
+- YOLOv8n P5 Detect/DFL external-header mapper/device milestone is integrated
+  behind `BUILD_TPA_YOLOV8N=ON`; it consumes external generated weights and
+  validates deterministic synthetic-calibration hashes for sampled P5 points.
 - ET-SoC-1 default one-shire `tpa_core` build.
 - `tpa_launcher` host tool target.
 - Python planner package, checked-in machine JSONs, and planner tests.

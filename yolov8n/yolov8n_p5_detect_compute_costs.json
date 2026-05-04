@@ -1,0 +1,5 @@
+{
+  "yolov8n_p5_source_pdef": 1,
+  "yolov8n_p5_detect_pdef": 200,
+  "yolov8n_p5_checker_pdef": 1
+}

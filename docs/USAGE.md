@@ -19,12 +19,15 @@ The runtime is organized around a narrow HAL boundary and ET platform build:
    source/four-worker/checker graph and hand Erbium placement.
 8. `cmake/tpa-kernel.cmake` provides structured `add_tpa_process()` and `add_tpa_program()` helpers that generate image metadata with `gen_tpa_image.cmake`.
 9. `yolov5n/` ports the original YOLOv5n process sources/manifests and CMake planner/mapper targets for the downstream graph.
-10. `tests/tpa_msg/`, `tests/tpa_queue/`, and `tests/tpa_negative/` contain
+10. `yolov8n/` contains the explicit external-header P5 Detect/DFL downstream
+   milestone, gated by `BUILD_TPA_YOLOV8N=ON` and external generated
+   header/manifest variables.
+11. `tests/tpa_msg/`, `tests/tpa_queue/`, and `tests/tpa_negative/` contain
    ported original runtime regression test assets integrated through the
    structured process/program build helpers.
-11. `tpa-host/` builds the structured `tpa_launcher` executable against
+12. `tpa-host/` builds the structured `tpa_launcher` executable against
    et-platform host/runtime packages.
-12. `planner/` provides Python-only offline process metadata extraction,
+13. `planner/` provides Python-only offline process metadata extraction,
    mapping, and planning commands; `machines/` provides mapper topology inputs.
 
 ## Selecting a platform
@@ -64,6 +67,9 @@ cmake --build build-et-erbium --target tpa_stereo_sad_mapped.elf
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
+# With BUILD_TPA_YOLOV8N=ON and external header/manifest cache variables:
+cmake --build build-et-erbium --target tpa_yolov8n_p5_detect_map_mapped_program
+cmake --build build-et-erbium --target tpa_yolov8n_p5_detect.elf
 cmake --build build-et-erbium --target tpa_queue_basic.elf tpa_queue_yield.elf tpa_queue_many.elf tpa_queue_wake.elf
 cmake --build build-et-erbium --target tpa_msg_same_send_first.elf tpa_msg_cross_send_first.elf tpa_msg_fabric_send_first.elf
 cmake --build build-et-erbium --target tpa_negative_expected_fail.elf
@@ -90,8 +96,12 @@ ET RISC-V toolchain or required ET CMake packages are unavailable. The
 are generated through the TPA process/program flow, not as handcrafted
 standalone executables. The stereo SAD hand-placed and mapped ELFs are distinct
 runtime targets; the mapped ELF consumes the mapper-generated placement and edge
-config header. The YOLO downstream planner/map artifact targets and downstream device ELF are
-integrated and have Erbium emulator PASS-marker validation.
+config header. The YOLOv5n downstream planner/map artifact targets and
+downstream device ELF are integrated and have Erbium emulator PASS-marker
+validation. The YOLOv8n P5 Detect/DFL target is an explicit external-header
+milestone behind `BUILD_TPA_YOLOV8N=ON`; it validates deterministic
+synthetic-calibration P5 plumbing hashes only and does not imply full YOLOv8n
+model validation.
 
 ### Erbium PASS/FAIL marker validation
 
@@ -129,7 +139,11 @@ build-et-erbium/tpa-host-prefix/src/tpa-host-build/tpa_launcher \
 sysemu firmware/log/options arguments. Run `tpa_launcher --help` for the full
 option list.
 
-YOLO targets currently port the downstream planner/map/device path. On ET-SoC-1, `BUILD_TPA_YOLOV5N` defaults OFF unless `TPA_ETSOC1_NR_SHIRES=32` because the original YOLO mapping uses the full-card machine description.
+YOLO targets currently port the YOLOv5n downstream planner/map/device path and
+an explicit YOLOv8n P5 Detect/DFL external-header milestone. On ET-SoC-1,
+`BUILD_TPA_YOLOV5N` defaults OFF unless `TPA_ETSOC1_NR_SHIRES=32` because the
+original YOLO mapping uses the full-card machine description; YOLOv8n remains
+opt-in and should not be treated as default ET-SoC-1 validation.
 
 ### Message, queue, and negative regression tests
 
@@ -240,6 +254,9 @@ targets, not archived generated JSON.
 - `attention/` contains the structured fixed-size fast-attention demo and builds
   `tpa_fast_attention.elf` plus the serial baseline `tpa_fast_attention_serial.elf`.
 - `yolov5n/` contains the original YOLOv5n process sources/assets plus downstream planner/map targets and `tpa_yolov5n_downstream.elf`.
+- `yolov8n/` contains the P5-only Detect/DFL external-header graph and
+  `tpa_yolov8n_p5_detect.elf` when configured with `BUILD_TPA_YOLOV8N=ON` and
+  external generated header/manifest paths.
 
 ## Current limitations / follow-up
 
@@ -256,10 +273,13 @@ targets, not archived generated JSON.
   `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`, and
   `tpa_stereo_sad_mapped.elf` build and report PASS markers under Erbium
   emulator validation.
-- YOLO downstream planner/map artifact generation, device ELF link, and Erbium
-  emulator PASS-marker validation are integrated. The full YOLO host/demo
-  launcher integration remains follow-up. Representative YOLO block-test
-  CMake/CTest coverage is available under `tests/yolo/`.
+- YOLOv5n downstream planner/map artifact generation, device ELF link, and
+  Erbium emulator PASS-marker validation are integrated. YOLOv8n has a P5-only
+  Detect/DFL external-header mapper/device milestone with deterministic
+  synthetic-calibration hash checking. Full P3/P4/P5 Detect, C2f source-module
+  integration, production calibration/accuracy, full YOLOv8n graph validation,
+  and full YOLO host/demo launcher integration remain follow-up. Representative
+  YOLO block-test CMake/CTest coverage is available under `tests/yolo/`.
 - DNN demos and LTFarm are preserved as archived/reference material with
   dependency/status notes rather than active build targets.
 - Python mapper/planner commands are ported and the YOLO downstream CMake planner/map targets use them; broader CMake metadata extraction coverage remains follow-up work.

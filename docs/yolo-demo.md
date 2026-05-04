@@ -16,12 +16,14 @@ block-test integration.
 - `models/yolov5nu.onnx` and `models/yolov5nu.pt` — source model artifacts used
   by the regeneration path.
 - `models/yolov8n_artifact_manifest.json` — external-artifact manifest and
-  verified architecture facts for the future YOLOv8n path; it is not a YOLOv8n
-  kernel or graph integration.
+  verified architecture facts for the YOLOv8n path.
 - `tools/yolo/regen_yolov8n_external_weights.py` and
   `tools/yolo/yolov8n_external_layer_selection.json` — external YOLOv8n
   quantized-header workflow and manifest-derived module selection; generated
   model-derived outputs remain external/untracked.
+- `yolov8n/` — first structured YOLOv8n downstream milestone: P5-only
+  Detect/DFL process graph using an external generated header, mapper-generated
+  placement/edge config, and deterministic synthetic-calibration hash checking.
 - `machines/erbium.json` and `machines/etsoc1.json` — mapper topology inputs.
 
 ## Model artifact policy
@@ -40,17 +42,19 @@ checksums must be committed at the same time.
 ## YOLOv8n artifact status
 
 The full YOLOv8n model path is not integrated. The repository records
-`models/yolov8n_artifact_manifest.json` and provides
+`models/yolov8n_artifact_manifest.json`, provides
 `tools/yolo/regen_yolov8n_external_weights.py` plus
 `tools/yolo/yolov8n_external_layer_selection.json` for an external
-quantized-header workflow, but it does not check in the YOLOv8n `.pt` or
-exported `.onnx` binaries and does not provide committed generated YOLOv8n
-weights, calibration data, model-derived fixtures, a full YOLOv8n process graph,
-a downstream YOLOv8n ELF/CMake path, or full-model Erbium validation. The
-representative synthetic C2f and Detect/DFL block tests under `tests/yolo/` are
-the only YOLOv8n process-kernel, `.tpp`, CMake-target, and Erbium CTest coverage
-currently present; they are non-model-derived block coverage and do not
-constitute full YOLOv8n graph, downstream, or model validation.
+quantized-header workflow, and now contains a P5-only Detect/DFL downstream
+milestone under `yolov8n/`. It still does not check in the YOLOv8n `.pt` or
+exported `.onnx` binaries and does not commit generated YOLOv8n weights,
+calibration data, model-derived fixtures, full P3/P4/P5 Detect, C2f source
+modules, a full YOLOv8n process graph, host demo support, or full-model Erbium
+validation. The representative synthetic C2f and Detect/DFL block tests under
+`tests/yolo/` remain non-model-derived block coverage. The `yolov8n/` milestone
+uses an external synthetic-calibration generated header and validates sampled P5
+Detect/DFL plumbing hashes; it is not model accuracy or production quantization
+evidence.
 
 The targeted external artifact is Ultralytics `yolov8n.pt` from
 `https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n.pt`.
@@ -74,15 +78,20 @@ Verified facts from that targeted artifact:
   Split, Add, MaxPool, Resize, Softmax, Reshape, Transpose, Slice, Div, Sub,
   Shape, and Gather.
 
-For a first INT8 downstream milestone, the three detect-input feature maps would
-be edge/channel payloads of 409600, 204800, and 102400 bytes respectively. They
-are not process state. `yolov8n_external_layer_selection.json` selects the
-manifest-derived C2f source modules `model.15`, `model.18`, and `model.21`,
-their internal Conv/BN/SiLU modules, and the Detect/DFL branch modules under
-`model.22` needed to produce 64 box-distribution plus 80 class channels per
-scale. Generated weights, fused BN parameters, DFL weights, and quantization
-tables are immutable model data. Scratch requirements remain kernel-specific
-transient compute metadata for future process jobs.
+For the first INT8 downstream scope, the three detect-input feature maps are
+edge/channel payloads of 409600, 204800, and 102400 bytes respectively. They are
+not process state. The integrated `yolov8n/` milestone consumes only the P5
+`1x256x20x20` edge (`102400` INT8 bytes), runs sampled P5 Detect/DFL branches
+for export ids 18, 19, 20, 27, 28, 29, and DFL id 30, and sends a compact
+summary edge to a checker. `yolov8n_external_layer_selection.json` also selects
+the manifest-derived C2f source modules `model.15`, `model.18`, and `model.21`,
+their internal Conv/BN/SiLU modules, and the remaining Detect/DFL branch modules
+under `model.22` needed to produce 64 box-distribution plus 80 class channels
+per scale. Generated weights, fused BN parameters, DFL weights, and
+quantization tables are immutable model data. The P5 input and summary are
+edge/channel payloads. Tensor patch buffers, intermediate branch vectors, DFL
+temporaries, and decode buffers are transient scratch; the process workspace
+stores only small continuation state.
 
 Compared with the current YOLOv5n downstream path, Conv+BN+SiLU, SPPF,
 nearest-neighbor upsample, and concat remain recognizable building blocks, but
@@ -136,6 +145,33 @@ cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf \
   -max_cycles 100000000
 ```
+
+## YOLOv8n P5 Detect/DFL downstream milestone
+
+`BUILD_TPA_YOLOV8N` defaults OFF so normal builds do not require external
+model-derived files. Enable it only when the external generated header and
+manifest are available:
+
+```sh
+cmake -S . -B build-et-erbium-yolov8n-p5 \
+  -DET_ROOT=/opt/et \
+  -DTPA_PLATFORM=erbium \
+  -DPYTHON=$(command -v python) \
+  -DBUILD_TPA_YOLOV8N=ON \
+  -DTPA_YOLOV8N_EXTERNAL_WEIGHTS_HEADER=/path/to/yolov8n_external_detect_c2f_weights.h \
+  -DTPA_YOLOV8N_EXTERNAL_WEIGHTS_MANIFEST=/path/to/yolov8n_external_detect_c2f_generated_manifest.json
+cmake --build build-et-erbium-yolov8n-p5 --target tpa_yolov8n_p5_detect_plan_planner_json
+cmake --build build-et-erbium-yolov8n-p5 --target tpa_yolov8n_p5_detect_map_mapped_program
+cmake --build build-et-erbium-yolov8n-p5 --target tpa_yolov8n_p5_detect.elf
+```
+
+The target graph is `yolov8n_p5_source -> yolov8n_p5_detect ->
+yolov8n_p5_checker`. It uses mapper-generated placement and edge config for the
+runtime ELF. The P5 source generates a deterministic non-model-derived input
+edge; the detect process includes the external generated immutable model data via
+CMake cache variables and computes sampled P5 branch/DFL hashes; the checker
+compares the compact summary against expected hashes derived from that external
+synthetic-calibration header. Keep those generated artifacts outside git.
 
 ## Representative block tests
 
@@ -193,7 +229,9 @@ ET-SoC-1 default one-shire configuration validates `tpa_core`; YOLO requires
 ## Remaining follow-up
 
 The full original YOLO end-user host pipeline is still separate follow-up work.
-The current validated paths are the downstream planner/map/device ELF path, its
-Erbium PASS-marker runtime validation, and the representative Erbium block-test
-ELFs documented above. The YOLOv8n block tests are representative synthetic
-operator coverage and do not imply a full YOLOv8n model path.
+The current YOLOv5n validated path is the downstream planner/map/device ELF
+path and its Erbium PASS-marker runtime validation. YOLOv8n now has a P5-only
+external-header Detect/DFL mapper/device milestone plus representative Erbium
+block-test ELFs. The YOLOv8n pieces do not imply full P3/P4/P5 Detect, C2f
+source-module integration, a full YOLOv8n graph, production calibration or
+accuracy, host demo support, or ET-SoC-1 YOLOv8n validation.
