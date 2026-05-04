@@ -93,6 +93,29 @@ runtime targets; the mapped ELF consumes the mapper-generated placement and edge
 config header. The YOLO downstream planner/map artifact targets and downstream device ELF are
 integrated and have Erbium emulator PASS-marker validation.
 
+### Erbium PASS/FAIL marker validation
+
+Generated graph tests report application-level results with emulator log markers:
+
+```text
+Signal end test with PASS
+Signal end test with FAIL
+```
+
+Use the registered CTests or `cmake/run_erbium_test_fast.cmake` for normal
+Erbium validation of these tests. That wrapper writes the emulator output to a
+log, fails immediately on an explicit FAIL marker, returns success on a PASS
+marker, and only treats the raw emulator process return code as decisive when no
+PASS marker appears. This distinction matters because a direct `erbium_emu` run
+may emit `Signal end test with PASS` and then exit non-zero when the emulator
+reports waiting or sleeping harts after the application has ended the test.
+
+Do not treat every non-zero emulator exit as acceptable. A missing PASS marker,
+an explicit FAIL marker, or a non-zero emulator return code without a PASS marker
+is still a validation failure. The rule is only that a raw direct-emulator return
+code should not be used by itself to overturn an application PASS marker for the
+generated graph tests covered by the wrapper policy.
+
 ### Host launcher
 
 ```sh

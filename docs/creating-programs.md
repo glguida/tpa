@@ -376,9 +376,16 @@ For Erbium ELFs:
   -max_cycles 10000
 ```
 
-Check for the expected PASS/FAIL trace behavior and emulator exit status. For
-new programs, define an unambiguous application-level success condition, not just
-"the ELF loads".
+Check for the expected PASS/FAIL trace behavior, not just that the ELF loads.
+Generated graph tests should define an unambiguous application-level success
+condition and report it with `Signal end test with PASS` or
+`Signal end test with FAIL`. Prefer the registered CTests or
+`cmake/run_erbium_test_fast.cmake`, which accepts a PASS marker, rejects an
+explicit FAIL or missing-PASS run, and only uses the raw emulator process return
+code when no PASS marker was observed. A direct `erbium_emu` run may still exit
+non-zero after printing a PASS marker if the emulator later reports
+waiting/sleeping harts; that raw return code alone should not overturn the PASS
+marker, but a missing PASS marker or explicit FAIL remains a validation failure.
 
 ### Run with `tpa_launcher`
 

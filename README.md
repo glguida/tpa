@@ -140,6 +140,14 @@ cmake --build build-et-erbium --target tpa_stereo_sad_mapped.elf
   -max_cycles 100000000
 ```
 
+Generated graph tests signal application success or failure with emulator log
+markers such as `Signal end test with PASS` or `Signal end test with FAIL`.
+Some direct `erbium_emu` runs can print a PASS marker and then exit non-zero
+when the emulator reports waiting/sleeping harts. Prefer the registered CTests or
+`cmake/run_erbium_test_fast.cmake` for validation: they reject explicit FAIL or
+missing-PASS runs, and they accept a PASS marker before considering the raw
+emulator return code.
+
 YOLO downstream planner/map/device path:
 
 ```sh
