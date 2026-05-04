@@ -15,14 +15,16 @@ The runtime is organized around a narrow HAL boundary and ET platform build:
 5. `kernels/` contains ported original TPA demo assets (`.c`, `.tpm`, `.tpp`, `.place`).
 6. `attention/` contains a fixed-size structured fast-attention demo with
    parallel and serial Erbium placements.
-7. `cmake/tpa-kernel.cmake` provides structured `add_tpa_process()` and `add_tpa_program()` helpers that generate image metadata with `gen_tpa_image.cmake`.
-8. `yolov5n/` ports the original YOLOv5n process sources/manifests and CMake planner/mapper targets for the downstream graph.
-9. `tests/tpa_msg/`, `tests/tpa_queue/`, and `tests/tpa_negative/` contain
+7. `depth/` contains the first full no-weights stereo SAD depth demo with a
+   source/four-worker/checker graph and hand Erbium placement.
+8. `cmake/tpa-kernel.cmake` provides structured `add_tpa_process()` and `add_tpa_program()` helpers that generate image metadata with `gen_tpa_image.cmake`.
+9. `yolov5n/` ports the original YOLOv5n process sources/manifests and CMake planner/mapper targets for the downstream graph.
+10. `tests/tpa_msg/`, `tests/tpa_queue/`, and `tests/tpa_negative/` contain
    ported original runtime regression test assets integrated through the
    structured process/program build helpers.
-10. `tpa-host/` builds the structured `tpa_launcher` executable against
+11. `tpa-host/` builds the structured `tpa_launcher` executable against
    et-platform host/runtime packages.
-11. `planner/` provides Python-only offline process metadata extraction,
+12. `planner/` provides Python-only offline process metadata extraction,
    mapping, and planning commands; `machines/` provides mapper topology inputs.
 
 ## Selecting a platform
@@ -56,6 +58,7 @@ cmake --build build-et-erbium --target tpa_tensor_matmul.elf
 cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
 cmake --build build-et-erbium --target tpa_fast_attention.elf
 cmake --build build-et-erbium --target tpa_fast_attention_serial.elf
+cmake --build build-et-erbium --target tpa_stereo_sad.elf
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
@@ -66,6 +69,7 @@ cmake --build build-et-erbium --target tpa_negative_expected_fail.elf
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_tensor_matmul.elf -max_cycles 2000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention.elf -max_cycles 5000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention_serial.elf -max_cycles 5000000
+/opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/depth/tpa_stereo_sad.elf -max_cycles 100000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf -max_cycles 100000000
 
 cmake -S . -B build-et-etsoc1 -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=etsoc1
@@ -78,8 +82,8 @@ The top-level CMake discovers `ProjectFunctions.cmake`, calls
 ET RISC-V toolchain or required ET CMake packages are unavailable. The
 `tpa_host_tools` target builds `tpa_launcher` in the host subproject. The
 `tpa_pipe_demo.elf`, `tpa_empty.elf`, `tpa_tensor_matmul.elf`,
-`tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`, and representative
-runtime-regression ELF targets are generated through the TPA
+`tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`,
+and representative runtime-regression ELF targets are generated through the TPA
 process/program flow, not as handcrafted standalone executables. The YOLO
 downstream planner/map artifact targets and downstream device ELF are
 integrated and have Erbium emulator PASS-marker validation.
@@ -220,9 +224,9 @@ targets, not archived generated JSON.
 - Representative message/channel and queue regression ELFs report PASS under
   Erbium emulator validation; `tpa_negative_expected_fail.elf` reports the
   intended FAIL marker.
-- `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`, and
-  `tpa_fast_attention_serial.elf` build and report PASS markers under Erbium
-  emulator validation.
+- `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
+  `tpa_fast_attention_serial.elf`, and `tpa_stereo_sad.elf` build and report
+  PASS markers under Erbium emulator validation.
 - YOLO downstream planner/map artifact generation, device ELF link, and Erbium
   emulator PASS-marker validation are integrated. The full YOLO host/demo
   launcher integration remains follow-up. Representative YOLO block-test

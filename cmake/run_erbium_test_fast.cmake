@@ -14,8 +14,13 @@ if (NOT DEFINED MAX_CYCLES)
     set(MAX_CYCLES 100000000)
 endif()
 
+set(EMU_ARGS)
+if (DEFINED MINIONS AND NOT "${MINIONS}" STREQUAL "")
+    list(APPEND EMU_ARGS -minions "${MINIONS}")
+endif()
+
 execute_process(
-    COMMAND "${EMU}" -max_cycles "${MAX_CYCLES}" -elf_load "${ELF}"
+    COMMAND "${EMU}" ${EMU_ARGS} -max_cycles "${MAX_CYCLES}" -elf_load "${ELF}"
     RESULT_VARIABLE rc
     OUTPUT_VARIABLE out
     ERROR_VARIABLE err

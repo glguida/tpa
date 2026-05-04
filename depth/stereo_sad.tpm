@@ -1,0 +1,13 @@
+pdef depth_stereo_sad_source_pdef user 1401 depth_stereo_sad_source_start 16384
+port depth_stereo_sad_source_pdef 0 out
+port depth_stereo_sad_source_pdef 1 out
+port depth_stereo_sad_source_pdef 2 out
+port depth_stereo_sad_source_pdef 3 out
+pdef depth_stereo_sad_worker_pdef user 1402 depth_stereo_sad_worker_recv 2048
+port depth_stereo_sad_worker_pdef 0 in
+port depth_stereo_sad_worker_pdef 1 out
+pdef depth_stereo_sad_checker_pdef user 1403 depth_stereo_sad_checker_start 128
+port depth_stereo_sad_checker_pdef 0 in
+port depth_stereo_sad_checker_pdef 1 in
+port depth_stereo_sad_checker_pdef 2 in
+port depth_stereo_sad_checker_pdef 3 in

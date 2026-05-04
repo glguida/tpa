@@ -45,6 +45,8 @@ smoke-test doubles; they are not ET platform validation.
   `tpa_pipe_demo`, and `tpa_tensor_matmul`.
 - `attention/` — fixed-size structured fast-attention demo with parallel and
   serial Erbium placements.
+- `depth/` — no-weights stereo SAD depth demo with source, four worker stripes,
+  checker, and hand Erbium placement.
 - `yolov5n/` — current YOLO downstream process sources and planner/map/device
   targets.
 - `tests/tpa_msg/`, `tests/tpa_queue/`, `tests/tpa_negative/` — ported
@@ -118,6 +120,7 @@ cmake --build build-et-erbium --target tpa_tensor_matmul.elf
 cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
 cmake --build build-et-erbium --target tpa_fast_attention.elf
 cmake --build build-et-erbium --target tpa_fast_attention_serial.elf
+cmake --build build-et-erbium --target tpa_stereo_sad.elf
 /opt/et/bin/erbium_emu \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf \
   -max_cycles 10000
@@ -125,6 +128,10 @@ cmake --build build-et-erbium --target tpa_fast_attention_serial.elf
   -minions 0x1f \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention.elf \
   -max_cycles 5000000
+/opt/et/bin/erbium_emu \
+  -minions 0x1f \
+  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/depth/tpa_stereo_sad.elf \
+  -max_cycles 100000000
 ```
 
 YOLO downstream planner/map/device path:
