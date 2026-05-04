@@ -1,0 +1,3 @@
+pdef depth_sad_cost_pdef user 1301 depth_sad_cost_start 0
+pdef depth_sad_argmin_pdef user 1302 depth_sad_argmin_start 0
+pdef depth_sad_stripe_pdef user 1303 depth_sad_stripe_start 0
