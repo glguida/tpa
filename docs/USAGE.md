@@ -58,6 +58,7 @@ cmake --build build-et-erbium --target tpa_tensor_matmul.elf
 cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
 cmake --build build-et-erbium --target tpa_fast_attention.elf
 cmake --build build-et-erbium --target tpa_fast_attention_serial.elf
+cmake --build build-et-erbium --target tpa_stereo_sad_map_mapped_program
 cmake --build build-et-erbium --target tpa_stereo_sad.elf
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
@@ -84,8 +85,9 @@ ET RISC-V toolchain or required ET CMake packages are unavailable. The
 `tpa_pipe_demo.elf`, `tpa_empty.elf`, `tpa_tensor_matmul.elf`,
 `tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`,
 and representative runtime-regression ELF targets are generated through the TPA
-process/program flow, not as handcrafted standalone executables. The YOLO
-downstream planner/map artifact targets and downstream device ELF are
+process/program flow, not as handcrafted standalone executables. The stereo SAD
+mapper target is report-only and does not replace the hand-placed demo ELF. The
+YOLO downstream planner/map artifact targets and downstream device ELF are
 integrated and have Erbium emulator PASS-marker validation.
 
 ### Host launcher

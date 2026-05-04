@@ -291,6 +291,24 @@ scratch peaks and rounded to 64-byte alignment.
 macros such as `TPA_EDGE_CH_<idx>_BUF0`. This connects the edge-buffer plan to
 generated programs that use mapped channel storage.
 
+## CMake-integrated stereo SAD report path
+
+The stereo SAD demo exposes CMake mapper/report targets for inspecting the
+current full depth graph without replacing its validated hand-placed runtime ELF:
+
+```sh
+cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium \
+  -DPYTHON=$(command -v python)
+cmake --build build-et-erbium --target tpa_stereo_sad_hand_plan_planner_json
+cmake --build build-et-erbium --target tpa_stereo_sad_map_mapped_program
+cmake --build build-et-erbium --target tpa_stereo_sad.elf
+```
+
+The map target writes a map report, mapped-program JSON, mapper-generated
+placement, scratch header, and edge-buffer config header under the device build
+tree. The default `tpa_stereo_sad.elf` target still consumes
+`depth/stereo_sad.place`.
+
 ## CMake-integrated YOLO downstream path
 
 The current structured repo has integrated YOLO downstream planner/map artifact

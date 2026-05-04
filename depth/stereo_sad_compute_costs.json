@@ -1,0 +1,5 @@
+{
+  "depth_stereo_sad_source_pdef": 8.0,
+  "depth_stereo_sad_worker_pdef": 100.0,
+  "depth_stereo_sad_checker_pdef": 6.0
+}

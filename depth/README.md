@@ -14,9 +14,22 @@ stereo_source
   -> sad_worker stripe 3 -> stereo_checker port 3
 ```
 
-`stereo_sad.place` is a small reviewed Erbium hand placement for the first demo
-ELF. Runtime hart choices remain outside process code and outside
-`stereo_sad.tpp`; mapper-generated placement is a later follow-up.
+`stereo_sad.place` is a small reviewed Erbium hand placement for the validated
+`tpa_stereo_sad.elf` demo path. Runtime hart choices remain outside process code
+and outside `stereo_sad.tpp`.
+
+The build also exposes report-only mapper targets for inspection:
+
+- `tpa_stereo_sad_hand_plan_planner_json` extracts process metadata and plans the
+  current hand placement;
+- `tpa_stereo_sad_map_mapped_program` maps the same graph with
+  `machines/erbium.json`, writes a map report, mapped-program JSON,
+  mapper-generated `.place`, scratch header, and edge-buffer config header, but
+  does not replace the hand-placed runtime ELF.
+
+The mapper cost hints in `stereo_sad_compute_costs.json` intentionally make
+workers much more expensive than the source/checker so the scheduler sees the
+four SAD stripes as the dominant parallel work.
 
 ## Data policy
 

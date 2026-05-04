@@ -49,15 +49,19 @@ planner/demo targets:
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python)
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_empty.elf
+cmake --build build-et-erbium --target tpa_stereo_sad_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 ```
 
-The YOLO downstream planner/map targets use the structured `machines/` JSONs and
-write generated planner JSON, mapped-program JSON, placement, scratch config,
-and edge-buffer config artifacts under the device build tree. The generated
-`kernels/` and `yolov5n/` ELFs can be loaded with `erbium_emu` as documented in
+The stereo SAD mapper/report target and YOLO downstream planner/map targets use
+the structured `machines/` JSONs and write generated planner JSON,
+mapped-program JSON, placement, scratch config, and edge-buffer config artifacts
+under the device build tree. The stereo SAD mapper/report target is report-only;
+the validated demo ELF still uses the reviewed hand placement. The generated
+`kernels/`, `depth/`, and `yolov5n/` ELFs can be loaded with `erbium_emu` as
+documented in
 the repository-level `README.md` and `docs/USAGE.md`.
 
 These ET builds are platform validation. Host smoke-test-double builds are only
