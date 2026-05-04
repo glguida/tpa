@@ -15,6 +15,9 @@ block-test integration.
   block-case scripts.
 - `models/yolov5nu.onnx` and `models/yolov5nu.pt` — source model artifacts used
   by the regeneration path.
+- `models/yolov8n_artifact_manifest.json` — external-artifact manifest and
+  verified architecture facts for the future YOLOv8n path; it is not a YOLOv8n
+  kernel or graph integration.
 - `machines/erbium.json` and `machines/etsoc1.json` — mapper topology inputs.
 
 ## Model artifact policy
@@ -30,6 +33,48 @@ checked in directly:
 If these are moved out of git in the future, replacement fetch instructions and
 checksums must be committed at the same time.
 
+## YOLOv8n artifact status
+
+YOLOv8n is currently an artifact/architecture input only. The repository records
+`models/yolov8n_artifact_manifest.json`, but it does not check in the YOLOv8n
+`.pt` or exported `.onnx` binaries and does not provide YOLOv8n process kernels,
+`.tpp` graphs, generated weights, calibration data, CMake targets, or Erbium
+validation.
+
+The targeted external artifact is Ultralytics `yolov8n.pt` from
+`https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n.pt`.
+The manifest records the upstream AGPL-3.0 license, file size, and SHA-256
+checksum. The matching ONNX architecture input is a static batch-1 640x640
+opset-12 export with no NMS. These model binaries remain external until project
+owners explicitly approve vendoring AGPL-3.0 artifacts.
+
+Verified facts from that targeted artifact:
+
+- input shape: `[1, 3, 640, 640]`;
+- public ONNX output: `[1, 84, 8400]`;
+- detect source layers: `model.15`, `model.18`, and `model.21`;
+- detect input feature maps: P3 `[1, 64, 80, 80]`, P4 `[1, 128, 40, 40]`, and
+  P5 `[1, 256, 20, 20]`;
+- detect raw pre-decode tensors: `[1, 144, 80, 80]`, `[1, 144, 40, 40]`, and
+  `[1, 144, 20, 20]`;
+- detect layout: `reg_max=16`, 64 DFL box-distribution channels plus 80 class
+  channels per scale before decode;
+- ONNX operator families include Conv, SiLU represented as Sigmoid+Mul, Concat,
+  Split, Add, MaxPool, Resize, Softmax, Reshape, Transpose, Slice, Div, Sub,
+  Shape, and Gather.
+
+For a first INT8 downstream milestone, the three detect-input feature maps would
+be edge/channel payloads of 409600, 204800, and 102400 bytes respectively. They
+are not process state. Scratch requirements and immutable generated weight data
+must be determined by future YOLOv8n kernel/calibration jobs.
+
+Compared with the current YOLOv5n downstream path, Conv+BN+SiLU, SPPF,
+nearest-neighbor upsample, and concat remain recognizable building blocks, but
+YOLOv8n uses C2f blocks instead of the current C3/Bottleneck assumptions and an
+anchor-free DFL Detect head instead of the YOLOv5n detect-head assumptions. Plan
+new representative C2f and detect/DFL block tests before implementing a YOLOv8n
+TPA graph.
+
 ## Reproduction tools
 
 The tools live under `tools/yolo/`. They are ported as source/reference tools;
@@ -37,7 +82,10 @@ running all of them may require heavyweight third-party Python packages such as
 PyTorch, ONNX, NumPy, and Ultralytics. Normal CI-style validation does not
 install those packages or regenerate every checked-in header.
 
-See `tools/yolo/README.md` for the tool list and checksum policy.
+See `tools/yolo/README.md` for the tool list and checksum policy. Use
+`tools/yolo/inspect_yolo_artifact.py` to regenerate or audit the YOLOv8n
+architecture manifest; its `--help` path works without importing Ultralytics,
+PyTorch, ONNX, NumPy, or OpenCV.
 
 ## Downstream YOLO planner/map build
 

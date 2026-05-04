@@ -1,0 +1,7243 @@
+{
+  "kind": "tpa_yolov8n_artifact_manifest_v0",
+  "model": "yolov8n",
+  "status": "external-artifacts-not-checked-in",
+  "provenance": {
+    "source_url": "https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n.pt",
+    "upstream_project": "Ultralytics YOLO",
+    "upstream_license": "AGPL-3.0",
+    "upstream_license_url": "https://github.com/ultralytics/ultralytics/blob/main/LICENSE",
+    "license_note": "Artifacts are recorded as external until project owners explicitly approve vendoring AGPL-3.0 model files in this repository."
+  },
+  "export": {
+    "onnx_command": "python -c \"from ultralytics import YOLO; YOLO('external/yolov8n.pt').export(format='onnx', imgsz=640, opset=12, dynamic=False, simplify=False, nms=False, batch=1, device='cpu')\"",
+    "static_shape_policy": "batch=1, channels=3, height=640, width=640",
+    "dynamic": false,
+    "nms": false
+  },
+  "pytorch": {
+    "artifact": {
+      "path": "external/yolov8n.pt",
+      "size_bytes": 6549796,
+      "sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36",
+      "checked_in": false
+    },
+    "environment": {
+      "ultralytics_version": "8.3.0",
+      "torch_version": "2.1.0+cpu"
+    },
+    "task": "detect",
+    "names_count": 80,
+    "names": {
+      "0": "person",
+      "1": "bicycle",
+      "2": "car",
+      "3": "motorcycle",
+      "4": "airplane",
+      "5": "bus",
+      "6": "train",
+      "7": "truck",
+      "8": "boat",
+      "9": "traffic light",
+      "10": "fire hydrant",
+      "11": "stop sign",
+      "12": "parking meter",
+      "13": "bench",
+      "14": "bird",
+      "15": "cat",
+      "16": "dog",
+      "17": "horse",
+      "18": "sheep",
+      "19": "cow",
+      "20": "elephant",
+      "21": "bear",
+      "22": "zebra",
+      "23": "giraffe",
+      "24": "backpack",
+      "25": "umbrella",
+      "26": "handbag",
+      "27": "tie",
+      "28": "suitcase",
+      "29": "frisbee",
+      "30": "skis",
+      "31": "snowboard",
+      "32": "sports ball",
+      "33": "kite",
+      "34": "baseball bat",
+      "35": "baseball glove",
+      "36": "skateboard",
+      "37": "surfboard",
+      "38": "tennis racket",
+      "39": "bottle",
+      "40": "wine glass",
+      "41": "cup",
+      "42": "fork",
+      "43": "knife",
+      "44": "spoon",
+      "45": "bowl",
+      "46": "banana",
+      "47": "apple",
+      "48": "sandwich",
+      "49": "orange",
+      "50": "broccoli",
+      "51": "carrot",
+      "52": "hot dog",
+      "53": "pizza",
+      "54": "donut",
+      "55": "cake",
+      "56": "chair",
+      "57": "couch",
+      "58": "potted plant",
+      "59": "bed",
+      "60": "dining table",
+      "61": "toilet",
+      "62": "tv",
+      "63": "laptop",
+      "64": "mouse",
+      "65": "remote",
+      "66": "keyboard",
+      "67": "cell phone",
+      "68": "microwave",
+      "69": "oven",
+      "70": "toaster",
+      "71": "sink",
+      "72": "refrigerator",
+      "73": "book",
+      "74": "clock",
+      "75": "vase",
+      "76": "scissors",
+      "77": "teddy bear",
+      "78": "hair drier",
+      "79": "toothbrush"
+    },
+    "yaml": {
+      "nc": 80,
+      "depth_multiple": 0.33,
+      "width_multiple": 0.25,
+      "backbone": [
+        [
+          -1,
+          1,
+          "Conv",
+          [
+            64,
+            3,
+            2
+          ]
+        ],
+        [
+          -1,
+          1,
+          "Conv",
+          [
+            128,
+            3,
+            2
+          ]
+        ],
+        [
+          -1,
+          3,
+          "C2f",
+          [
+            128,
+            true
+          ]
+        ],
+        [
+          -1,
+          1,
+          "Conv",
+          [
+            256,
+            3,
+            2
+          ]
+        ],
+        [
+          -1,
+          6,
+          "C2f",
+          [
+            256,
+            true
+          ]
+        ],
+        [
+          -1,
+          1,
+          "Conv",
+          [
+            512,
+            3,
+            2
+          ]
+        ],
+        [
+          -1,
+          6,
+          "C2f",
+          [
+            512,
+            true
+          ]
+        ],
+        [
+          -1,
+          1,
+          "Conv",
+          [
+            1024,
+            3,
+            2
+          ]
+        ],
+        [
+          -1,
+          3,
+          "C2f",
+          [
+            1024,
+            true
+          ]
+        ],
+        [
+          -1,
+          1,
+          "SPPF",
+          [
+            1024,
+            5
+          ]
+        ]
+      ],
+      "head": [
+        [
+          -1,
+          1,
+          "nn.Upsample",
+          [
+            "None",
+            2,
+            "nearest"
+          ]
+        ],
+        [
+          [
+            -1,
+            6
+          ],
+          1,
+          "Concat",
+          [
+            1
+          ]
+        ],
+        [
+          -1,
+          3,
+          "C2f",
+          [
+            512
+          ]
+        ],
+        [
+          -1,
+          1,
+          "nn.Upsample",
+          [
+            "None",
+            2,
+            "nearest"
+          ]
+        ],
+        [
+          [
+            -1,
+            4
+          ],
+          1,
+          "Concat",
+          [
+            1
+          ]
+        ],
+        [
+          -1,
+          3,
+          "C2f",
+          [
+            256
+          ]
+        ],
+        [
+          -1,
+          1,
+          "Conv",
+          [
+            256,
+            3,
+            2
+          ]
+        ],
+        [
+          [
+            -1,
+            12
+          ],
+          1,
+          "Concat",
+          [
+            1
+          ]
+        ],
+        [
+          -1,
+          3,
+          "C2f",
+          [
+            512
+          ]
+        ],
+        [
+          -1,
+          1,
+          "Conv",
+          [
+            512,
+            3,
+            2
+          ]
+        ],
+        [
+          [
+            -1,
+            9
+          ],
+          1,
+          "Concat",
+          [
+            1
+          ]
+        ],
+        [
+          -1,
+          3,
+          "C2f",
+          [
+            1024
+          ]
+        ],
+        [
+          [
+            15,
+            18,
+            21
+          ],
+          1,
+          "Detect",
+          [
+            "nc"
+          ]
+        ]
+      ],
+      "ch": 3
+    },
+    "model_class": "ultralytics.nn.tasks.DetectionModel",
+    "stride": [
+      8,
+      16,
+      32
+    ],
+    "nc": 80,
+    "input_probe_shape": [
+      1,
+      3,
+      640,
+      640
+    ],
+    "final_output_shapes": [
+      [
+        1,
+        84,
+        8400
+      ],
+      [
+        [
+          1,
+          144,
+          80,
+          80
+        ],
+        [
+          1,
+          144,
+          40,
+          40
+        ],
+        [
+          1,
+          144,
+          20,
+          20
+        ]
+      ]
+    ],
+    "top_level_layers": [
+      {
+        "index": 0,
+        "module": "model.0",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.Conv",
+        "from": -1,
+        "parameter_count_recursive": 464,
+        "input_shapes": [
+          1,
+          3,
+          640,
+          640
+        ],
+        "output_shapes": [
+          1,
+          16,
+          320,
+          320
+        ]
+      },
+      {
+        "index": 1,
+        "module": "model.1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.Conv",
+        "from": -1,
+        "parameter_count_recursive": 4672,
+        "input_shapes": [
+          1,
+          16,
+          320,
+          320
+        ],
+        "output_shapes": [
+          1,
+          32,
+          160,
+          160
+        ]
+      },
+      {
+        "index": 2,
+        "module": "model.2",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.C2f",
+        "from": -1,
+        "parameter_count_recursive": 7360,
+        "input_shapes": [
+          1,
+          32,
+          160,
+          160
+        ],
+        "output_shapes": [
+          1,
+          32,
+          160,
+          160
+        ]
+      },
+      {
+        "index": 3,
+        "module": "model.3",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.Conv",
+        "from": -1,
+        "parameter_count_recursive": 18560,
+        "input_shapes": [
+          1,
+          32,
+          160,
+          160
+        ],
+        "output_shapes": [
+          1,
+          64,
+          80,
+          80
+        ]
+      },
+      {
+        "index": 4,
+        "module": "model.4",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.C2f",
+        "from": -1,
+        "parameter_count_recursive": 49664,
+        "input_shapes": [
+          1,
+          64,
+          80,
+          80
+        ],
+        "output_shapes": [
+          1,
+          64,
+          80,
+          80
+        ]
+      },
+      {
+        "index": 5,
+        "module": "model.5",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.Conv",
+        "from": -1,
+        "parameter_count_recursive": 73984,
+        "input_shapes": [
+          1,
+          64,
+          80,
+          80
+        ],
+        "output_shapes": [
+          1,
+          128,
+          40,
+          40
+        ]
+      },
+      {
+        "index": 6,
+        "module": "model.6",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.C2f",
+        "from": -1,
+        "parameter_count_recursive": 197632,
+        "input_shapes": [
+          1,
+          128,
+          40,
+          40
+        ],
+        "output_shapes": [
+          1,
+          128,
+          40,
+          40
+        ]
+      },
+      {
+        "index": 7,
+        "module": "model.7",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.Conv",
+        "from": -1,
+        "parameter_count_recursive": 295424,
+        "input_shapes": [
+          1,
+          128,
+          40,
+          40
+        ],
+        "output_shapes": [
+          1,
+          256,
+          20,
+          20
+        ]
+      },
+      {
+        "index": 8,
+        "module": "model.8",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.C2f",
+        "from": -1,
+        "parameter_count_recursive": 460288,
+        "input_shapes": [
+          1,
+          256,
+          20,
+          20
+        ],
+        "output_shapes": [
+          1,
+          256,
+          20,
+          20
+        ]
+      },
+      {
+        "index": 9,
+        "module": "model.9",
+        "type": "SPPF",
+        "class": "ultralytics.nn.modules.SPPF",
+        "from": -1,
+        "parameter_count_recursive": 164608,
+        "input_shapes": [
+          1,
+          256,
+          20,
+          20
+        ],
+        "output_shapes": [
+          1,
+          256,
+          20,
+          20
+        ]
+      },
+      {
+        "index": 10,
+        "module": "model.10",
+        "type": "Upsample",
+        "class": "torch.nn.modules.upsampling.Upsample",
+        "from": -1,
+        "parameter_count_recursive": 0,
+        "input_shapes": [
+          1,
+          256,
+          20,
+          20
+        ],
+        "output_shapes": [
+          1,
+          256,
+          40,
+          40
+        ]
+      },
+      {
+        "index": 11,
+        "module": "model.11",
+        "type": "Concat",
+        "class": "ultralytics.nn.modules.Concat",
+        "from": [
+          -1,
+          6
+        ],
+        "parameter_count_recursive": 0,
+        "input_shapes": [
+          [
+            1,
+            256,
+            40,
+            40
+          ],
+          [
+            1,
+            128,
+            40,
+            40
+          ]
+        ],
+        "output_shapes": [
+          1,
+          384,
+          40,
+          40
+        ]
+      },
+      {
+        "index": 12,
+        "module": "model.12",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.C2f",
+        "from": -1,
+        "parameter_count_recursive": 148224,
+        "input_shapes": [
+          1,
+          384,
+          40,
+          40
+        ],
+        "output_shapes": [
+          1,
+          128,
+          40,
+          40
+        ]
+      },
+      {
+        "index": 13,
+        "module": "model.13",
+        "type": "Upsample",
+        "class": "torch.nn.modules.upsampling.Upsample",
+        "from": -1,
+        "parameter_count_recursive": 0,
+        "input_shapes": [
+          1,
+          128,
+          40,
+          40
+        ],
+        "output_shapes": [
+          1,
+          128,
+          80,
+          80
+        ]
+      },
+      {
+        "index": 14,
+        "module": "model.14",
+        "type": "Concat",
+        "class": "ultralytics.nn.modules.Concat",
+        "from": [
+          -1,
+          4
+        ],
+        "parameter_count_recursive": 0,
+        "input_shapes": [
+          [
+            1,
+            128,
+            80,
+            80
+          ],
+          [
+            1,
+            64,
+            80,
+            80
+          ]
+        ],
+        "output_shapes": [
+          1,
+          192,
+          80,
+          80
+        ]
+      },
+      {
+        "index": 15,
+        "module": "model.15",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.C2f",
+        "from": -1,
+        "parameter_count_recursive": 37248,
+        "input_shapes": [
+          1,
+          192,
+          80,
+          80
+        ],
+        "output_shapes": [
+          1,
+          64,
+          80,
+          80
+        ]
+      },
+      {
+        "index": 16,
+        "module": "model.16",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.Conv",
+        "from": -1,
+        "parameter_count_recursive": 36992,
+        "input_shapes": [
+          1,
+          64,
+          80,
+          80
+        ],
+        "output_shapes": [
+          1,
+          64,
+          40,
+          40
+        ]
+      },
+      {
+        "index": 17,
+        "module": "model.17",
+        "type": "Concat",
+        "class": "ultralytics.nn.modules.Concat",
+        "from": [
+          -1,
+          12
+        ],
+        "parameter_count_recursive": 0,
+        "input_shapes": [
+          [
+            1,
+            64,
+            40,
+            40
+          ],
+          [
+            1,
+            128,
+            40,
+            40
+          ]
+        ],
+        "output_shapes": [
+          1,
+          192,
+          40,
+          40
+        ]
+      },
+      {
+        "index": 18,
+        "module": "model.18",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.C2f",
+        "from": -1,
+        "parameter_count_recursive": 123648,
+        "input_shapes": [
+          1,
+          192,
+          40,
+          40
+        ],
+        "output_shapes": [
+          1,
+          128,
+          40,
+          40
+        ]
+      },
+      {
+        "index": 19,
+        "module": "model.19",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.Conv",
+        "from": -1,
+        "parameter_count_recursive": 147712,
+        "input_shapes": [
+          1,
+          128,
+          40,
+          40
+        ],
+        "output_shapes": [
+          1,
+          128,
+          20,
+          20
+        ]
+      },
+      {
+        "index": 20,
+        "module": "model.20",
+        "type": "Concat",
+        "class": "ultralytics.nn.modules.Concat",
+        "from": [
+          -1,
+          9
+        ],
+        "parameter_count_recursive": 0,
+        "input_shapes": [
+          [
+            1,
+            128,
+            20,
+            20
+          ],
+          [
+            1,
+            256,
+            20,
+            20
+          ]
+        ],
+        "output_shapes": [
+          1,
+          384,
+          20,
+          20
+        ]
+      },
+      {
+        "index": 21,
+        "module": "model.21",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.C2f",
+        "from": -1,
+        "parameter_count_recursive": 493056,
+        "input_shapes": [
+          1,
+          384,
+          20,
+          20
+        ],
+        "output_shapes": [
+          1,
+          256,
+          20,
+          20
+        ]
+      },
+      {
+        "index": 22,
+        "module": "model.22",
+        "type": "Detect",
+        "class": "ultralytics.nn.modules.Detect",
+        "from": [
+          15,
+          18,
+          21
+        ],
+        "parameter_count_recursive": 897664,
+        "input_shapes": [
+          [
+            1,
+            64,
+            80,
+            80
+          ],
+          [
+            1,
+            128,
+            40,
+            40
+          ],
+          [
+            1,
+            256,
+            20,
+            20
+          ]
+        ],
+        "output_shapes": [
+          [
+            1,
+            84,
+            8400
+          ],
+          [
+            [
+              1,
+              144,
+              80,
+              80
+            ],
+            [
+              1,
+              144,
+              40,
+              40
+            ],
+            [
+              1,
+              144,
+              20,
+              20
+            ]
+          ]
+        ]
+      }
+    ],
+    "detect_layer": {
+      "index": 22,
+      "module": "model.22",
+      "type": "Detect",
+      "class": "ultralytics.nn.modules.Detect",
+      "from": [
+        15,
+        18,
+        21
+      ],
+      "parameter_count_recursive": 897664,
+      "input_shapes": [
+        [
+          1,
+          64,
+          80,
+          80
+        ],
+        [
+          1,
+          128,
+          40,
+          40
+        ],
+        [
+          1,
+          256,
+          20,
+          20
+        ]
+      ],
+      "output_shapes": [
+        [
+          1,
+          84,
+          8400
+        ],
+        [
+          [
+            1,
+            144,
+            80,
+            80
+          ],
+          [
+            1,
+            144,
+            40,
+            40
+          ],
+          [
+            1,
+            144,
+            20,
+            20
+          ]
+        ]
+      ],
+      "nc": 80,
+      "nl": 3,
+      "reg_max": 16,
+      "dfl_box_channels": 64,
+      "class_channels": 80,
+      "raw_channels_per_scale": 144,
+      "stride": [
+        8,
+        16,
+        32
+      ]
+    },
+    "named_modules": [
+      {
+        "name": "model.0",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 464,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.0.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 432,
+        "parameter_count_direct": 432,
+        "weight_shape": [
+          16,
+          3,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          2,
+          2
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 3,
+        "out_channels": 16
+      },
+      {
+        "name": "model.0.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 32,
+        "parameter_count_direct": 32,
+        "num_features": 16,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 4672,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 4608,
+        "parameter_count_direct": 4608,
+        "weight_shape": [
+          32,
+          16,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          2,
+          2
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 16,
+        "out_channels": 32
+      },
+      {
+        "name": "model.1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 64,
+        "parameter_count_direct": 64,
+        "num_features": 32,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.2",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.block.C2f",
+        "parameter_count_recursive": 7360,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.2.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 1088,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.2.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 1024,
+        "parameter_count_direct": 1024,
+        "weight_shape": [
+          32,
+          32,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 32,
+        "out_channels": 32
+      },
+      {
+        "name": "model.2.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 64,
+        "parameter_count_direct": 64,
+        "num_features": 32,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.2.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 1600,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.2.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 1536,
+        "parameter_count_direct": 1536,
+        "weight_shape": [
+          32,
+          48,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 48,
+        "out_channels": 32
+      },
+      {
+        "name": "model.2.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 64,
+        "parameter_count_direct": 64,
+        "num_features": 32,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.2.m",
+        "type": "ModuleList",
+        "class": "torch.nn.modules.container.ModuleList",
+        "parameter_count_recursive": 4672,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.2.m.0",
+        "type": "Bottleneck",
+        "class": "ultralytics.nn.modules.block.Bottleneck",
+        "parameter_count_recursive": 4672,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.2.m.0.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 2336,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.2.m.0.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 2304,
+        "parameter_count_direct": 2304,
+        "weight_shape": [
+          16,
+          16,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 16,
+        "out_channels": 16
+      },
+      {
+        "name": "model.2.m.0.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 32,
+        "parameter_count_direct": 32,
+        "num_features": 16,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.2.m.0.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 2336,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.2.m.0.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 2304,
+        "parameter_count_direct": 2304,
+        "weight_shape": [
+          16,
+          16,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 16,
+        "out_channels": 16
+      },
+      {
+        "name": "model.2.m.0.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 32,
+        "parameter_count_direct": 32,
+        "num_features": 16,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.3",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 18560,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.3.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 18432,
+        "parameter_count_direct": 18432,
+        "weight_shape": [
+          64,
+          32,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          2,
+          2
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 32,
+        "out_channels": 64
+      },
+      {
+        "name": "model.3.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.4",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.block.C2f",
+        "parameter_count_recursive": 49664,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.4.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 4224,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.4.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 4096,
+        "parameter_count_direct": 4096,
+        "weight_shape": [
+          64,
+          64,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.4.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.4.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 8320,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.4.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 8192,
+        "parameter_count_direct": 8192,
+        "weight_shape": [
+          64,
+          128,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 128,
+        "out_channels": 64
+      },
+      {
+        "name": "model.4.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.4.m",
+        "type": "ModuleList",
+        "class": "torch.nn.modules.container.ModuleList",
+        "parameter_count_recursive": 37120,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.4.m.0",
+        "type": "Bottleneck",
+        "class": "ultralytics.nn.modules.block.Bottleneck",
+        "parameter_count_recursive": 18560,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.4.m.0.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 9280,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.4.m.0.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 9216,
+        "parameter_count_direct": 9216,
+        "weight_shape": [
+          32,
+          32,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 32,
+        "out_channels": 32
+      },
+      {
+        "name": "model.4.m.0.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 64,
+        "parameter_count_direct": 64,
+        "num_features": 32,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.4.m.0.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 9280,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.4.m.0.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 9216,
+        "parameter_count_direct": 9216,
+        "weight_shape": [
+          32,
+          32,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 32,
+        "out_channels": 32
+      },
+      {
+        "name": "model.4.m.0.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 64,
+        "parameter_count_direct": 64,
+        "num_features": 32,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.4.m.1",
+        "type": "Bottleneck",
+        "class": "ultralytics.nn.modules.block.Bottleneck",
+        "parameter_count_recursive": 18560,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.4.m.1.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 9280,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.4.m.1.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 9216,
+        "parameter_count_direct": 9216,
+        "weight_shape": [
+          32,
+          32,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 32,
+        "out_channels": 32
+      },
+      {
+        "name": "model.4.m.1.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 64,
+        "parameter_count_direct": 64,
+        "num_features": 32,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.4.m.1.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 9280,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.4.m.1.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 9216,
+        "parameter_count_direct": 9216,
+        "weight_shape": [
+          32,
+          32,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 32,
+        "out_channels": 32
+      },
+      {
+        "name": "model.4.m.1.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 64,
+        "parameter_count_direct": 64,
+        "num_features": 32,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.5",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 73984,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.5.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 73728,
+        "parameter_count_direct": 73728,
+        "weight_shape": [
+          128,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          2,
+          2
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 128
+      },
+      {
+        "name": "model.5.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 256,
+        "parameter_count_direct": 256,
+        "num_features": 128,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.6",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.block.C2f",
+        "parameter_count_recursive": 197632,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.6.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 16640,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.6.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 16384,
+        "parameter_count_direct": 16384,
+        "weight_shape": [
+          128,
+          128,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 128,
+        "out_channels": 128
+      },
+      {
+        "name": "model.6.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 256,
+        "parameter_count_direct": 256,
+        "num_features": 128,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.6.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 33024,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.6.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 32768,
+        "parameter_count_direct": 32768,
+        "weight_shape": [
+          128,
+          256,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 256,
+        "out_channels": 128
+      },
+      {
+        "name": "model.6.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 256,
+        "parameter_count_direct": 256,
+        "num_features": 128,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.6.m",
+        "type": "ModuleList",
+        "class": "torch.nn.modules.container.ModuleList",
+        "parameter_count_recursive": 147968,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.6.m.0",
+        "type": "Bottleneck",
+        "class": "ultralytics.nn.modules.block.Bottleneck",
+        "parameter_count_recursive": 73984,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.6.m.0.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 36992,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.6.m.0.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 36864,
+        "parameter_count_direct": 36864,
+        "weight_shape": [
+          64,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.6.m.0.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.6.m.0.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 36992,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.6.m.0.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 36864,
+        "parameter_count_direct": 36864,
+        "weight_shape": [
+          64,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.6.m.0.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.6.m.1",
+        "type": "Bottleneck",
+        "class": "ultralytics.nn.modules.block.Bottleneck",
+        "parameter_count_recursive": 73984,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.6.m.1.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 36992,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.6.m.1.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 36864,
+        "parameter_count_direct": 36864,
+        "weight_shape": [
+          64,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.6.m.1.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.6.m.1.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 36992,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.6.m.1.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 36864,
+        "parameter_count_direct": 36864,
+        "weight_shape": [
+          64,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.6.m.1.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.7",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 295424,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.7.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 294912,
+        "parameter_count_direct": 294912,
+        "weight_shape": [
+          256,
+          128,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          2,
+          2
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 128,
+        "out_channels": 256
+      },
+      {
+        "name": "model.7.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 512,
+        "parameter_count_direct": 512,
+        "num_features": 256,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.8",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.block.C2f",
+        "parameter_count_recursive": 460288,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.8.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 66048,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.8.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 65536,
+        "parameter_count_direct": 65536,
+        "weight_shape": [
+          256,
+          256,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 256,
+        "out_channels": 256
+      },
+      {
+        "name": "model.8.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 512,
+        "parameter_count_direct": 512,
+        "num_features": 256,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.8.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 98816,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.8.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 98304,
+        "parameter_count_direct": 98304,
+        "weight_shape": [
+          256,
+          384,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 384,
+        "out_channels": 256
+      },
+      {
+        "name": "model.8.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 512,
+        "parameter_count_direct": 512,
+        "num_features": 256,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.8.m",
+        "type": "ModuleList",
+        "class": "torch.nn.modules.container.ModuleList",
+        "parameter_count_recursive": 295424,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.8.m.0",
+        "type": "Bottleneck",
+        "class": "ultralytics.nn.modules.block.Bottleneck",
+        "parameter_count_recursive": 295424,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.8.m.0.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 147712,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.8.m.0.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 147456,
+        "parameter_count_direct": 147456,
+        "weight_shape": [
+          128,
+          128,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 128,
+        "out_channels": 128
+      },
+      {
+        "name": "model.8.m.0.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 256,
+        "parameter_count_direct": 256,
+        "num_features": 128,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.8.m.0.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 147712,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.8.m.0.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 147456,
+        "parameter_count_direct": 147456,
+        "weight_shape": [
+          128,
+          128,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 128,
+        "out_channels": 128
+      },
+      {
+        "name": "model.8.m.0.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 256,
+        "parameter_count_direct": 256,
+        "num_features": 128,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.9",
+        "type": "SPPF",
+        "class": "ultralytics.nn.modules.block.SPPF",
+        "parameter_count_recursive": 164608,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.9.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 33024,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.9.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 32768,
+        "parameter_count_direct": 32768,
+        "weight_shape": [
+          128,
+          256,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 256,
+        "out_channels": 128
+      },
+      {
+        "name": "model.9.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 256,
+        "parameter_count_direct": 256,
+        "num_features": 128,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.9.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 131584,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.9.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 131072,
+        "parameter_count_direct": 131072,
+        "weight_shape": [
+          256,
+          512,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 512,
+        "out_channels": 256
+      },
+      {
+        "name": "model.9.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 512,
+        "parameter_count_direct": 512,
+        "num_features": 256,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.10",
+        "type": "Upsample",
+        "class": "torch.nn.modules.upsampling.Upsample",
+        "parameter_count_recursive": 0,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.11",
+        "type": "Concat",
+        "class": "ultralytics.nn.modules.conv.Concat",
+        "parameter_count_recursive": 0,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.12",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.block.C2f",
+        "parameter_count_recursive": 148224,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.12.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 49408,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.12.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 49152,
+        "parameter_count_direct": 49152,
+        "weight_shape": [
+          128,
+          384,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 384,
+        "out_channels": 128
+      },
+      {
+        "name": "model.12.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 256,
+        "parameter_count_direct": 256,
+        "num_features": 128,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.12.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 24832,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.12.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 24576,
+        "parameter_count_direct": 24576,
+        "weight_shape": [
+          128,
+          192,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 192,
+        "out_channels": 128
+      },
+      {
+        "name": "model.12.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 256,
+        "parameter_count_direct": 256,
+        "num_features": 128,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.12.m",
+        "type": "ModuleList",
+        "class": "torch.nn.modules.container.ModuleList",
+        "parameter_count_recursive": 73984,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.12.m.0",
+        "type": "Bottleneck",
+        "class": "ultralytics.nn.modules.block.Bottleneck",
+        "parameter_count_recursive": 73984,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.12.m.0.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 36992,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.12.m.0.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 36864,
+        "parameter_count_direct": 36864,
+        "weight_shape": [
+          64,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.12.m.0.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.12.m.0.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 36992,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.12.m.0.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 36864,
+        "parameter_count_direct": 36864,
+        "weight_shape": [
+          64,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.12.m.0.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.13",
+        "type": "Upsample",
+        "class": "torch.nn.modules.upsampling.Upsample",
+        "parameter_count_recursive": 0,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.14",
+        "type": "Concat",
+        "class": "ultralytics.nn.modules.conv.Concat",
+        "parameter_count_recursive": 0,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.15",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.block.C2f",
+        "parameter_count_recursive": 37248,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.15.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 12416,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.15.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 12288,
+        "parameter_count_direct": 12288,
+        "weight_shape": [
+          64,
+          192,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 192,
+        "out_channels": 64
+      },
+      {
+        "name": "model.15.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.15.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 6272,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.15.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 6144,
+        "parameter_count_direct": 6144,
+        "weight_shape": [
+          64,
+          96,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 96,
+        "out_channels": 64
+      },
+      {
+        "name": "model.15.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.15.m",
+        "type": "ModuleList",
+        "class": "torch.nn.modules.container.ModuleList",
+        "parameter_count_recursive": 18560,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.15.m.0",
+        "type": "Bottleneck",
+        "class": "ultralytics.nn.modules.block.Bottleneck",
+        "parameter_count_recursive": 18560,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.15.m.0.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 9280,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.15.m.0.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 9216,
+        "parameter_count_direct": 9216,
+        "weight_shape": [
+          32,
+          32,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 32,
+        "out_channels": 32
+      },
+      {
+        "name": "model.15.m.0.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 64,
+        "parameter_count_direct": 64,
+        "num_features": 32,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.15.m.0.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 9280,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.15.m.0.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 9216,
+        "parameter_count_direct": 9216,
+        "weight_shape": [
+          32,
+          32,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 32,
+        "out_channels": 32
+      },
+      {
+        "name": "model.15.m.0.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 64,
+        "parameter_count_direct": 64,
+        "num_features": 32,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.16",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 36992,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.16.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 36864,
+        "parameter_count_direct": 36864,
+        "weight_shape": [
+          64,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          2,
+          2
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.16.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.17",
+        "type": "Concat",
+        "class": "ultralytics.nn.modules.conv.Concat",
+        "parameter_count_recursive": 0,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.18",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.block.C2f",
+        "parameter_count_recursive": 123648,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.18.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 24832,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.18.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 24576,
+        "parameter_count_direct": 24576,
+        "weight_shape": [
+          128,
+          192,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 192,
+        "out_channels": 128
+      },
+      {
+        "name": "model.18.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 256,
+        "parameter_count_direct": 256,
+        "num_features": 128,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.18.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 24832,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.18.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 24576,
+        "parameter_count_direct": 24576,
+        "weight_shape": [
+          128,
+          192,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 192,
+        "out_channels": 128
+      },
+      {
+        "name": "model.18.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 256,
+        "parameter_count_direct": 256,
+        "num_features": 128,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.18.m",
+        "type": "ModuleList",
+        "class": "torch.nn.modules.container.ModuleList",
+        "parameter_count_recursive": 73984,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.18.m.0",
+        "type": "Bottleneck",
+        "class": "ultralytics.nn.modules.block.Bottleneck",
+        "parameter_count_recursive": 73984,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.18.m.0.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 36992,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.18.m.0.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 36864,
+        "parameter_count_direct": 36864,
+        "weight_shape": [
+          64,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.18.m.0.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.18.m.0.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 36992,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.18.m.0.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 36864,
+        "parameter_count_direct": 36864,
+        "weight_shape": [
+          64,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.18.m.0.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.19",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 147712,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.19.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 147456,
+        "parameter_count_direct": 147456,
+        "weight_shape": [
+          128,
+          128,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          2,
+          2
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 128,
+        "out_channels": 128
+      },
+      {
+        "name": "model.19.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 256,
+        "parameter_count_direct": 256,
+        "num_features": 128,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.20",
+        "type": "Concat",
+        "class": "ultralytics.nn.modules.conv.Concat",
+        "parameter_count_recursive": 0,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.21",
+        "type": "C2f",
+        "class": "ultralytics.nn.modules.block.C2f",
+        "parameter_count_recursive": 493056,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.21.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 98816,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.21.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 98304,
+        "parameter_count_direct": 98304,
+        "weight_shape": [
+          256,
+          384,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 384,
+        "out_channels": 256
+      },
+      {
+        "name": "model.21.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 512,
+        "parameter_count_direct": 512,
+        "num_features": 256,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.21.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 98816,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.21.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 98304,
+        "parameter_count_direct": 98304,
+        "weight_shape": [
+          256,
+          384,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 384,
+        "out_channels": 256
+      },
+      {
+        "name": "model.21.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 512,
+        "parameter_count_direct": 512,
+        "num_features": 256,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.21.m",
+        "type": "ModuleList",
+        "class": "torch.nn.modules.container.ModuleList",
+        "parameter_count_recursive": 295424,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.21.m.0",
+        "type": "Bottleneck",
+        "class": "ultralytics.nn.modules.block.Bottleneck",
+        "parameter_count_recursive": 295424,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.21.m.0.cv1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 147712,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.21.m.0.cv1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 147456,
+        "parameter_count_direct": 147456,
+        "weight_shape": [
+          128,
+          128,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 128,
+        "out_channels": 128
+      },
+      {
+        "name": "model.21.m.0.cv1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 256,
+        "parameter_count_direct": 256,
+        "num_features": 128,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.21.m.0.cv2",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 147712,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.21.m.0.cv2.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 147456,
+        "parameter_count_direct": 147456,
+        "weight_shape": [
+          128,
+          128,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 128,
+        "out_channels": 128
+      },
+      {
+        "name": "model.21.m.0.cv2.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 256,
+        "parameter_count_direct": 256,
+        "num_features": 128,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.22",
+        "type": "Detect",
+        "class": "ultralytics.nn.modules.head.Detect",
+        "parameter_count_recursive": 897664,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv2",
+        "type": "ModuleList",
+        "class": "torch.nn.modules.container.ModuleList",
+        "parameter_count_recursive": 381888,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv2.0",
+        "type": "Sequential",
+        "class": "torch.nn.modules.container.Sequential",
+        "parameter_count_recursive": 78144,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv2.0.0",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 36992,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv2.0.0.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 36864,
+        "parameter_count_direct": 36864,
+        "weight_shape": [
+          64,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.22.cv2.0.0.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.22.cv2.0.1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 36992,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv2.0.1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 36864,
+        "parameter_count_direct": 36864,
+        "weight_shape": [
+          64,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.22.cv2.0.1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.22.cv2.0.2",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 4160,
+        "parameter_count_direct": 4160,
+        "weight_shape": [
+          64,
+          64,
+          1,
+          1
+        ],
+        "bias": true,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.22.cv2.1",
+        "type": "Sequential",
+        "class": "torch.nn.modules.container.Sequential",
+        "parameter_count_recursive": 115008,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv2.1.0",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 73856,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv2.1.0.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 73728,
+        "parameter_count_direct": 73728,
+        "weight_shape": [
+          64,
+          128,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 128,
+        "out_channels": 64
+      },
+      {
+        "name": "model.22.cv2.1.0.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.22.cv2.1.1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 36992,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv2.1.1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 36864,
+        "parameter_count_direct": 36864,
+        "weight_shape": [
+          64,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.22.cv2.1.1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.22.cv2.1.2",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 4160,
+        "parameter_count_direct": 4160,
+        "weight_shape": [
+          64,
+          64,
+          1,
+          1
+        ],
+        "bias": true,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.22.cv2.2",
+        "type": "Sequential",
+        "class": "torch.nn.modules.container.Sequential",
+        "parameter_count_recursive": 188736,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv2.2.0",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 147584,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv2.2.0.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 147456,
+        "parameter_count_direct": 147456,
+        "weight_shape": [
+          64,
+          256,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 256,
+        "out_channels": 64
+      },
+      {
+        "name": "model.22.cv2.2.0.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.22.cv2.2.1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 36992,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv2.2.1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 36864,
+        "parameter_count_direct": 36864,
+        "weight_shape": [
+          64,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.22.cv2.2.1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 128,
+        "parameter_count_direct": 128,
+        "num_features": 64,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.22.cv2.2.2",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 4160,
+        "parameter_count_direct": 4160,
+        "weight_shape": [
+          64,
+          64,
+          1,
+          1
+        ],
+        "bias": true,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 64
+      },
+      {
+        "name": "model.22.cv3",
+        "type": "ModuleList",
+        "class": "torch.nn.modules.container.ModuleList",
+        "parameter_count_recursive": 515760,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv3.0",
+        "type": "Sequential",
+        "class": "torch.nn.modules.container.Sequential",
+        "parameter_count_recursive": 110480,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv3.0.0",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 46240,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv3.0.0.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 46080,
+        "parameter_count_direct": 46080,
+        "weight_shape": [
+          80,
+          64,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 64,
+        "out_channels": 80
+      },
+      {
+        "name": "model.22.cv3.0.0.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 160,
+        "parameter_count_direct": 160,
+        "num_features": 80,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.22.cv3.0.1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 57760,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv3.0.1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 57600,
+        "parameter_count_direct": 57600,
+        "weight_shape": [
+          80,
+          80,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 80,
+        "out_channels": 80
+      },
+      {
+        "name": "model.22.cv3.0.1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 160,
+        "parameter_count_direct": 160,
+        "num_features": 80,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.22.cv3.0.2",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 6480,
+        "parameter_count_direct": 6480,
+        "weight_shape": [
+          80,
+          80,
+          1,
+          1
+        ],
+        "bias": true,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 80,
+        "out_channels": 80
+      },
+      {
+        "name": "model.22.cv3.1",
+        "type": "Sequential",
+        "class": "torch.nn.modules.container.Sequential",
+        "parameter_count_recursive": 156560,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv3.1.0",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 92320,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv3.1.0.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 92160,
+        "parameter_count_direct": 92160,
+        "weight_shape": [
+          80,
+          128,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 128,
+        "out_channels": 80
+      },
+      {
+        "name": "model.22.cv3.1.0.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 160,
+        "parameter_count_direct": 160,
+        "num_features": 80,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.22.cv3.1.1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 57760,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv3.1.1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 57600,
+        "parameter_count_direct": 57600,
+        "weight_shape": [
+          80,
+          80,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 80,
+        "out_channels": 80
+      },
+      {
+        "name": "model.22.cv3.1.1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 160,
+        "parameter_count_direct": 160,
+        "num_features": 80,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.22.cv3.1.2",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 6480,
+        "parameter_count_direct": 6480,
+        "weight_shape": [
+          80,
+          80,
+          1,
+          1
+        ],
+        "bias": true,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 80,
+        "out_channels": 80
+      },
+      {
+        "name": "model.22.cv3.2",
+        "type": "Sequential",
+        "class": "torch.nn.modules.container.Sequential",
+        "parameter_count_recursive": 248720,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv3.2.0",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 184480,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv3.2.0.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 184320,
+        "parameter_count_direct": 184320,
+        "weight_shape": [
+          80,
+          256,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 256,
+        "out_channels": 80
+      },
+      {
+        "name": "model.22.cv3.2.0.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 160,
+        "parameter_count_direct": 160,
+        "num_features": 80,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.22.cv3.2.1",
+        "type": "Conv",
+        "class": "ultralytics.nn.modules.conv.Conv",
+        "parameter_count_recursive": 57760,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.cv3.2.1.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 57600,
+        "parameter_count_direct": 57600,
+        "weight_shape": [
+          80,
+          80,
+          3,
+          3
+        ],
+        "bias": false,
+        "kernel_size": [
+          3,
+          3
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "groups": 1,
+        "in_channels": 80,
+        "out_channels": 80
+      },
+      {
+        "name": "model.22.cv3.2.1.bn",
+        "type": "BatchNorm2d",
+        "class": "torch.nn.modules.batchnorm.BatchNorm2d",
+        "parameter_count_recursive": 160,
+        "parameter_count_direct": 160,
+        "num_features": 80,
+        "eps": 0.001,
+        "momentum": 0.03
+      },
+      {
+        "name": "model.22.cv3.2.2",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 6480,
+        "parameter_count_direct": 6480,
+        "weight_shape": [
+          80,
+          80,
+          1,
+          1
+        ],
+        "bias": true,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 80,
+        "out_channels": 80
+      },
+      {
+        "name": "model.22.dfl",
+        "type": "DFL",
+        "class": "ultralytics.nn.modules.block.DFL",
+        "parameter_count_recursive": 16,
+        "parameter_count_direct": 0
+      },
+      {
+        "name": "model.22.dfl.conv",
+        "type": "Conv2d",
+        "class": "torch.nn.modules.conv.Conv2d",
+        "parameter_count_recursive": 16,
+        "parameter_count_direct": 16,
+        "weight_shape": [
+          1,
+          16,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 16,
+        "out_channels": 1
+      }
+    ],
+    "parameter_count": 3157200
+  },
+  "onnx": {
+    "artifact": {
+      "path": "external/yolov8n.onnx",
+      "size_bytes": 12823444,
+      "sha256": "3192f31d65cf4d6a3f00c06a0ba1ae9b78f9c3a14f50c60ea3b086fbcec4f034",
+      "checked_in": false
+    },
+    "environment": {
+      "onnx_version": "1.21.0"
+    },
+    "ir_version": 7,
+    "producer_name": "pytorch",
+    "producer_version": "2.1.0",
+    "opsets": [
+      {
+        "domain": "",
+        "version": 12
+      }
+    ],
+    "inputs": [
+      {
+        "name": "images",
+        "shape": [
+          1,
+          3,
+          640,
+          640
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output0",
+        "shape": [
+          1,
+          84,
+          8400
+        ]
+      }
+    ],
+    "node_count": 259,
+    "operator_counts": {
+      "Add": 9,
+      "Concat": 19,
+      "Constant": 19,
+      "Conv": 64,
+      "Div": 2,
+      "Gather": 1,
+      "MaxPool": 3,
+      "Mul": 60,
+      "Reshape": 5,
+      "Resize": 2,
+      "Shape": 1,
+      "Sigmoid": 58,
+      "Slice": 2,
+      "Softmax": 1,
+      "Split": 9,
+      "Sub": 2,
+      "Transpose": 2
+    },
+    "initializer_count": 127,
+    "initializer_bytes": 12607616,
+    "nodes": [
+      {
+        "name": "/model.0/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "images",
+          "model.0.conv.weight",
+          "model.0.conv.bias"
+        ],
+        "outputs": [
+          "/model.0/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.0/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.0/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.0/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.0/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.0/conv/Conv_output_0",
+          "/model.0/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.0/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.0/act/Mul_output_0",
+          "model.1.conv.weight",
+          "model.1.conv.bias"
+        ],
+        "outputs": [
+          "/model.1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.1/conv/Conv_output_0",
+          "/model.1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.1/act/Mul_output_0",
+          "model.2.cv1.conv.weight",
+          "model.2.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.2/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.2/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.2/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.2/cv1/conv/Conv_output_0",
+          "/model.2/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.2/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/Split",
+        "op_type": "Split",
+        "inputs": [
+          "/model.2/cv1/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.2/Split_output_0",
+          "/model.2/Split_output_1"
+        ]
+      },
+      {
+        "name": "/model.2/m.0/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.2/Split_output_1",
+          "model.2.m.0.cv1.conv.weight",
+          "model.2.m.0.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.2/m.0/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/m.0/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.2/m.0/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.2/m.0/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/m.0/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.2/m.0/cv1/conv/Conv_output_0",
+          "/model.2/m.0/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.2/m.0/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/m.0/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.2/m.0/cv1/act/Mul_output_0",
+          "model.2.m.0.cv2.conv.weight",
+          "model.2.m.0.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.2/m.0/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/m.0/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.2/m.0/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.2/m.0/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/m.0/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.2/m.0/cv2/conv/Conv_output_0",
+          "/model.2/m.0/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.2/m.0/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/m.0/Add",
+        "op_type": "Add",
+        "inputs": [
+          "/model.2/Split_output_1",
+          "/model.2/m.0/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.2/m.0/Add_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.2/Split_output_0",
+          "/model.2/Split_output_1",
+          "/model.2/m.0/Add_output_0"
+        ],
+        "outputs": [
+          "/model.2/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.2/Concat_output_0",
+          "model.2.cv2.conv.weight",
+          "model.2.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.2/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.2/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.2/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.2/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.2/cv2/conv/Conv_output_0",
+          "/model.2/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.2/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.3/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.2/cv2/act/Mul_output_0",
+          "model.3.conv.weight",
+          "model.3.conv.bias"
+        ],
+        "outputs": [
+          "/model.3/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.3/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.3/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.3/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.3/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.3/conv/Conv_output_0",
+          "/model.3/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.3/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.3/act/Mul_output_0",
+          "model.4.cv1.conv.weight",
+          "model.4.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.4/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.4/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.4/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.4/cv1/conv/Conv_output_0",
+          "/model.4/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.4/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/Split",
+        "op_type": "Split",
+        "inputs": [
+          "/model.4/cv1/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.4/Split_output_0",
+          "/model.4/Split_output_1"
+        ]
+      },
+      {
+        "name": "/model.4/m.0/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.4/Split_output_1",
+          "model.4.m.0.cv1.conv.weight",
+          "model.4.m.0.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.4/m.0/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/m.0/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.4/m.0/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.4/m.0/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/m.0/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.4/m.0/cv1/conv/Conv_output_0",
+          "/model.4/m.0/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.4/m.0/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/m.0/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.4/m.0/cv1/act/Mul_output_0",
+          "model.4.m.0.cv2.conv.weight",
+          "model.4.m.0.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.4/m.0/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/m.0/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.4/m.0/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.4/m.0/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/m.0/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.4/m.0/cv2/conv/Conv_output_0",
+          "/model.4/m.0/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.4/m.0/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/m.0/Add",
+        "op_type": "Add",
+        "inputs": [
+          "/model.4/Split_output_1",
+          "/model.4/m.0/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.4/m.0/Add_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/m.1/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.4/m.0/Add_output_0",
+          "model.4.m.1.cv1.conv.weight",
+          "model.4.m.1.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.4/m.1/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/m.1/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.4/m.1/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.4/m.1/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/m.1/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.4/m.1/cv1/conv/Conv_output_0",
+          "/model.4/m.1/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.4/m.1/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/m.1/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.4/m.1/cv1/act/Mul_output_0",
+          "model.4.m.1.cv2.conv.weight",
+          "model.4.m.1.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.4/m.1/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/m.1/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.4/m.1/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.4/m.1/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/m.1/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.4/m.1/cv2/conv/Conv_output_0",
+          "/model.4/m.1/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.4/m.1/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/m.1/Add",
+        "op_type": "Add",
+        "inputs": [
+          "/model.4/m.0/Add_output_0",
+          "/model.4/m.1/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.4/m.1/Add_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.4/Split_output_0",
+          "/model.4/Split_output_1",
+          "/model.4/m.0/Add_output_0",
+          "/model.4/m.1/Add_output_0"
+        ],
+        "outputs": [
+          "/model.4/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.4/Concat_output_0",
+          "model.4.cv2.conv.weight",
+          "model.4.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.4/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.4/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.4/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.4/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.4/cv2/conv/Conv_output_0",
+          "/model.4/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.4/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.5/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.4/cv2/act/Mul_output_0",
+          "model.5.conv.weight",
+          "model.5.conv.bias"
+        ],
+        "outputs": [
+          "/model.5/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.5/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.5/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.5/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.5/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.5/conv/Conv_output_0",
+          "/model.5/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.5/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.5/act/Mul_output_0",
+          "model.6.cv1.conv.weight",
+          "model.6.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.6/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.6/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.6/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.6/cv1/conv/Conv_output_0",
+          "/model.6/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.6/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/Split",
+        "op_type": "Split",
+        "inputs": [
+          "/model.6/cv1/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.6/Split_output_0",
+          "/model.6/Split_output_1"
+        ]
+      },
+      {
+        "name": "/model.6/m.0/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.6/Split_output_1",
+          "model.6.m.0.cv1.conv.weight",
+          "model.6.m.0.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.6/m.0/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/m.0/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.6/m.0/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.6/m.0/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/m.0/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.6/m.0/cv1/conv/Conv_output_0",
+          "/model.6/m.0/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.6/m.0/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/m.0/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.6/m.0/cv1/act/Mul_output_0",
+          "model.6.m.0.cv2.conv.weight",
+          "model.6.m.0.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.6/m.0/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/m.0/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.6/m.0/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.6/m.0/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/m.0/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.6/m.0/cv2/conv/Conv_output_0",
+          "/model.6/m.0/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.6/m.0/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/m.0/Add",
+        "op_type": "Add",
+        "inputs": [
+          "/model.6/Split_output_1",
+          "/model.6/m.0/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.6/m.0/Add_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/m.1/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.6/m.0/Add_output_0",
+          "model.6.m.1.cv1.conv.weight",
+          "model.6.m.1.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.6/m.1/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/m.1/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.6/m.1/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.6/m.1/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/m.1/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.6/m.1/cv1/conv/Conv_output_0",
+          "/model.6/m.1/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.6/m.1/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/m.1/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.6/m.1/cv1/act/Mul_output_0",
+          "model.6.m.1.cv2.conv.weight",
+          "model.6.m.1.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.6/m.1/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/m.1/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.6/m.1/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.6/m.1/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/m.1/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.6/m.1/cv2/conv/Conv_output_0",
+          "/model.6/m.1/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.6/m.1/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/m.1/Add",
+        "op_type": "Add",
+        "inputs": [
+          "/model.6/m.0/Add_output_0",
+          "/model.6/m.1/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.6/m.1/Add_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.6/Split_output_0",
+          "/model.6/Split_output_1",
+          "/model.6/m.0/Add_output_0",
+          "/model.6/m.1/Add_output_0"
+        ],
+        "outputs": [
+          "/model.6/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.6/Concat_output_0",
+          "model.6.cv2.conv.weight",
+          "model.6.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.6/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.6/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.6/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.6/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.6/cv2/conv/Conv_output_0",
+          "/model.6/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.6/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.7/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.6/cv2/act/Mul_output_0",
+          "model.7.conv.weight",
+          "model.7.conv.bias"
+        ],
+        "outputs": [
+          "/model.7/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.7/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.7/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.7/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.7/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.7/conv/Conv_output_0",
+          "/model.7/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.7/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.7/act/Mul_output_0",
+          "model.8.cv1.conv.weight",
+          "model.8.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.8/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.8/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.8/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.8/cv1/conv/Conv_output_0",
+          "/model.8/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.8/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/Split",
+        "op_type": "Split",
+        "inputs": [
+          "/model.8/cv1/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.8/Split_output_0",
+          "/model.8/Split_output_1"
+        ]
+      },
+      {
+        "name": "/model.8/m.0/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.8/Split_output_1",
+          "model.8.m.0.cv1.conv.weight",
+          "model.8.m.0.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.8/m.0/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/m.0/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.8/m.0/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.8/m.0/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/m.0/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.8/m.0/cv1/conv/Conv_output_0",
+          "/model.8/m.0/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.8/m.0/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/m.0/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.8/m.0/cv1/act/Mul_output_0",
+          "model.8.m.0.cv2.conv.weight",
+          "model.8.m.0.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.8/m.0/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/m.0/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.8/m.0/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.8/m.0/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/m.0/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.8/m.0/cv2/conv/Conv_output_0",
+          "/model.8/m.0/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.8/m.0/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/m.0/Add",
+        "op_type": "Add",
+        "inputs": [
+          "/model.8/Split_output_1",
+          "/model.8/m.0/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.8/m.0/Add_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.8/Split_output_0",
+          "/model.8/Split_output_1",
+          "/model.8/m.0/Add_output_0"
+        ],
+        "outputs": [
+          "/model.8/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.8/Concat_output_0",
+          "model.8.cv2.conv.weight",
+          "model.8.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.8/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.8/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.8/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.8/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.8/cv2/conv/Conv_output_0",
+          "/model.8/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.8/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.9/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.8/cv2/act/Mul_output_0",
+          "model.9.cv1.conv.weight",
+          "model.9.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.9/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.9/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.9/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.9/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.9/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.9/cv1/conv/Conv_output_0",
+          "/model.9/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.9/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.9/m/MaxPool",
+        "op_type": "MaxPool",
+        "inputs": [
+          "/model.9/cv1/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.9/m/MaxPool_output_0"
+        ]
+      },
+      {
+        "name": "/model.9/m_1/MaxPool",
+        "op_type": "MaxPool",
+        "inputs": [
+          "/model.9/m/MaxPool_output_0"
+        ],
+        "outputs": [
+          "/model.9/m_1/MaxPool_output_0"
+        ]
+      },
+      {
+        "name": "/model.9/m_2/MaxPool",
+        "op_type": "MaxPool",
+        "inputs": [
+          "/model.9/m_1/MaxPool_output_0"
+        ],
+        "outputs": [
+          "/model.9/m_2/MaxPool_output_0"
+        ]
+      },
+      {
+        "name": "/model.9/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.9/cv1/act/Mul_output_0",
+          "/model.9/m/MaxPool_output_0",
+          "/model.9/m_1/MaxPool_output_0",
+          "/model.9/m_2/MaxPool_output_0"
+        ],
+        "outputs": [
+          "/model.9/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.9/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.9/Concat_output_0",
+          "model.9.cv2.conv.weight",
+          "model.9.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.9/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.9/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.9/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.9/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.9/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.9/cv2/conv/Conv_output_0",
+          "/model.9/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.9/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.10/Constant",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.10/Constant_output_0"
+        ]
+      },
+      {
+        "name": "/model.10/Constant_1",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.10/Constant_1_output_0"
+        ]
+      },
+      {
+        "name": "/model.10/Resize",
+        "op_type": "Resize",
+        "inputs": [
+          "/model.9/cv2/act/Mul_output_0",
+          "/model.10/Constant_1_output_0",
+          "/model.10/Constant_output_0"
+        ],
+        "outputs": [
+          "/model.10/Resize_output_0"
+        ]
+      },
+      {
+        "name": "/model.11/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.10/Resize_output_0",
+          "/model.6/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.11/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.12/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.11/Concat_output_0",
+          "model.12.cv1.conv.weight",
+          "model.12.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.12/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.12/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.12/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.12/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.12/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.12/cv1/conv/Conv_output_0",
+          "/model.12/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.12/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.12/Split",
+        "op_type": "Split",
+        "inputs": [
+          "/model.12/cv1/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.12/Split_output_0",
+          "/model.12/Split_output_1"
+        ]
+      },
+      {
+        "name": "/model.12/m.0/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.12/Split_output_1",
+          "model.12.m.0.cv1.conv.weight",
+          "model.12.m.0.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.12/m.0/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.12/m.0/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.12/m.0/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.12/m.0/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.12/m.0/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.12/m.0/cv1/conv/Conv_output_0",
+          "/model.12/m.0/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.12/m.0/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.12/m.0/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.12/m.0/cv1/act/Mul_output_0",
+          "model.12.m.0.cv2.conv.weight",
+          "model.12.m.0.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.12/m.0/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.12/m.0/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.12/m.0/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.12/m.0/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.12/m.0/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.12/m.0/cv2/conv/Conv_output_0",
+          "/model.12/m.0/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.12/m.0/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.12/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.12/Split_output_0",
+          "/model.12/Split_output_1",
+          "/model.12/m.0/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.12/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.12/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.12/Concat_output_0",
+          "model.12.cv2.conv.weight",
+          "model.12.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.12/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.12/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.12/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.12/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.12/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.12/cv2/conv/Conv_output_0",
+          "/model.12/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.12/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.13/Constant",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.13/Constant_output_0"
+        ]
+      },
+      {
+        "name": "/model.13/Constant_1",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.13/Constant_1_output_0"
+        ]
+      },
+      {
+        "name": "/model.13/Resize",
+        "op_type": "Resize",
+        "inputs": [
+          "/model.12/cv2/act/Mul_output_0",
+          "/model.13/Constant_1_output_0",
+          "/model.13/Constant_output_0"
+        ],
+        "outputs": [
+          "/model.13/Resize_output_0"
+        ]
+      },
+      {
+        "name": "/model.14/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.13/Resize_output_0",
+          "/model.4/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.14/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.15/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.14/Concat_output_0",
+          "model.15.cv1.conv.weight",
+          "model.15.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.15/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.15/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.15/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.15/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.15/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.15/cv1/conv/Conv_output_0",
+          "/model.15/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.15/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.15/Split",
+        "op_type": "Split",
+        "inputs": [
+          "/model.15/cv1/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.15/Split_output_0",
+          "/model.15/Split_output_1"
+        ]
+      },
+      {
+        "name": "/model.15/m.0/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.15/Split_output_1",
+          "model.15.m.0.cv1.conv.weight",
+          "model.15.m.0.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.15/m.0/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.15/m.0/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.15/m.0/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.15/m.0/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.15/m.0/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.15/m.0/cv1/conv/Conv_output_0",
+          "/model.15/m.0/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.15/m.0/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.15/m.0/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.15/m.0/cv1/act/Mul_output_0",
+          "model.15.m.0.cv2.conv.weight",
+          "model.15.m.0.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.15/m.0/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.15/m.0/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.15/m.0/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.15/m.0/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.15/m.0/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.15/m.0/cv2/conv/Conv_output_0",
+          "/model.15/m.0/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.15/m.0/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.15/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.15/Split_output_0",
+          "/model.15/Split_output_1",
+          "/model.15/m.0/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.15/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.15/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.15/Concat_output_0",
+          "model.15.cv2.conv.weight",
+          "model.15.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.15/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.15/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.15/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.15/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.15/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.15/cv2/conv/Conv_output_0",
+          "/model.15/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.15/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.16/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.15/cv2/act/Mul_output_0",
+          "model.16.conv.weight",
+          "model.16.conv.bias"
+        ],
+        "outputs": [
+          "/model.16/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.16/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.16/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.16/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.16/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.16/conv/Conv_output_0",
+          "/model.16/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.16/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.17/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.16/act/Mul_output_0",
+          "/model.12/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.17/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.18/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.17/Concat_output_0",
+          "model.18.cv1.conv.weight",
+          "model.18.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.18/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.18/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.18/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.18/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.18/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.18/cv1/conv/Conv_output_0",
+          "/model.18/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.18/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.18/Split",
+        "op_type": "Split",
+        "inputs": [
+          "/model.18/cv1/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.18/Split_output_0",
+          "/model.18/Split_output_1"
+        ]
+      },
+      {
+        "name": "/model.18/m.0/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.18/Split_output_1",
+          "model.18.m.0.cv1.conv.weight",
+          "model.18.m.0.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.18/m.0/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.18/m.0/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.18/m.0/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.18/m.0/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.18/m.0/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.18/m.0/cv1/conv/Conv_output_0",
+          "/model.18/m.0/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.18/m.0/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.18/m.0/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.18/m.0/cv1/act/Mul_output_0",
+          "model.18.m.0.cv2.conv.weight",
+          "model.18.m.0.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.18/m.0/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.18/m.0/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.18/m.0/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.18/m.0/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.18/m.0/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.18/m.0/cv2/conv/Conv_output_0",
+          "/model.18/m.0/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.18/m.0/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.18/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.18/Split_output_0",
+          "/model.18/Split_output_1",
+          "/model.18/m.0/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.18/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.18/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.18/Concat_output_0",
+          "model.18.cv2.conv.weight",
+          "model.18.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.18/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.18/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.18/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.18/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.18/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.18/cv2/conv/Conv_output_0",
+          "/model.18/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.18/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.19/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.18/cv2/act/Mul_output_0",
+          "model.19.conv.weight",
+          "model.19.conv.bias"
+        ],
+        "outputs": [
+          "/model.19/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.19/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.19/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.19/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.19/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.19/conv/Conv_output_0",
+          "/model.19/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.19/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.20/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.19/act/Mul_output_0",
+          "/model.9/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.20/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.21/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.20/Concat_output_0",
+          "model.21.cv1.conv.weight",
+          "model.21.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.21/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.21/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.21/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.21/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.21/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.21/cv1/conv/Conv_output_0",
+          "/model.21/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.21/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.21/Split",
+        "op_type": "Split",
+        "inputs": [
+          "/model.21/cv1/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.21/Split_output_0",
+          "/model.21/Split_output_1"
+        ]
+      },
+      {
+        "name": "/model.21/m.0/cv1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.21/Split_output_1",
+          "model.21.m.0.cv1.conv.weight",
+          "model.21.m.0.cv1.conv.bias"
+        ],
+        "outputs": [
+          "/model.21/m.0/cv1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.21/m.0/cv1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.21/m.0/cv1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.21/m.0/cv1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.21/m.0/cv1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.21/m.0/cv1/conv/Conv_output_0",
+          "/model.21/m.0/cv1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.21/m.0/cv1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.21/m.0/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.21/m.0/cv1/act/Mul_output_0",
+          "model.21.m.0.cv2.conv.weight",
+          "model.21.m.0.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.21/m.0/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.21/m.0/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.21/m.0/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.21/m.0/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.21/m.0/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.21/m.0/cv2/conv/Conv_output_0",
+          "/model.21/m.0/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.21/m.0/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.21/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.21/Split_output_0",
+          "/model.21/Split_output_1",
+          "/model.21/m.0/cv2/act/Mul_output_0"
+        ],
+        "outputs": [
+          "/model.21/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.21/cv2/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.21/Concat_output_0",
+          "model.21.cv2.conv.weight",
+          "model.21.cv2.conv.bias"
+        ],
+        "outputs": [
+          "/model.21/cv2/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.21/cv2/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.21/cv2/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.21/cv2/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.21/cv2/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.21/cv2/conv/Conv_output_0",
+          "/model.21/cv2/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.21/cv2/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.0/cv2.0.0/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.15/cv2/act/Mul_output_0",
+          "model.22.cv2.0.0.conv.weight",
+          "model.22.cv2.0.0.conv.bias"
+        ],
+        "outputs": [
+          "/model.22/cv2.0/cv2.0.0/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.0/cv2.0.0/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.22/cv2.0/cv2.0.0/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv2.0/cv2.0.0/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.0/cv2.0.0/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/cv2.0/cv2.0.0/conv/Conv_output_0",
+          "/model.22/cv2.0/cv2.0.0/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv2.0/cv2.0.0/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.0/cv2.0.1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.22/cv2.0/cv2.0.0/act/Mul_output_0",
+          "model.22.cv2.0.1.conv.weight",
+          "model.22.cv2.0.1.conv.bias"
+        ],
+        "outputs": [
+          "/model.22/cv2.0/cv2.0.1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.0/cv2.0.1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.22/cv2.0/cv2.0.1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv2.0/cv2.0.1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.0/cv2.0.1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/cv2.0/cv2.0.1/conv/Conv_output_0",
+          "/model.22/cv2.0/cv2.0.1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv2.0/cv2.0.1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.0/cv2.0.2/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.22/cv2.0/cv2.0.1/act/Mul_output_0",
+          "model.22.cv2.0.2.weight",
+          "model.22.cv2.0.2.bias"
+        ],
+        "outputs": [
+          "/model.22/cv2.0/cv2.0.2/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.0/cv3.0.0/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.15/cv2/act/Mul_output_0",
+          "model.22.cv3.0.0.conv.weight",
+          "model.22.cv3.0.0.conv.bias"
+        ],
+        "outputs": [
+          "/model.22/cv3.0/cv3.0.0/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.0/cv3.0.0/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.22/cv3.0/cv3.0.0/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv3.0/cv3.0.0/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.0/cv3.0.0/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/cv3.0/cv3.0.0/conv/Conv_output_0",
+          "/model.22/cv3.0/cv3.0.0/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv3.0/cv3.0.0/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.0/cv3.0.1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.22/cv3.0/cv3.0.0/act/Mul_output_0",
+          "model.22.cv3.0.1.conv.weight",
+          "model.22.cv3.0.1.conv.bias"
+        ],
+        "outputs": [
+          "/model.22/cv3.0/cv3.0.1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.0/cv3.0.1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.22/cv3.0/cv3.0.1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv3.0/cv3.0.1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.0/cv3.0.1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/cv3.0/cv3.0.1/conv/Conv_output_0",
+          "/model.22/cv3.0/cv3.0.1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv3.0/cv3.0.1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.0/cv3.0.2/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.22/cv3.0/cv3.0.1/act/Mul_output_0",
+          "model.22.cv3.0.2.weight",
+          "model.22.cv3.0.2.bias"
+        ],
+        "outputs": [
+          "/model.22/cv3.0/cv3.0.2/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Concat",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.22/cv2.0/cv2.0.2/Conv_output_0",
+          "/model.22/cv3.0/cv3.0.2/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/Concat_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.1/cv2.1.0/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.18/cv2/act/Mul_output_0",
+          "model.22.cv2.1.0.conv.weight",
+          "model.22.cv2.1.0.conv.bias"
+        ],
+        "outputs": [
+          "/model.22/cv2.1/cv2.1.0/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.1/cv2.1.0/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.22/cv2.1/cv2.1.0/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv2.1/cv2.1.0/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.1/cv2.1.0/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/cv2.1/cv2.1.0/conv/Conv_output_0",
+          "/model.22/cv2.1/cv2.1.0/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv2.1/cv2.1.0/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.1/cv2.1.1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.22/cv2.1/cv2.1.0/act/Mul_output_0",
+          "model.22.cv2.1.1.conv.weight",
+          "model.22.cv2.1.1.conv.bias"
+        ],
+        "outputs": [
+          "/model.22/cv2.1/cv2.1.1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.1/cv2.1.1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.22/cv2.1/cv2.1.1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv2.1/cv2.1.1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.1/cv2.1.1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/cv2.1/cv2.1.1/conv/Conv_output_0",
+          "/model.22/cv2.1/cv2.1.1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv2.1/cv2.1.1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.1/cv2.1.2/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.22/cv2.1/cv2.1.1/act/Mul_output_0",
+          "model.22.cv2.1.2.weight",
+          "model.22.cv2.1.2.bias"
+        ],
+        "outputs": [
+          "/model.22/cv2.1/cv2.1.2/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.1/cv3.1.0/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.18/cv2/act/Mul_output_0",
+          "model.22.cv3.1.0.conv.weight",
+          "model.22.cv3.1.0.conv.bias"
+        ],
+        "outputs": [
+          "/model.22/cv3.1/cv3.1.0/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.1/cv3.1.0/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.22/cv3.1/cv3.1.0/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv3.1/cv3.1.0/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.1/cv3.1.0/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/cv3.1/cv3.1.0/conv/Conv_output_0",
+          "/model.22/cv3.1/cv3.1.0/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv3.1/cv3.1.0/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.1/cv3.1.1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.22/cv3.1/cv3.1.0/act/Mul_output_0",
+          "model.22.cv3.1.1.conv.weight",
+          "model.22.cv3.1.1.conv.bias"
+        ],
+        "outputs": [
+          "/model.22/cv3.1/cv3.1.1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.1/cv3.1.1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.22/cv3.1/cv3.1.1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv3.1/cv3.1.1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.1/cv3.1.1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/cv3.1/cv3.1.1/conv/Conv_output_0",
+          "/model.22/cv3.1/cv3.1.1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv3.1/cv3.1.1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.1/cv3.1.2/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.22/cv3.1/cv3.1.1/act/Mul_output_0",
+          "model.22.cv3.1.2.weight",
+          "model.22.cv3.1.2.bias"
+        ],
+        "outputs": [
+          "/model.22/cv3.1/cv3.1.2/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Concat_1",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.22/cv2.1/cv2.1.2/Conv_output_0",
+          "/model.22/cv3.1/cv3.1.2/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/Concat_1_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.2/cv2.2.0/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.21/cv2/act/Mul_output_0",
+          "model.22.cv2.2.0.conv.weight",
+          "model.22.cv2.2.0.conv.bias"
+        ],
+        "outputs": [
+          "/model.22/cv2.2/cv2.2.0/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.2/cv2.2.0/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.22/cv2.2/cv2.2.0/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv2.2/cv2.2.0/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.2/cv2.2.0/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/cv2.2/cv2.2.0/conv/Conv_output_0",
+          "/model.22/cv2.2/cv2.2.0/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv2.2/cv2.2.0/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.2/cv2.2.1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.22/cv2.2/cv2.2.0/act/Mul_output_0",
+          "model.22.cv2.2.1.conv.weight",
+          "model.22.cv2.2.1.conv.bias"
+        ],
+        "outputs": [
+          "/model.22/cv2.2/cv2.2.1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.2/cv2.2.1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.22/cv2.2/cv2.2.1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv2.2/cv2.2.1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.2/cv2.2.1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/cv2.2/cv2.2.1/conv/Conv_output_0",
+          "/model.22/cv2.2/cv2.2.1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv2.2/cv2.2.1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv2.2/cv2.2.2/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.22/cv2.2/cv2.2.1/act/Mul_output_0",
+          "model.22.cv2.2.2.weight",
+          "model.22.cv2.2.2.bias"
+        ],
+        "outputs": [
+          "/model.22/cv2.2/cv2.2.2/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.2/cv3.2.0/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.21/cv2/act/Mul_output_0",
+          "model.22.cv3.2.0.conv.weight",
+          "model.22.cv3.2.0.conv.bias"
+        ],
+        "outputs": [
+          "/model.22/cv3.2/cv3.2.0/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.2/cv3.2.0/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.22/cv3.2/cv3.2.0/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv3.2/cv3.2.0/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.2/cv3.2.0/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/cv3.2/cv3.2.0/conv/Conv_output_0",
+          "/model.22/cv3.2/cv3.2.0/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv3.2/cv3.2.0/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.2/cv3.2.1/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.22/cv3.2/cv3.2.0/act/Mul_output_0",
+          "model.22.cv3.2.1.conv.weight",
+          "model.22.cv3.2.1.conv.bias"
+        ],
+        "outputs": [
+          "/model.22/cv3.2/cv3.2.1/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.2/cv3.2.1/act/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.22/cv3.2/cv3.2.1/conv/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv3.2/cv3.2.1/act/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.2/cv3.2.1/act/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/cv3.2/cv3.2.1/conv/Conv_output_0",
+          "/model.22/cv3.2/cv3.2.1/act/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "/model.22/cv3.2/cv3.2.1/act/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/cv3.2/cv3.2.2/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.22/cv3.2/cv3.2.1/act/Mul_output_0",
+          "model.22.cv3.2.2.weight",
+          "model.22.cv3.2.2.bias"
+        ],
+        "outputs": [
+          "/model.22/cv3.2/cv3.2.2/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Concat_2",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.22/cv2.2/cv2.2.2/Conv_output_0",
+          "/model.22/cv3.2/cv3.2.2/Conv_output_0"
+        ],
+        "outputs": [
+          "/model.22/Concat_2_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Constant",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/Constant_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Constant_1",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/Constant_1_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Constant_2",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/Constant_2_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Reshape",
+        "op_type": "Reshape",
+        "inputs": [
+          "/model.22/Concat_output_0",
+          "/model.22/Constant_output_0"
+        ],
+        "outputs": [
+          "/model.22/Reshape_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Reshape_1",
+        "op_type": "Reshape",
+        "inputs": [
+          "/model.22/Concat_1_output_0",
+          "/model.22/Constant_1_output_0"
+        ],
+        "outputs": [
+          "/model.22/Reshape_1_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Reshape_2",
+        "op_type": "Reshape",
+        "inputs": [
+          "/model.22/Concat_2_output_0",
+          "/model.22/Constant_2_output_0"
+        ],
+        "outputs": [
+          "/model.22/Reshape_2_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Concat_3",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.22/Reshape_output_0",
+          "/model.22/Reshape_1_output_0",
+          "/model.22/Reshape_2_output_0"
+        ],
+        "outputs": [
+          "/model.22/Concat_3_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Split",
+        "op_type": "Split",
+        "inputs": [
+          "/model.22/Concat_3_output_0"
+        ],
+        "outputs": [
+          "/model.22/Split_output_0",
+          "/model.22/Split_output_1"
+        ]
+      },
+      {
+        "name": "/model.22/dfl/Constant",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/dfl/Constant_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/dfl/Reshape",
+        "op_type": "Reshape",
+        "inputs": [
+          "/model.22/Split_output_0",
+          "/model.22/dfl/Constant_output_0"
+        ],
+        "outputs": [
+          "/model.22/dfl/Reshape_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/dfl/Transpose",
+        "op_type": "Transpose",
+        "inputs": [
+          "/model.22/dfl/Reshape_output_0"
+        ],
+        "outputs": [
+          "/model.22/dfl/Transpose_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/dfl/Softmax",
+        "op_type": "Softmax",
+        "inputs": [
+          "/model.22/dfl/Transpose_output_0"
+        ],
+        "outputs": [
+          "/model.22/dfl/Softmax_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/dfl/Transpose_1",
+        "op_type": "Transpose",
+        "inputs": [
+          "/model.22/dfl/Softmax_output_0"
+        ],
+        "outputs": [
+          "/model.22/dfl/Transpose_1_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/dfl/conv/Conv",
+        "op_type": "Conv",
+        "inputs": [
+          "/model.22/dfl/Transpose_1_output_0",
+          "model.22.dfl.conv.weight"
+        ],
+        "outputs": [
+          "/model.22/dfl/conv/Conv_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/dfl/Constant_1",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/dfl/Constant_1_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/dfl/Reshape_1",
+        "op_type": "Reshape",
+        "inputs": [
+          "/model.22/dfl/conv/Conv_output_0",
+          "/model.22/dfl/Constant_1_output_0"
+        ],
+        "outputs": [
+          "/model.22/dfl/Reshape_1_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Shape",
+        "op_type": "Shape",
+        "inputs": [
+          "/model.22/dfl/Reshape_1_output_0"
+        ],
+        "outputs": [
+          "/model.22/Shape_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Constant_3",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/Constant_3_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Gather",
+        "op_type": "Gather",
+        "inputs": [
+          "/model.22/Shape_output_0",
+          "/model.22/Constant_3_output_0"
+        ],
+        "outputs": [
+          "/model.22/Gather_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Constant_4",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/Constant_4_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Constant_5",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/Constant_5_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Add",
+        "op_type": "Add",
+        "inputs": [
+          "/model.22/Gather_output_0",
+          "/model.22/Constant_5_output_0"
+        ],
+        "outputs": [
+          "/model.22/Add_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Constant_6",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/Constant_6_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Div",
+        "op_type": "Div",
+        "inputs": [
+          "/model.22/Add_output_0",
+          "/model.22/Constant_6_output_0"
+        ],
+        "outputs": [
+          "/model.22/Div_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Constant_7",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/Constant_7_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Mul",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/Div_output_0",
+          "/model.22/Constant_7_output_0"
+        ],
+        "outputs": [
+          "/model.22/Mul_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Slice",
+        "op_type": "Slice",
+        "inputs": [
+          "/model.22/dfl/Reshape_1_output_0",
+          "/model.22/Constant_4_output_0",
+          "/model.22/Mul_output_0",
+          "/model.22/Constant_3_output_0"
+        ],
+        "outputs": [
+          "/model.22/Slice_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Constant_8",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/Constant_8_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Mul_1",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/Div_output_0",
+          "/model.22/Constant_8_output_0"
+        ],
+        "outputs": [
+          "/model.22/Mul_1_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Slice_1",
+        "op_type": "Slice",
+        "inputs": [
+          "/model.22/dfl/Reshape_1_output_0",
+          "/model.22/Mul_output_0",
+          "/model.22/Mul_1_output_0",
+          "/model.22/Constant_3_output_0"
+        ],
+        "outputs": [
+          "/model.22/Slice_1_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Constant_9",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/Constant_9_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Sub",
+        "op_type": "Sub",
+        "inputs": [
+          "/model.22/Constant_9_output_0",
+          "/model.22/Slice_output_0"
+        ],
+        "outputs": [
+          "/model.22/Sub_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Constant_10",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/Constant_10_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Add_1",
+        "op_type": "Add",
+        "inputs": [
+          "/model.22/Constant_10_output_0",
+          "/model.22/Slice_1_output_0"
+        ],
+        "outputs": [
+          "/model.22/Add_1_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Add_2",
+        "op_type": "Add",
+        "inputs": [
+          "/model.22/Sub_output_0",
+          "/model.22/Add_1_output_0"
+        ],
+        "outputs": [
+          "/model.22/Add_2_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Constant_11",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/Constant_11_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Div_1",
+        "op_type": "Div",
+        "inputs": [
+          "/model.22/Add_2_output_0",
+          "/model.22/Constant_11_output_0"
+        ],
+        "outputs": [
+          "/model.22/Div_1_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Sub_1",
+        "op_type": "Sub",
+        "inputs": [
+          "/model.22/Add_1_output_0",
+          "/model.22/Sub_output_0"
+        ],
+        "outputs": [
+          "/model.22/Sub_1_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Concat_4",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.22/Div_1_output_0",
+          "/model.22/Sub_1_output_0"
+        ],
+        "outputs": [
+          "/model.22/Concat_4_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Constant_12",
+        "op_type": "Constant",
+        "inputs": [],
+        "outputs": [
+          "/model.22/Constant_12_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Mul_2",
+        "op_type": "Mul",
+        "inputs": [
+          "/model.22/Concat_4_output_0",
+          "/model.22/Constant_12_output_0"
+        ],
+        "outputs": [
+          "/model.22/Mul_2_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Sigmoid",
+        "op_type": "Sigmoid",
+        "inputs": [
+          "/model.22/Split_output_1"
+        ],
+        "outputs": [
+          "/model.22/Sigmoid_output_0"
+        ]
+      },
+      {
+        "name": "/model.22/Concat_5",
+        "op_type": "Concat",
+        "inputs": [
+          "/model.22/Mul_2_output_0",
+          "/model.22/Sigmoid_output_0"
+        ],
+        "outputs": [
+          "output0"
+        ]
+      }
+    ]
+  },
+  "tpa_summary": {
+    "memory_categories": {
+      "immutable_model_data": "Weights, biases, batch-normalization parameters, DFL weights, and any generated quantization tables derive from the model artifact and are immutable model data.",
+      "transient_scratch": "Scratch sizes are not determined by this manifest; future YOLOv8n process kernels must declare scratch_peak_bytes from their actual implementations.",
+      "edge_channel_payloads": "Feature and detect tensors listed below are graph edge/channel payloads, not persistent process state. Byte counts assume signed INT8 tensors for the first structured downstream milestone unless a future quantization job chooses a different representation."
+    },
+    "public_onnx_inputs": [
+      {
+        "name": "images",
+        "shape": [
+          1,
+          3,
+          640,
+          640
+        ]
+      }
+    ],
+    "public_onnx_outputs": [
+      {
+        "name": "output0",
+        "shape": [
+          1,
+          84,
+          8400
+        ]
+      }
+    ],
+    "onnx_operator_families": {
+      "Add": 9,
+      "Concat": 19,
+      "Constant": 19,
+      "Conv": 64,
+      "Div": 2,
+      "Gather": 1,
+      "MaxPool": 3,
+      "Mul": 60,
+      "Reshape": 5,
+      "Resize": 2,
+      "Shape": 1,
+      "Sigmoid": 58,
+      "Slice": 2,
+      "Softmax": 1,
+      "Split": 9,
+      "Sub": 2,
+      "Transpose": 2
+    },
+    "input_shape_nchw": [
+      1,
+      3,
+      640,
+      640
+    ],
+    "feature_pyramid_inputs_to_detect": [
+      {
+        "scale": "P3",
+        "source_layer": 15,
+        "source_module": "model.15",
+        "stride": 8,
+        "shape_nchw": [
+          1,
+          64,
+          80,
+          80
+        ],
+        "height": 80,
+        "width": 80,
+        "channels": 64,
+        "int8_edge_payload_bytes": 409600
+      },
+      {
+        "scale": "P4",
+        "source_layer": 18,
+        "source_module": "model.18",
+        "stride": 16,
+        "shape_nchw": [
+          1,
+          128,
+          40,
+          40
+        ],
+        "height": 40,
+        "width": 40,
+        "channels": 128,
+        "int8_edge_payload_bytes": 204800
+      },
+      {
+        "scale": "P5",
+        "source_layer": 21,
+        "source_module": "model.21",
+        "stride": 32,
+        "shape_nchw": [
+          1,
+          256,
+          20,
+          20
+        ],
+        "height": 20,
+        "width": 20,
+        "channels": 256,
+        "int8_edge_payload_bytes": 102400
+      }
+    ],
+    "detect_raw_outputs_before_decode": [
+      {
+        "scale": "P3",
+        "stride": 8,
+        "shape_nchw": [
+          1,
+          144,
+          80,
+          80
+        ],
+        "height": 80,
+        "width": 80,
+        "channels": 144,
+        "dfl_box_channels": 64,
+        "class_channels": 80,
+        "int8_edge_payload_bytes": 921600
+      },
+      {
+        "scale": "P4",
+        "stride": 16,
+        "shape_nchw": [
+          1,
+          144,
+          40,
+          40
+        ],
+        "height": 40,
+        "width": 40,
+        "channels": 144,
+        "dfl_box_channels": 64,
+        "class_channels": 80,
+        "int8_edge_payload_bytes": 230400
+      },
+      {
+        "scale": "P5",
+        "stride": 32,
+        "shape_nchw": [
+          1,
+          144,
+          20,
+          20
+        ],
+        "height": 20,
+        "width": 20,
+        "channels": 144,
+        "dfl_box_channels": 64,
+        "class_channels": 80,
+        "int8_edge_payload_bytes": 57600
+      }
+    ],
+    "detect_head": {
+      "top_level_layer": "model.22",
+      "from_layers": [
+        15,
+        18,
+        21
+      ],
+      "nc": 80,
+      "strides": [
+        8,
+        16,
+        32
+      ],
+      "reg_max": 16,
+      "dfl_box_channels": 64,
+      "class_channels": 80,
+      "raw_channels_per_scale": 144,
+      "public_output_channels_after_decode": 84
+    },
+    "current_yolov5n_downstream_comparison": {
+      "yolov5n_source_edges": [
+        {
+          "scale": "P5",
+          "shape_hwc": [
+            20,
+            20,
+            128
+          ],
+          "int8_payload_bytes": 51200
+        },
+        {
+          "scale": "P4",
+          "shape_hwc": [
+            40,
+            40,
+            128
+          ],
+          "int8_payload_bytes": 204800
+        },
+        {
+          "scale": "P3",
+          "shape_hwc": [
+            80,
+            80,
+            64
+          ],
+          "int8_payload_bytes": 409600
+        }
+      ],
+      "yolov8n_detect_input_edges": [
+        {
+          "scale": "P3",
+          "shape_hwc": [
+            80,
+            80,
+            64
+          ],
+          "int8_payload_bytes": 409600
+        },
+        {
+          "scale": "P4",
+          "shape_hwc": [
+            40,
+            40,
+            128
+          ],
+          "int8_payload_bytes": 204800
+        },
+        {
+          "scale": "P5",
+          "shape_hwc": [
+            20,
+            20,
+            256
+          ],
+          "int8_payload_bytes": 102400
+        }
+      ],
+      "block_reuse_notes": [
+        "Conv+BatchNorm+SiLU layers remain the basic CBS-style primitive used by current YOLOv5n tooling.",
+        "YOLOv8n uses C2f top-level blocks where the current YOLOv5n graph and block tests use C3/Bottleneck-style blocks; representative C2f block tests are needed before kernels are reused.",
+        "SPPF, nearest-neighbor upsample, and concat remain present, but exact channel counts differ from the YOLOv5n downstream graph and must be regenerated from this artifact.",
+        "The YOLOv8n Detect head is anchor-free and DFL-based with reg_max=16, 64 box-distribution channels plus 80 class channels per scale before decode; it should not reuse YOLOv5n detect assumptions without a new detect/DFL implementation and tests."
+      ]
+    }
+  }
+}

@@ -6,6 +6,9 @@ helpers ported from the original TPA repository.
 ## Ported tools
 
 - `regen_yolov5n_weights.py` — regenerate checked-in YOLO weight headers.
+- `inspect_yolo_artifact.py` — inspect an external YOLO `.pt`/`.onnx` artifact
+  and emit a JSON architecture/provenance manifest. Its `--help` path avoids
+  importing heavyweight optional packages.
 - `ptq_yolov5.py` — post-training quantization helper for the YOLO model path.
 - `gen_yolo_tensor_weights.py` — generate tensor-weight headers.
 - `gen_yolo_block_case.py` — generate CBS/block test cases.
@@ -22,7 +25,9 @@ helpers ported from the original TPA repository.
 These scripts are preserved to make the checked-in generated headers and block
 cases reproducible. Some scripts require third-party Python packages such as
 PyTorch, ONNX, NumPy, or Ultralytics; those heavyweight dependencies are not
-installed by the normal planner test environment.
+installed by the normal planner test environment. New inspection helpers should
+keep heavyweight imports inside the command path that needs them so lightweight
+`--help` checks continue to work.
 
 ## Model artifact policy
 
@@ -38,11 +43,18 @@ If these files ever become too large or move to external storage, keep this
 policy file updated with acquisition instructions and checksums before removing
 them.
 
+`models/yolov8n_artifact_manifest.json` records a YOLOv8n target without
+checking in the AGPL-3.0 Ultralytics model binaries. It names the exact
+Ultralytics v8.3.0 `.pt` URL, the static 640x640 opset-12 ONNX export policy,
+SHA-256 checksums, and architecture facts for future YOLOv8n planning.
+
 ## Normal validation
 
 Normal project validation does not require rerunning the heavyweight model
 regeneration scripts. The default validation for this port is:
 
+- `python3 tools/yolo/inspect_yolo_artifact.py --help` for the lightweight
+  YOLO artifact inspector;
 - planner unit tests;
 - ET Erbium YOLO downstream planner/map/device targets;
 - representative `tests/yolo` block ELFs under `erbium_emu`;

@@ -54,8 +54,8 @@ smoke-test doubles; they are not ET platform validation.
   assets integrated through the structured TPA process/program build path.
 - `tests/yolo/` — YOLO block-test sources/assets with representative structured
   Erbium block-test targets.
-- `tools/yolo/` and `models/` — YOLO regeneration/quantization tools and source
-  model artifacts.
+- `tools/yolo/` and `models/` — YOLO regeneration/quantization tools, checked-in
+  YOLOv5nu source model artifacts, and the external-artifact YOLOv8n manifest.
 - `planner/` — Python metadata extraction, planning, and mapping package.
 - `machines/` — mapper machine topology JSON inputs.
 - `tools/trace/` — Erbium emulator trace splitting and symbol-attribution tools.
