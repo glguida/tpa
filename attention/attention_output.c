@@ -120,6 +120,7 @@ tpa_op_t attention_output_after_recv(void)
     if (w->next_port < ATTENTION_HEADS)
         return attention_output_recv_next();
 
+    attention_trace(ATTENTION_TRACE_OUTPUT_ALL_RECEIVED);
     return attention_output_check();
 }
 
@@ -134,13 +135,27 @@ tpa_op_t attention_output_check(void)
     }
 
     for (uint32_t head = 0; head < ATTENTION_HEADS; head++) {
-        if (w->len[head] != sizeof(*w->pkt[head]) ||
-            !attention_compute_output_packet(w->pkt[head], w->output[head],
-                                             head) ||
-            !attention_validate_output(w->pkt[head], w->output[head], head)) {
+        if (w->len[head] != sizeof(*w->pkt[head])) {
             attention_fail();
             return tpa_stop();
         }
+
+        attention_trace_head(ATTENTION_TRACE_OUTPUT_PRODUCT_BEGIN, head);
+        if (!attention_compute_output_packet(w->pkt[head], w->output[head],
+                                             head)) {
+            attention_fail();
+            return tpa_stop();
+        }
+        attention_trace_head(ATTENTION_TRACE_OUTPUT_PRODUCT_END, head);
+    }
+
+    for (uint32_t head = 0; head < ATTENTION_HEADS; head++) {
+        attention_trace_head(ATTENTION_TRACE_OUTPUT_VALIDATE_BEGIN, head);
+        if (!attention_validate_output(w->pkt[head], w->output[head], head)) {
+            attention_fail();
+            return tpa_stop();
+        }
+        attention_trace_head(ATTENTION_TRACE_OUTPUT_VALIDATE_END, head);
     }
 
     attention_trace(ATTENTION_TRACE_OUTPUT_END);

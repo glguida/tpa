@@ -69,13 +69,21 @@ The demo emits stable 32-bit trace tags with `arch_trace()`:
 | `0xa7720000 | head` | score compute end for head `0..3` |
 | `0xa7730000 | head` | softmax compute begin for head `0..3` |
 | `0xa7740000 | head` | softmax compute end for head `0..3` |
-| `0xa7750000` | output/check begin |
-| `0xa7750001` | output/check end |
+| `0xa7750000` | output/check process begin; includes waiting for softmax packets |
+| `0xa7750001` | output/check process end after product and scalar validation |
+| `0xa7750002` | all four softmax packets received and checked; product phase can begin |
+| `0xa7760000 | head` | output product begin for head `0..3` (`softmax * V` TensorFMA path) |
+| `0xa7770000 | head` | output product end for head `0..3` |
+| `0xa7780000 | head` | scalar reference validation begin for head `0..3` |
+| `0xa7790000 | head` | scalar reference validation end for head `0..3` |
 | `0xa77f00ff` | validation passed immediately before `TEST_PASS` |
 | `0xa77f00ee` | validation failed immediately before `TEST_FAIL` |
 
 The emulator PASS/FAIL markers still come from `TEST_PASS` / `TEST_FAIL`; the
-trace tags are for inspection and timing comparison only.
+trace tags are for inspection and timing comparison only. The output process
+currently computes all per-head TensorFMA output products before starting the
+independent scalar reference validation loop, so `0xa776...` spans measure
+production output work while `0xa778...` spans measure validation work.
 
 ### Extracting trace-tag cycles
 
