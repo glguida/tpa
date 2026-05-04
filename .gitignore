@@ -1,2 +1,15 @@
 build/
 agentws/jobs/
+
+# External YOLOv8n AGPL/model-derived artifacts stay out of git unless
+# project owners explicitly approve vendoring.
+/external/
+/yolov8n-external/
+/generated/yolov8n/
+/tools/yolo/generated/yolov8n/
+/tools/yolo/yolov8n_external_outputs/
+/tests/yolo/generated/yolov8n_*_weights.c
+/tests/yolo/generated/yolov8n_*_weights.h
+/tests/yolo/generated/yolov8n_*_generated_manifest.json
+/models/yolov8n.pt
+/models/yolov8n.onnx

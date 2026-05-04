@@ -58,3 +58,24 @@ The manifest is architecture input only. It does not add YOLOv8n kernels, a TPA
 program graph, calibration data, generated weight headers, or Erbium validation.
 Future kernel jobs must keep immutable model data, process scratch, and
 edge/channel payload storage distinct.
+
+## External YOLOv8n generated headers
+
+Use `tools/yolo/regen_yolov8n_external_weights.py` to generate YOLOv8n INT8
+headers from those external artifacts without vendoring model-derived outputs:
+
+```sh
+python3 tools/yolo/regen_yolov8n_external_weights.py --validate-config-only
+python3 tools/yolo/regen_yolov8n_external_weights.py \
+  --external-root /tmp/tpa-yolov8n \
+  --out-dir /tmp/tpa-yolov8n/generated-weights \
+  --calib-dir /path/to/representative/calibration/images
+```
+
+The wrapper verifies the `.pt` and ONNX checksums from this manifest before
+calling the heavyweight PTQ exporter. It writes generated headers and
+`<stem>_generated_manifest.json` under the external output directory. Those
+outputs are model-derived immutable weight/quantization data for future kernels,
+not process scratch and not graph edge/channel payloads. Do not commit them, the
+external model binaries, calibration data, or model-derived activations unless
+project owners explicitly approve vendoring.

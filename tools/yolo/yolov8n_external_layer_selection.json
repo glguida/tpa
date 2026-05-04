@@ -1,0 +1,1362 @@
+{
+  "kind": "tpa_yolov8n_external_layer_selection_v0",
+  "model": "yolov8n",
+  "source_manifest": {
+    "path": "models/yolov8n_artifact_manifest.json",
+    "kind": "tpa_yolov8n_artifact_manifest_v0",
+    "pt_sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36",
+    "onnx_sha256": "3192f31d65cf4d6a3f00c06a0ba1ae9b78f9c3a14f50c60ea3b086fbcec4f034"
+  },
+  "scope": "First external YOLOv8n INT8 downstream milestone: Detect source C2f modules model.15/model.18/model.21 and Detect/DFL branches model.22 that consume those feature maps.",
+  "artifact_policy": {
+    "generated_weight_headers": "external-untracked-output-only",
+    "source_model_binaries": "external-not-checked-in",
+    "license": "AGPL-3.0",
+    "license_note": "Artifacts are recorded as external until project owners explicitly approve vendoring AGPL-3.0 model files in this repository."
+  },
+  "output_policy": {
+    "default_output_dir": "/tmp/tpa-yolov8n/generated-weights",
+    "commit_policy": "Do not commit generated YOLOv8n model-derived headers, calibration images, model activations, or generated checksum manifests unless project owners explicitly approve vendoring.",
+    "generated_manifest": "The generator writes <stem>_generated_manifest.json next to generated headers with artifact, selection, calibration, and output checksums."
+  },
+  "memory_categories": {
+    "immutable_model_data": "Weights, biases, batch-normalization parameters, DFL weights, and any generated quantization tables derive from the model artifact and are immutable model data.",
+    "transient_scratch": "Scratch sizes are not determined by this manifest; future YOLOv8n process kernels must declare scratch_peak_bytes from their actual implementations.",
+    "edge_channel_payloads": "Feature and detect tensors listed below are graph edge/channel payloads, not persistent process state. Byte counts assume signed INT8 tensors for the first structured downstream milestone unless a future quantization job chooses a different representation."
+  },
+  "detect_input_edges": [
+    {
+      "scale": "P3",
+      "source_layer": 15,
+      "source_module": "model.15",
+      "stride": 8,
+      "shape_nchw": [
+        1,
+        64,
+        80,
+        80
+      ],
+      "height": 80,
+      "width": 80,
+      "channels": 64,
+      "int8_edge_payload_bytes": 409600
+    },
+    {
+      "scale": "P4",
+      "source_layer": 18,
+      "source_module": "model.18",
+      "stride": 16,
+      "shape_nchw": [
+        1,
+        128,
+        40,
+        40
+      ],
+      "height": 40,
+      "width": 40,
+      "channels": 128,
+      "int8_edge_payload_bytes": 204800
+    },
+    {
+      "scale": "P5",
+      "source_layer": 21,
+      "source_module": "model.21",
+      "stride": 32,
+      "shape_nchw": [
+        1,
+        256,
+        20,
+        20
+      ],
+      "height": 20,
+      "width": 20,
+      "channels": 256,
+      "int8_edge_payload_bytes": 102400
+    }
+  ],
+  "detect_head": {
+    "top_level_layer": "model.22",
+    "from_layers": [
+      15,
+      18,
+      21
+    ],
+    "nc": 80,
+    "strides": [
+      8,
+      16,
+      32
+    ],
+    "reg_max": 16,
+    "dfl_box_channels": 64,
+    "class_channels": 80,
+    "raw_channels_per_scale": 144,
+    "public_output_channels_after_decode": 84
+  },
+  "full_n_layers": 31,
+  "layers": {
+    "0": "model.15.cv1",
+    "1": "model.15.m.0.cv1",
+    "2": "model.15.m.0.cv2",
+    "3": "model.15.cv2",
+    "4": "model.18.cv1",
+    "5": "model.18.m.0.cv1",
+    "6": "model.18.m.0.cv2",
+    "7": "model.18.cv2",
+    "8": "model.21.cv1",
+    "9": "model.21.m.0.cv1",
+    "10": "model.21.m.0.cv2",
+    "11": "model.21.cv2",
+    "12": "model.22.cv2.0.0",
+    "13": "model.22.cv2.0.1",
+    "14": "model.22.cv2.0.2",
+    "15": "model.22.cv2.1.0",
+    "16": "model.22.cv2.1.1",
+    "17": "model.22.cv2.1.2",
+    "18": "model.22.cv2.2.0",
+    "19": "model.22.cv2.2.1",
+    "20": "model.22.cv2.2.2",
+    "21": "model.22.cv3.0.0",
+    "22": "model.22.cv3.0.1",
+    "23": "model.22.cv3.0.2",
+    "24": "model.22.cv3.1.0",
+    "25": "model.22.cv3.1.1",
+    "26": "model.22.cv3.1.2",
+    "27": "model.22.cv3.2.0",
+    "28": "model.22.cv3.2.1",
+    "29": "model.22.cv3.2.2",
+    "30": "model.22.dfl.conv"
+  },
+  "layer_groups": [
+    {
+      "name": "detect_source_p3_c2f",
+      "scale": "P3",
+      "top_level_module": "model.15",
+      "top_level_type": "C2f",
+      "input_shape_nchw": [
+        1,
+        192,
+        80,
+        80
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        80,
+        80
+      ],
+      "output_is_detect_input_edge": true,
+      "internal_flow": "C2f: cv1 produces two hidden chunks; one chunk flows through one Bottleneck with two Conv+BN+SiLU modules and a residual add; cv2 projects the concat output.",
+      "quantized_modules": [
+        {
+          "export_id": 0,
+          "module": "model.15.cv1",
+          "role": "c2f_split_projection",
+          "type": "Conv",
+          "parameter_count_recursive": 12416,
+          "kind": "conv_bn_silu",
+          "conv": "model.15.cv1.conv",
+          "batch_norm": "model.15.cv1.bn",
+          "activation": "SiLU",
+          "weight_shape": [
+            64,
+            192,
+            1,
+            1
+          ],
+          "bias": false,
+          "kernel_size": [
+            1,
+            1
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            0,
+            0
+          ],
+          "groups": 1,
+          "in_channels": 192,
+          "out_channels": 64,
+          "batch_norm_features": 64
+        },
+        {
+          "export_id": 1,
+          "module": "model.15.m.0.cv1",
+          "role": "c2f_bottleneck0_conv0",
+          "type": "Conv",
+          "parameter_count_recursive": 9280,
+          "kind": "conv_bn_silu",
+          "conv": "model.15.m.0.cv1.conv",
+          "batch_norm": "model.15.m.0.cv1.bn",
+          "activation": "SiLU",
+          "weight_shape": [
+            32,
+            32,
+            3,
+            3
+          ],
+          "bias": false,
+          "kernel_size": [
+            3,
+            3
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            1,
+            1
+          ],
+          "groups": 1,
+          "in_channels": 32,
+          "out_channels": 32,
+          "batch_norm_features": 32
+        },
+        {
+          "export_id": 2,
+          "module": "model.15.m.0.cv2",
+          "role": "c2f_bottleneck0_conv1_residual",
+          "type": "Conv",
+          "parameter_count_recursive": 9280,
+          "kind": "conv_bn_silu",
+          "conv": "model.15.m.0.cv2.conv",
+          "batch_norm": "model.15.m.0.cv2.bn",
+          "activation": "SiLU",
+          "weight_shape": [
+            32,
+            32,
+            3,
+            3
+          ],
+          "bias": false,
+          "kernel_size": [
+            3,
+            3
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            1,
+            1
+          ],
+          "groups": 1,
+          "in_channels": 32,
+          "out_channels": 32,
+          "batch_norm_features": 32
+        },
+        {
+          "export_id": 3,
+          "module": "model.15.cv2",
+          "role": "c2f_concat_projection",
+          "type": "Conv",
+          "parameter_count_recursive": 6272,
+          "kind": "conv_bn_silu",
+          "conv": "model.15.cv2.conv",
+          "batch_norm": "model.15.cv2.bn",
+          "activation": "SiLU",
+          "weight_shape": [
+            64,
+            96,
+            1,
+            1
+          ],
+          "bias": false,
+          "kernel_size": [
+            1,
+            1
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            0,
+            0
+          ],
+          "groups": 1,
+          "in_channels": 96,
+          "out_channels": 64,
+          "batch_norm_features": 64
+        }
+      ]
+    },
+    {
+      "name": "detect_source_p4_c2f",
+      "scale": "P4",
+      "top_level_module": "model.18",
+      "top_level_type": "C2f",
+      "input_shape_nchw": [
+        1,
+        192,
+        40,
+        40
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        40,
+        40
+      ],
+      "output_is_detect_input_edge": true,
+      "internal_flow": "C2f: cv1 produces two hidden chunks; one chunk flows through one Bottleneck with two Conv+BN+SiLU modules and a residual add; cv2 projects the concat output.",
+      "quantized_modules": [
+        {
+          "export_id": 4,
+          "module": "model.18.cv1",
+          "role": "c2f_split_projection",
+          "type": "Conv",
+          "parameter_count_recursive": 24832,
+          "kind": "conv_bn_silu",
+          "conv": "model.18.cv1.conv",
+          "batch_norm": "model.18.cv1.bn",
+          "activation": "SiLU",
+          "weight_shape": [
+            128,
+            192,
+            1,
+            1
+          ],
+          "bias": false,
+          "kernel_size": [
+            1,
+            1
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            0,
+            0
+          ],
+          "groups": 1,
+          "in_channels": 192,
+          "out_channels": 128,
+          "batch_norm_features": 128
+        },
+        {
+          "export_id": 5,
+          "module": "model.18.m.0.cv1",
+          "role": "c2f_bottleneck0_conv0",
+          "type": "Conv",
+          "parameter_count_recursive": 36992,
+          "kind": "conv_bn_silu",
+          "conv": "model.18.m.0.cv1.conv",
+          "batch_norm": "model.18.m.0.cv1.bn",
+          "activation": "SiLU",
+          "weight_shape": [
+            64,
+            64,
+            3,
+            3
+          ],
+          "bias": false,
+          "kernel_size": [
+            3,
+            3
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            1,
+            1
+          ],
+          "groups": 1,
+          "in_channels": 64,
+          "out_channels": 64,
+          "batch_norm_features": 64
+        },
+        {
+          "export_id": 6,
+          "module": "model.18.m.0.cv2",
+          "role": "c2f_bottleneck0_conv1_residual",
+          "type": "Conv",
+          "parameter_count_recursive": 36992,
+          "kind": "conv_bn_silu",
+          "conv": "model.18.m.0.cv2.conv",
+          "batch_norm": "model.18.m.0.cv2.bn",
+          "activation": "SiLU",
+          "weight_shape": [
+            64,
+            64,
+            3,
+            3
+          ],
+          "bias": false,
+          "kernel_size": [
+            3,
+            3
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            1,
+            1
+          ],
+          "groups": 1,
+          "in_channels": 64,
+          "out_channels": 64,
+          "batch_norm_features": 64
+        },
+        {
+          "export_id": 7,
+          "module": "model.18.cv2",
+          "role": "c2f_concat_projection",
+          "type": "Conv",
+          "parameter_count_recursive": 24832,
+          "kind": "conv_bn_silu",
+          "conv": "model.18.cv2.conv",
+          "batch_norm": "model.18.cv2.bn",
+          "activation": "SiLU",
+          "weight_shape": [
+            128,
+            192,
+            1,
+            1
+          ],
+          "bias": false,
+          "kernel_size": [
+            1,
+            1
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            0,
+            0
+          ],
+          "groups": 1,
+          "in_channels": 192,
+          "out_channels": 128,
+          "batch_norm_features": 128
+        }
+      ]
+    },
+    {
+      "name": "detect_source_p5_c2f",
+      "scale": "P5",
+      "top_level_module": "model.21",
+      "top_level_type": "C2f",
+      "input_shape_nchw": [
+        1,
+        384,
+        20,
+        20
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        20,
+        20
+      ],
+      "output_is_detect_input_edge": true,
+      "internal_flow": "C2f: cv1 produces two hidden chunks; one chunk flows through one Bottleneck with two Conv+BN+SiLU modules and a residual add; cv2 projects the concat output.",
+      "quantized_modules": [
+        {
+          "export_id": 8,
+          "module": "model.21.cv1",
+          "role": "c2f_split_projection",
+          "type": "Conv",
+          "parameter_count_recursive": 98816,
+          "kind": "conv_bn_silu",
+          "conv": "model.21.cv1.conv",
+          "batch_norm": "model.21.cv1.bn",
+          "activation": "SiLU",
+          "weight_shape": [
+            256,
+            384,
+            1,
+            1
+          ],
+          "bias": false,
+          "kernel_size": [
+            1,
+            1
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            0,
+            0
+          ],
+          "groups": 1,
+          "in_channels": 384,
+          "out_channels": 256,
+          "batch_norm_features": 256
+        },
+        {
+          "export_id": 9,
+          "module": "model.21.m.0.cv1",
+          "role": "c2f_bottleneck0_conv0",
+          "type": "Conv",
+          "parameter_count_recursive": 147712,
+          "kind": "conv_bn_silu",
+          "conv": "model.21.m.0.cv1.conv",
+          "batch_norm": "model.21.m.0.cv1.bn",
+          "activation": "SiLU",
+          "weight_shape": [
+            128,
+            128,
+            3,
+            3
+          ],
+          "bias": false,
+          "kernel_size": [
+            3,
+            3
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            1,
+            1
+          ],
+          "groups": 1,
+          "in_channels": 128,
+          "out_channels": 128,
+          "batch_norm_features": 128
+        },
+        {
+          "export_id": 10,
+          "module": "model.21.m.0.cv2",
+          "role": "c2f_bottleneck0_conv1_residual",
+          "type": "Conv",
+          "parameter_count_recursive": 147712,
+          "kind": "conv_bn_silu",
+          "conv": "model.21.m.0.cv2.conv",
+          "batch_norm": "model.21.m.0.cv2.bn",
+          "activation": "SiLU",
+          "weight_shape": [
+            128,
+            128,
+            3,
+            3
+          ],
+          "bias": false,
+          "kernel_size": [
+            3,
+            3
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            1,
+            1
+          ],
+          "groups": 1,
+          "in_channels": 128,
+          "out_channels": 128,
+          "batch_norm_features": 128
+        },
+        {
+          "export_id": 11,
+          "module": "model.21.cv2",
+          "role": "c2f_concat_projection",
+          "type": "Conv",
+          "parameter_count_recursive": 98816,
+          "kind": "conv_bn_silu",
+          "conv": "model.21.cv2.conv",
+          "batch_norm": "model.21.cv2.bn",
+          "activation": "SiLU",
+          "weight_shape": [
+            256,
+            384,
+            1,
+            1
+          ],
+          "bias": false,
+          "kernel_size": [
+            1,
+            1
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            0,
+            0
+          ],
+          "groups": 1,
+          "in_channels": 384,
+          "out_channels": 256,
+          "batch_norm_features": 256
+        }
+      ]
+    },
+    {
+      "name": "detect_dfl_head",
+      "top_level_module": "model.22",
+      "top_level_type": "Detect",
+      "input_shapes_nchw": [
+        [
+          1,
+          64,
+          80,
+          80
+        ],
+        [
+          1,
+          128,
+          40,
+          40
+        ],
+        [
+          1,
+          256,
+          20,
+          20
+        ]
+      ],
+      "raw_output_shapes_nchw": [
+        {
+          "scale": "P3",
+          "stride": 8,
+          "shape_nchw": [
+            1,
+            144,
+            80,
+            80
+          ],
+          "height": 80,
+          "width": 80,
+          "channels": 144,
+          "dfl_box_channels": 64,
+          "class_channels": 80,
+          "int8_edge_payload_bytes": 921600
+        },
+        {
+          "scale": "P4",
+          "stride": 16,
+          "shape_nchw": [
+            1,
+            144,
+            40,
+            40
+          ],
+          "height": 40,
+          "width": 40,
+          "channels": 144,
+          "dfl_box_channels": 64,
+          "class_channels": 80,
+          "int8_edge_payload_bytes": 230400
+        },
+        {
+          "scale": "P5",
+          "stride": 32,
+          "shape_nchw": [
+            1,
+            144,
+            20,
+            20
+          ],
+          "height": 20,
+          "width": 20,
+          "channels": 144,
+          "dfl_box_channels": 64,
+          "class_channels": 80,
+          "int8_edge_payload_bytes": 57600
+        }
+      ],
+      "public_output_shape": [
+        1,
+        84,
+        8400
+      ],
+      "layout": {
+        "reg_max": 16,
+        "box_distribution_channels": 64,
+        "class_channels": 80,
+        "raw_channels_per_scale": 144,
+        "public_output_channels_after_decode": 84,
+        "public_output_order": "channel-major [1,84,8400] after DFL decode: boxes channels 0-3 then classes 4-83"
+      },
+      "branches": [
+        {
+          "scale": "P3",
+          "stride": 8,
+          "box_distribution_modules": [
+            {
+              "export_id": 12,
+              "module": "model.22.cv2.0.0",
+              "role": "P3_box_distribution_0",
+              "type": "Conv",
+              "parameter_count_recursive": 36992,
+              "kind": "conv_bn_silu",
+              "conv": "model.22.cv2.0.0.conv",
+              "batch_norm": "model.22.cv2.0.0.bn",
+              "activation": "SiLU",
+              "weight_shape": [
+                64,
+                64,
+                3,
+                3
+              ],
+              "bias": false,
+              "kernel_size": [
+                3,
+                3
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                1,
+                1
+              ],
+              "groups": 1,
+              "in_channels": 64,
+              "out_channels": 64,
+              "batch_norm_features": 64
+            },
+            {
+              "export_id": 13,
+              "module": "model.22.cv2.0.1",
+              "role": "P3_box_distribution_1",
+              "type": "Conv",
+              "parameter_count_recursive": 36992,
+              "kind": "conv_bn_silu",
+              "conv": "model.22.cv2.0.1.conv",
+              "batch_norm": "model.22.cv2.0.1.bn",
+              "activation": "SiLU",
+              "weight_shape": [
+                64,
+                64,
+                3,
+                3
+              ],
+              "bias": false,
+              "kernel_size": [
+                3,
+                3
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                1,
+                1
+              ],
+              "groups": 1,
+              "in_channels": 64,
+              "out_channels": 64,
+              "batch_norm_features": 64
+            },
+            {
+              "export_id": 14,
+              "module": "model.22.cv2.0.2",
+              "role": "P3_box_distribution_2",
+              "type": "Conv2d",
+              "parameter_count_recursive": 4160,
+              "kind": "raw_conv2d",
+              "batch_norm": null,
+              "activation": "none",
+              "weight_shape": [
+                64,
+                64,
+                1,
+                1
+              ],
+              "bias": true,
+              "kernel_size": [
+                1,
+                1
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                0,
+                0
+              ],
+              "groups": 1,
+              "in_channels": 64,
+              "out_channels": 64
+            }
+          ],
+          "class_modules": [
+            {
+              "export_id": 21,
+              "module": "model.22.cv3.0.0",
+              "role": "P3_class_logits_0",
+              "type": "Conv",
+              "parameter_count_recursive": 46240,
+              "kind": "conv_bn_silu",
+              "conv": "model.22.cv3.0.0.conv",
+              "batch_norm": "model.22.cv3.0.0.bn",
+              "activation": "SiLU",
+              "weight_shape": [
+                80,
+                64,
+                3,
+                3
+              ],
+              "bias": false,
+              "kernel_size": [
+                3,
+                3
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                1,
+                1
+              ],
+              "groups": 1,
+              "in_channels": 64,
+              "out_channels": 80,
+              "batch_norm_features": 80
+            },
+            {
+              "export_id": 22,
+              "module": "model.22.cv3.0.1",
+              "role": "P3_class_logits_1",
+              "type": "Conv",
+              "parameter_count_recursive": 57760,
+              "kind": "conv_bn_silu",
+              "conv": "model.22.cv3.0.1.conv",
+              "batch_norm": "model.22.cv3.0.1.bn",
+              "activation": "SiLU",
+              "weight_shape": [
+                80,
+                80,
+                3,
+                3
+              ],
+              "bias": false,
+              "kernel_size": [
+                3,
+                3
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                1,
+                1
+              ],
+              "groups": 1,
+              "in_channels": 80,
+              "out_channels": 80,
+              "batch_norm_features": 80
+            },
+            {
+              "export_id": 23,
+              "module": "model.22.cv3.0.2",
+              "role": "P3_class_logits_2",
+              "type": "Conv2d",
+              "parameter_count_recursive": 6480,
+              "kind": "raw_conv2d",
+              "batch_norm": null,
+              "activation": "none",
+              "weight_shape": [
+                80,
+                80,
+                1,
+                1
+              ],
+              "bias": true,
+              "kernel_size": [
+                1,
+                1
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                0,
+                0
+              ],
+              "groups": 1,
+              "in_channels": 80,
+              "out_channels": 80
+            }
+          ],
+          "box_distribution_channels": 64,
+          "class_channels": 80
+        },
+        {
+          "scale": "P4",
+          "stride": 16,
+          "box_distribution_modules": [
+            {
+              "export_id": 15,
+              "module": "model.22.cv2.1.0",
+              "role": "P4_box_distribution_0",
+              "type": "Conv",
+              "parameter_count_recursive": 73856,
+              "kind": "conv_bn_silu",
+              "conv": "model.22.cv2.1.0.conv",
+              "batch_norm": "model.22.cv2.1.0.bn",
+              "activation": "SiLU",
+              "weight_shape": [
+                64,
+                128,
+                3,
+                3
+              ],
+              "bias": false,
+              "kernel_size": [
+                3,
+                3
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                1,
+                1
+              ],
+              "groups": 1,
+              "in_channels": 128,
+              "out_channels": 64,
+              "batch_norm_features": 64
+            },
+            {
+              "export_id": 16,
+              "module": "model.22.cv2.1.1",
+              "role": "P4_box_distribution_1",
+              "type": "Conv",
+              "parameter_count_recursive": 36992,
+              "kind": "conv_bn_silu",
+              "conv": "model.22.cv2.1.1.conv",
+              "batch_norm": "model.22.cv2.1.1.bn",
+              "activation": "SiLU",
+              "weight_shape": [
+                64,
+                64,
+                3,
+                3
+              ],
+              "bias": false,
+              "kernel_size": [
+                3,
+                3
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                1,
+                1
+              ],
+              "groups": 1,
+              "in_channels": 64,
+              "out_channels": 64,
+              "batch_norm_features": 64
+            },
+            {
+              "export_id": 17,
+              "module": "model.22.cv2.1.2",
+              "role": "P4_box_distribution_2",
+              "type": "Conv2d",
+              "parameter_count_recursive": 4160,
+              "kind": "raw_conv2d",
+              "batch_norm": null,
+              "activation": "none",
+              "weight_shape": [
+                64,
+                64,
+                1,
+                1
+              ],
+              "bias": true,
+              "kernel_size": [
+                1,
+                1
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                0,
+                0
+              ],
+              "groups": 1,
+              "in_channels": 64,
+              "out_channels": 64
+            }
+          ],
+          "class_modules": [
+            {
+              "export_id": 24,
+              "module": "model.22.cv3.1.0",
+              "role": "P4_class_logits_0",
+              "type": "Conv",
+              "parameter_count_recursive": 92320,
+              "kind": "conv_bn_silu",
+              "conv": "model.22.cv3.1.0.conv",
+              "batch_norm": "model.22.cv3.1.0.bn",
+              "activation": "SiLU",
+              "weight_shape": [
+                80,
+                128,
+                3,
+                3
+              ],
+              "bias": false,
+              "kernel_size": [
+                3,
+                3
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                1,
+                1
+              ],
+              "groups": 1,
+              "in_channels": 128,
+              "out_channels": 80,
+              "batch_norm_features": 80
+            },
+            {
+              "export_id": 25,
+              "module": "model.22.cv3.1.1",
+              "role": "P4_class_logits_1",
+              "type": "Conv",
+              "parameter_count_recursive": 57760,
+              "kind": "conv_bn_silu",
+              "conv": "model.22.cv3.1.1.conv",
+              "batch_norm": "model.22.cv3.1.1.bn",
+              "activation": "SiLU",
+              "weight_shape": [
+                80,
+                80,
+                3,
+                3
+              ],
+              "bias": false,
+              "kernel_size": [
+                3,
+                3
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                1,
+                1
+              ],
+              "groups": 1,
+              "in_channels": 80,
+              "out_channels": 80,
+              "batch_norm_features": 80
+            },
+            {
+              "export_id": 26,
+              "module": "model.22.cv3.1.2",
+              "role": "P4_class_logits_2",
+              "type": "Conv2d",
+              "parameter_count_recursive": 6480,
+              "kind": "raw_conv2d",
+              "batch_norm": null,
+              "activation": "none",
+              "weight_shape": [
+                80,
+                80,
+                1,
+                1
+              ],
+              "bias": true,
+              "kernel_size": [
+                1,
+                1
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                0,
+                0
+              ],
+              "groups": 1,
+              "in_channels": 80,
+              "out_channels": 80
+            }
+          ],
+          "box_distribution_channels": 64,
+          "class_channels": 80
+        },
+        {
+          "scale": "P5",
+          "stride": 32,
+          "box_distribution_modules": [
+            {
+              "export_id": 18,
+              "module": "model.22.cv2.2.0",
+              "role": "P5_box_distribution_0",
+              "type": "Conv",
+              "parameter_count_recursive": 147584,
+              "kind": "conv_bn_silu",
+              "conv": "model.22.cv2.2.0.conv",
+              "batch_norm": "model.22.cv2.2.0.bn",
+              "activation": "SiLU",
+              "weight_shape": [
+                64,
+                256,
+                3,
+                3
+              ],
+              "bias": false,
+              "kernel_size": [
+                3,
+                3
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                1,
+                1
+              ],
+              "groups": 1,
+              "in_channels": 256,
+              "out_channels": 64,
+              "batch_norm_features": 64
+            },
+            {
+              "export_id": 19,
+              "module": "model.22.cv2.2.1",
+              "role": "P5_box_distribution_1",
+              "type": "Conv",
+              "parameter_count_recursive": 36992,
+              "kind": "conv_bn_silu",
+              "conv": "model.22.cv2.2.1.conv",
+              "batch_norm": "model.22.cv2.2.1.bn",
+              "activation": "SiLU",
+              "weight_shape": [
+                64,
+                64,
+                3,
+                3
+              ],
+              "bias": false,
+              "kernel_size": [
+                3,
+                3
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                1,
+                1
+              ],
+              "groups": 1,
+              "in_channels": 64,
+              "out_channels": 64,
+              "batch_norm_features": 64
+            },
+            {
+              "export_id": 20,
+              "module": "model.22.cv2.2.2",
+              "role": "P5_box_distribution_2",
+              "type": "Conv2d",
+              "parameter_count_recursive": 4160,
+              "kind": "raw_conv2d",
+              "batch_norm": null,
+              "activation": "none",
+              "weight_shape": [
+                64,
+                64,
+                1,
+                1
+              ],
+              "bias": true,
+              "kernel_size": [
+                1,
+                1
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                0,
+                0
+              ],
+              "groups": 1,
+              "in_channels": 64,
+              "out_channels": 64
+            }
+          ],
+          "class_modules": [
+            {
+              "export_id": 27,
+              "module": "model.22.cv3.2.0",
+              "role": "P5_class_logits_0",
+              "type": "Conv",
+              "parameter_count_recursive": 184480,
+              "kind": "conv_bn_silu",
+              "conv": "model.22.cv3.2.0.conv",
+              "batch_norm": "model.22.cv3.2.0.bn",
+              "activation": "SiLU",
+              "weight_shape": [
+                80,
+                256,
+                3,
+                3
+              ],
+              "bias": false,
+              "kernel_size": [
+                3,
+                3
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                1,
+                1
+              ],
+              "groups": 1,
+              "in_channels": 256,
+              "out_channels": 80,
+              "batch_norm_features": 80
+            },
+            {
+              "export_id": 28,
+              "module": "model.22.cv3.2.1",
+              "role": "P5_class_logits_1",
+              "type": "Conv",
+              "parameter_count_recursive": 57760,
+              "kind": "conv_bn_silu",
+              "conv": "model.22.cv3.2.1.conv",
+              "batch_norm": "model.22.cv3.2.1.bn",
+              "activation": "SiLU",
+              "weight_shape": [
+                80,
+                80,
+                3,
+                3
+              ],
+              "bias": false,
+              "kernel_size": [
+                3,
+                3
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                1,
+                1
+              ],
+              "groups": 1,
+              "in_channels": 80,
+              "out_channels": 80,
+              "batch_norm_features": 80
+            },
+            {
+              "export_id": 29,
+              "module": "model.22.cv3.2.2",
+              "role": "P5_class_logits_2",
+              "type": "Conv2d",
+              "parameter_count_recursive": 6480,
+              "kind": "raw_conv2d",
+              "batch_norm": null,
+              "activation": "none",
+              "weight_shape": [
+                80,
+                80,
+                1,
+                1
+              ],
+              "bias": true,
+              "kernel_size": [
+                1,
+                1
+              ],
+              "stride": [
+                1,
+                1
+              ],
+              "padding": [
+                0,
+                0
+              ],
+              "groups": 1,
+              "in_channels": 80,
+              "out_channels": 80
+            }
+          ],
+          "box_distribution_channels": 64,
+          "class_channels": 80
+        }
+      ],
+      "dfl_module": {
+        "export_id": 30,
+        "module": "model.22.dfl.conv",
+        "role": "dfl_fixed_bin_projection",
+        "type": "Conv2d",
+        "parameter_count_recursive": 16,
+        "kind": "raw_conv2d",
+        "batch_norm": null,
+        "activation": "none",
+        "weight_shape": [
+          1,
+          16,
+          1,
+          1
+        ],
+        "bias": false,
+        "kernel_size": [
+          1,
+          1
+        ],
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "in_channels": 16,
+        "out_channels": 1
+      }
+    }
+  ],
+  "calibration_policy": {
+    "synthetic_random": "Allowed only for deterministic smoke generation and tool plumbing; not production quantization quality evidence.",
+    "production": "Use representative calibration images supplied with --calib-dir in a heavyweight throwaway environment."
+  }
+}

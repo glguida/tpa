@@ -13,6 +13,15 @@ helpers ported from the original TPA repository.
   fixture headers for the representative YOLOv8n C2f and Detect/DFL block
   tests, including the reduced Detect/DFL public `[1, 84, N]` channel-major
   ordering fixture.
+- `regen_yolov8n_external_weights.py` — verify external YOLOv8n `.pt`/`.onnx`
+  checksums, validate the YOLOv8n layer-selection config, run PTQ generation
+  into an external/untracked output directory, and write a generated-output
+  checksum/provenance manifest. Its `--help` and `--validate-config-only` paths
+  avoid heavyweight optional imports.
+- `yolov8n_external_layer_selection.json` — stable YOLOv8n layer/module
+  selection for the first external INT8 downstream milestone. It records only
+  manifest-derived names, shapes, module roles, and output policy; it contains
+  no weights, activations, calibration data, or model-derived tensor values.
 - `ptq_yolov5.py` — post-training quantization helper for the YOLO model path.
 - `gen_yolo_tensor_weights.py` — generate tensor-weight headers.
 - `gen_yolo_block_case.py` — generate CBS/block test cases.
@@ -52,6 +61,50 @@ checking in the AGPL-3.0 Ultralytics model binaries. It names the exact
 Ultralytics v8.3.0 `.pt` URL, the static 640x640 opset-12 ONNX export policy,
 SHA-256 checksums, and architecture facts for future YOLOv8n planning.
 
+## YOLOv8n external weight/header workflow
+
+Keep YOLOv8n model binaries, generated weights, calibration images, model
+activations, and generated checksum manifests outside the repository unless
+project owners explicitly approve vendoring AGPL-3.0/model-derived artifacts.
+The default generator output directory is `/tmp/tpa-yolov8n/generated-weights`,
+and the wrapper refuses repository-local output unless
+`--allow-repo-out-dir` is supplied deliberately.
+
+Acquire the external artifacts using the policy in `models/README.md`, then run
+lightweight config validation from the repository root:
+
+```sh
+python3 tools/yolo/regen_yolov8n_external_weights.py --validate-config-only
+```
+
+Generate headers in a heavyweight throwaway environment that has Ultralytics,
+PyTorch, NumPy, and any calibration-image dependencies available:
+
+```sh
+python3 tools/yolo/regen_yolov8n_external_weights.py \
+  --external-root /tmp/tpa-yolov8n \
+  --out-dir /tmp/tpa-yolov8n/generated-weights \
+  --calib-dir /path/to/representative/calibration/images
+```
+
+For tool-plumbing smoke only, omit `--calib-dir`; the underlying PTQ exporter
+uses deterministic synthetic random inputs. That synthetic mode is not
+production quantization evidence. Before generation, the wrapper verifies
+`external/yolov8n.pt` and `external/yolov8n.onnx` against
+`models/yolov8n_artifact_manifest.json`. After generation it writes
+`<stem>_generated_manifest.json` beside the header with source artifact,
+selection-config, calibration, command, output checksum, and policy metadata so
+future process/kernel jobs can cite exact external outputs without committing
+them.
+
+The selected modules come from `yolov8n_external_layer_selection.json`, which is
+validated against the checked-in artifact manifest. The selection covers Detect
+source C2f modules `model.15`, `model.18`, and `model.21`, plus the Detect/DFL
+branches under `model.22` needed to produce 64 box-distribution and 80 class
+channels per scale. Detect input tensors remain graph edge/channel payloads;
+generated weights and quantization tables are immutable model data, not process
+scratch or persistent process state.
+
 ## Normal validation
 
 Normal project validation does not require rerunning the heavyweight model
@@ -61,6 +114,9 @@ regeneration scripts. The default validation for this port is:
   YOLO artifact inspector;
 - `python3 tools/yolo/gen_yolov8n_synthetic_cases.py --help` for the
   non-model-derived YOLOv8n fixture generator;
+- `python3 tools/yolo/regen_yolov8n_external_weights.py --help` and
+  `python3 tools/yolo/regen_yolov8n_external_weights.py --validate-config-only`
+  for the external YOLOv8n weight/header workflow without heavyweight imports;
 - planner unit tests;
 - ET Erbium YOLO downstream planner/map/device targets;
 - representative `tests/yolo` block ELFs under `erbium_emu`;

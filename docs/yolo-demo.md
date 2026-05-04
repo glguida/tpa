@@ -18,6 +18,10 @@ block-test integration.
 - `models/yolov8n_artifact_manifest.json` — external-artifact manifest and
   verified architecture facts for the future YOLOv8n path; it is not a YOLOv8n
   kernel or graph integration.
+- `tools/yolo/regen_yolov8n_external_weights.py` and
+  `tools/yolo/yolov8n_external_layer_selection.json` — external YOLOv8n
+  quantized-header workflow and manifest-derived module selection; generated
+  model-derived outputs remain external/untracked.
 - `machines/erbium.json` and `machines/etsoc1.json` — mapper topology inputs.
 
 ## Model artifact policy
@@ -36,8 +40,11 @@ checksums must be committed at the same time.
 ## YOLOv8n artifact status
 
 The full YOLOv8n model path is not integrated. The repository records
-`models/yolov8n_artifact_manifest.json`, but it does not check in the YOLOv8n
-`.pt` or exported `.onnx` binaries and does not provide generated YOLOv8n
+`models/yolov8n_artifact_manifest.json` and provides
+`tools/yolo/regen_yolov8n_external_weights.py` plus
+`tools/yolo/yolov8n_external_layer_selection.json` for an external
+quantized-header workflow, but it does not check in the YOLOv8n `.pt` or
+exported `.onnx` binaries and does not provide committed generated YOLOv8n
 weights, calibration data, model-derived fixtures, a full YOLOv8n process graph,
 a downstream YOLOv8n ELF/CMake path, or full-model Erbium validation. The
 representative synthetic C2f and Detect/DFL block tests under `tests/yolo/` are
@@ -69,8 +76,13 @@ Verified facts from that targeted artifact:
 
 For a first INT8 downstream milestone, the three detect-input feature maps would
 be edge/channel payloads of 409600, 204800, and 102400 bytes respectively. They
-are not process state. Scratch requirements and immutable generated weight data
-must be determined by future YOLOv8n kernel/calibration jobs.
+are not process state. `yolov8n_external_layer_selection.json` selects the
+manifest-derived C2f source modules `model.15`, `model.18`, and `model.21`,
+their internal Conv/BN/SiLU modules, and the Detect/DFL branch modules under
+`model.22` needed to produce 64 box-distribution plus 80 class channels per
+scale. Generated weights, fused BN parameters, DFL weights, and quantization
+tables are immutable model data. Scratch requirements remain kernel-specific
+transient compute metadata for future process jobs.
 
 Compared with the current YOLOv5n downstream path, Conv+BN+SiLU, SPPF,
 nearest-neighbor upsample, and concat remain recognizable building blocks, but
@@ -89,7 +101,14 @@ install those packages or regenerate every checked-in header.
 See `tools/yolo/README.md` for the tool list and checksum policy. Use
 `tools/yolo/inspect_yolo_artifact.py` to regenerate or audit the YOLOv8n
 architecture manifest; its `--help` path works without importing Ultralytics,
-PyTorch, ONNX, NumPy, or OpenCV.
+PyTorch, ONNX, NumPy, or OpenCV. Use
+`tools/yolo/regen_yolov8n_external_weights.py --validate-config-only` for a
+lightweight manifest/selection sanity check, then run the same wrapper with
+`--external-root` or explicit `--pt`/`--onnx` paths and an external `--out-dir`
+inside a heavyweight YOLO environment to generate model-derived headers. The
+wrapper verifies `.pt` and ONNX checksums before PTQ generation and writes a
+`<stem>_generated_manifest.json` checksum/provenance file beside the untracked
+outputs.
 
 ## Downstream YOLO planner/map build
 
