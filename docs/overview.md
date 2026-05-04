@@ -113,9 +113,9 @@ Current structured pieces are:
 - `yolov5n/` — currently ported YOLOv5n downstream process sources and CMake
   planner/map/device targets.
 - `yolov8n/` — opt-in external-header YOLOv8n downstream milestones for P5-only
-  Detect/DFL, sampled P3/P4/P5 Detect/DFL branch plumbing, and sampled P5
-  `model.21` C2f source-module feeding Detect/DFL, with mapper-generated
-  placement/edge config.
+  Detect/DFL, sampled P3/P4/P5 Detect/DFL branch plumbing, and sampled P3
+  `model.15`, P4 `model.18`, and P5 `model.21` C2f source-modules feeding
+  Detect/DFL, with mapper-generated placement/edge config.
 - `tests/yolo/` — YOLO block-test sources/assets with representative Erbium
   CMake/CTest coverage.
 - `planner/` — Python metadata extraction, planning, and mapping package.
@@ -143,7 +143,7 @@ The current structured repo validates these paths:
 - YOLOv8n external-header mapper/device targets build when explicitly
   configured with generated header/manifest paths; they validate only
   deterministic synthetic-calibration P5 Detect/DFL, sampled P3/P4/P5
-  Detect/DFL, and sampled P5 C2f-to-Detect plumbing hashes;
+  Detect/DFL, and sampled per-scale P3/P4/P5 C2f-to-Detect plumbing hashes;
 - ET-SoC-1 default one-shire `tpa_core` builds;
 - host smoke-test-double builds and tests pass, but those are not platform
   validation.
@@ -166,9 +166,9 @@ datasets, model weights, or third-party stereo code. It uses hand placement;
 mapper-generated placement/report work remains follow-up. YOLOv5n downstream
 device-runtime validation covers the CMake planner/map/device path and Erbium
 PASS marker. YOLOv8n has opt-in external-header milestones for P5-only
-Detect/DFL, sampled P3/P4/P5 Detect/DFL branch plumbing, and sampled P5
-`model.21` C2f feeding Detect/DFL; P3/P4 C2f source modules, full-model
-validation, and the full YOLO host/demo pipeline remain follow-up.
+Detect/DFL, sampled P3/P4/P5 Detect/DFL branch plumbing, and sampled per-scale
+P3/P4/P5 C2f source modules feeding Detect/DFL; combined source-module graphs,
+full-model validation, and the full YOLO host/demo pipeline remain follow-up.
 
 ### Image generation
 
