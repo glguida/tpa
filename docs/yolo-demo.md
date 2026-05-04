@@ -22,9 +22,10 @@ block-test integration.
   quantized-header workflow and manifest-derived module selection; generated
   model-derived outputs remain external/untracked.
 - `yolov8n/` — first structured YOLOv8n downstream milestones: P5-only and
-  sampled P3/P4/P5 Detect/DFL process graphs using an external generated
-  header, mapper-generated placement/edge config, and deterministic
-  synthetic-calibration hash checking.
+  sampled P3/P4/P5 Detect/DFL process graphs plus a sampled P5 `model.21` C2f
+  source-module feeding Detect/DFL, all using an external generated header,
+  mapper-generated placement/edge config, and deterministic synthetic-calibration
+  hash checking.
 - `machines/erbium.json` and `machines/etsoc1.json` — mapper topology inputs.
 
 ## Model artifact policy
@@ -47,15 +48,16 @@ The full YOLOv8n model path is not integrated. The repository records
 `tools/yolo/regen_yolov8n_external_weights.py` plus
 `tools/yolo/yolov8n_external_layer_selection.json` for an external
 quantized-header workflow, and now contains P5-only and sampled P3/P4/P5
-Detect/DFL downstream milestones under `yolov8n/`. It still does not check in
-the YOLOv8n `.pt` or exported `.onnx` binaries and does not commit generated
-YOLOv8n weights, calibration data, model-derived fixtures, C2f source modules, a
-full YOLOv8n process graph, host demo support, or full-model Erbium validation.
-The representative synthetic C2f and Detect/DFL block tests under `tests/yolo/`
-remain non-model-derived block coverage. The `yolov8n/` milestones use an
-external synthetic-calibration generated header and validate sampled Detect/DFL
-plumbing hashes; they are not model accuracy or production quantization
-evidence.
+Detect/DFL downstream milestones under `yolov8n/`. It also contains the first
+sampled P5 `model.21` C2f source-module milestone feeding the P5 Detect/DFL
+process. It still does not check in the YOLOv8n `.pt` or exported `.onnx`
+binaries and does not commit generated YOLOv8n weights, calibration data,
+model-derived fixtures, P3/P4 C2f source modules, a full YOLOv8n process graph,
+host demo support, or full-model Erbium validation. The representative synthetic
+C2f and Detect/DFL block tests under `tests/yolo/` remain non-model-derived block
+coverage. The `yolov8n/` milestones use an external synthetic-calibration
+generated header and validate sampled C2f/Detect/DFL plumbing hashes; they are
+not model accuracy or production quantization evidence.
 
 The targeted external artifact is Ultralytics `yolov8n.pt` from
 `https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n.pt`.
@@ -81,20 +83,29 @@ Verified facts from that targeted artifact:
 
 For the first INT8 downstream scope, the three detect-input feature maps are
 edge/channel payloads of 409600, 204800, and 102400 bytes respectively. They are
-not process state. The integrated `yolov8n/` milestones include a P5-only target
-and an all-scale sampled Detect/DFL target. The all-scale target consumes P3
-`1x64x80x80` (`409600` INT8 bytes), P4 `1x128x40x40` (`204800` INT8 bytes),
-and P5 `1x256x20x20` (`102400` INT8 bytes) edges, runs sampled branch plumbing
-for Detect export ids 12-14/21-23 (P3), 15-17/24-26 (P4), and 18-20/27-29 (P5),
-uses shared DFL id 30, and sends compact per-scale summary edges to a checker.
-`yolov8n_external_layer_selection.json` also selects the manifest-derived C2f
-source modules `model.15`, `model.18`, and `model.21`, their internal
-Conv/BN/SiLU modules, and the remaining Detect/DFL branch modules under
-`model.22` needed to produce 64 box-distribution plus 80 class channels per
-scale. Generated weights, fused BN parameters, DFL weights, and quantization
-tables are immutable model data. Detect inputs and summaries are edge/channel
-payloads. Tensor patch buffers, intermediate branch vectors, DFL temporaries,
-and decode buffers are transient scratch; process workspaces store only small
+not process state. The integrated `yolov8n/` milestones include a P5-only
+Detect/DFL target, an all-scale sampled Detect/DFL target, and a sampled P5
+`model.21` C2f source-module target feeding P5 Detect/DFL. The all-scale target
+consumes P3 `1x64x80x80` (`409600` INT8 bytes), P4 `1x128x40x40` (`204800` INT8
+bytes), and P5 `1x256x20x20` (`102400` INT8 bytes) edges, runs sampled branch
+plumbing for Detect export ids 12-14/21-23 (P3), 15-17/24-26 (P4), and
+18-20/27-29 (P5), uses shared DFL id 30, and sends compact per-scale summary
+edges to a checker. The P5 C2f source-module target consumes a deterministic
+synthetic upstream `1x384x20x20` (`153600` INT8 bytes) edge, uses export ids
+8-11 for `model.21`, sends a full-capacity `1x256x20x20` (`102400` INT8 bytes)
+P5 Detect input edge, and validates only a sampled computation: C2f values are
+computed for the 9 output points needed by two Detect sample points (`0` and
+`21`), while the rest of the edge is deterministic sentinel data. This proves
+structured C2f split/bottleneck/residual/concat/projection plumbing for the
+sampled points; it is not dense C2f feature-map coverage. `yolov8n_external_layer_selection.json`
+also selects the manifest-derived C2f source modules `model.15`, `model.18`, and
+`model.21`, their internal Conv/BN/SiLU modules, and the remaining Detect/DFL
+branch modules under `model.22` needed to produce 64 box-distribution plus 80
+class channels per scale. Generated weights, fused BN parameters, DFL weights,
+and quantization tables are immutable model data. Detect inputs, C2f outputs,
+and summaries are edge/channel payloads. Tensor patch buffers, C2f intermediate
+chunks, bottleneck temporaries, convolution accumulators, DFL temporaries, and
+decode buffers are transient scratch; process workspaces store only small
 continuation state.
 
 Compared with the current YOLOv5n downstream path, Conv+BN+SiLU, SPPF,
@@ -167,20 +178,26 @@ cmake -S . -B build-et-erbium-yolov8n \
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p5_detect_plan_planner_json
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p5_detect_map_mapped_program
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p5_detect.elf
+cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p5_c2f_detect_plan_planner_json
+cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p5_c2f_detect_map_mapped_program
+cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p5_c2f_detect.elf
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_detect_downstream_plan_planner_json
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_detect_downstream_map_mapped_program
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_detect_downstream.elf
 ```
 
-The P5 target graph is `yolov8n_p5_source -> yolov8n_p5_detect ->
-yolov8n_p5_checker`. The all-scale target graph has P3/P4/P5 source and detect
-branches converging into `yolov8n_detect_checker`. Both use mapper-generated
-placement and edge config for the runtime ELF. Sources generate deterministic
-non-model-derived input edges; detect processes include the external generated
-immutable model data via CMake cache variables and compute sampled branch/DFL
-hashes; checkers compare compact summaries against expected hashes derived from
-that external synthetic-calibration header. Keep those generated artifacts
-outside git. The all-scale Erbium run uses minions 0, 1, and 2:
+The P5 Detect-only target graph is `yolov8n_p5_source -> yolov8n_p5_detect ->
+yolov8n_p5_checker`. The P5 C2f source-module target graph is
+`yolov8n_p5_c2f_input_source -> yolov8n_p5_c2f -> yolov8n_p5_c2f_detect`, with
+C2f and Detect summaries converging into `yolov8n_p5_c2f_detect_checker`. The
+all-scale target graph has P3/P4/P5 source and detect branches converging into
+`yolov8n_detect_checker`. These targets use mapper-generated placement and edge
+config for the runtime ELF. Sources generate deterministic non-model-derived
+input edges; C2f/Detect processes include the external generated immutable model
+data via CMake cache variables and compute sampled plumbing hashes; checkers
+compare compact summaries against expected hashes derived from that external
+synthetic-calibration header. Keep those generated artifacts outside git. The
+all-scale Erbium run uses minions 0, 1, and 2:
 
 ```sh
 /opt/et/bin/erbium_emu \
@@ -247,7 +264,8 @@ ET-SoC-1 default one-shire configuration validates `tpa_core`; YOLO requires
 The full original YOLO end-user host pipeline is still separate follow-up work.
 The current YOLOv5n validated path is the downstream planner/map/device ELF
 path and its Erbium PASS-marker runtime validation. YOLOv8n now has P5-only and
-sampled P3/P4/P5 external-header Detect/DFL mapper/device milestones plus
-representative Erbium block-test ELFs. The YOLOv8n pieces do not imply C2f
-source-module integration, a full YOLOv8n graph, production calibration or
-accuracy, host demo support, or ET-SoC-1 YOLOv8n validation.
+sampled P3/P4/P5 external-header Detect/DFL mapper/device milestones, a sampled
+P5 `model.21` C2f source-module feeding Detect/DFL, and representative Erbium
+block-test ELFs. The YOLOv8n pieces do not imply P3/P4 C2f source-module
+integration, dense C2f feature-map coverage, a full YOLOv8n graph, production
+calibration or accuracy, host demo support, or ET-SoC-1 YOLOv8n validation.

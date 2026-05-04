@@ -49,8 +49,9 @@ smoke-test doubles; they are not ET platform validation.
   checker, and hand Erbium placement.
 - `yolov5n/` — current YOLOv5n downstream process sources and planner/map/device
   targets.
-- `yolov8n/` — explicit external-header YOLOv8n Detect/DFL downstream
-  milestones for P5-only and sampled P3/P4/P5 branch plumbing, gated by
+- `yolov8n/` — explicit external-header YOLOv8n downstream milestones for
+  P5-only Detect/DFL, sampled P3/P4/P5 Detect/DFL branch plumbing, and sampled
+  P5 `model.21` C2f source-module feeding Detect/DFL, gated by
   `BUILD_TPA_YOLOV8N=ON` and external generated weight header/manifest cache
   variables.
 - `tests/tpa_msg/`, `tests/tpa_queue/`, `tests/tpa_negative/` — ported
@@ -182,6 +183,8 @@ cmake -S . -B build-et-erbium-yolov8n \
   -DTPA_YOLOV8N_EXTERNAL_WEIGHTS_MANIFEST=/path/to/yolov8n_external_detect_c2f_generated_manifest.json
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p5_detect_map_mapped_program
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p5_detect.elf
+cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p5_c2f_detect_map_mapped_program
+cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p5_c2f_detect.elf
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_detect_downstream_map_mapped_program
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_detect_downstream.elf
 /opt/et/bin/erbium_emu \
@@ -290,10 +293,11 @@ Ported and validated today:
 - Negative expected-failure execution reports the intended Erbium FAIL marker.
 - YOLOv5n downstream planner/map artifact generation, downstream device ELF
   link, and Erbium emulator PASS-marker runtime validation.
-- YOLOv8n Detect/DFL external-header mapper/device milestones are integrated
-  behind `BUILD_TPA_YOLOV8N=ON`; they consume external generated weights and
-  validate deterministic synthetic-calibration hashes for sampled P5 and
-  P3/P4/P5 branch points.
+- YOLOv8n external-header mapper/device milestones are integrated behind
+  `BUILD_TPA_YOLOV8N=ON`; they consume external generated weights and validate
+  deterministic synthetic-calibration hashes for sampled P5 Detect/DFL,
+  sampled P3/P4/P5 Detect/DFL branch points, and a sampled P5 `model.21` C2f
+  source module feeding Detect/DFL.
 - ET-SoC-1 default one-shire `tpa_core` build.
 - `tpa_launcher` host tool target.
 - Python planner package, checked-in machine JSONs, and planner tests.
