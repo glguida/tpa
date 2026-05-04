@@ -13,10 +13,12 @@ then validates the concatenated logical `[16][64]` output against a serial
 reference in `attention_output.c`.
 
 For ET packed-single SIMD and Tensor guidance specific to this 16-by-16 per-head
-shape, see `../docs/et-simd-tensor-kernel-notes.md`. Do not infer speedup from
-placement or instruction candidates alone; update this README with performance
-claims only after the optimized kernels have ET build, emulator PASS, extension
-use, and baseline-vs-optimized measurement evidence.
+shape, see `../docs/et-simd-tensor-kernel-notes.md`. The channel packets reserve
+a 64-byte header before the first matrix so every 16-float row starts on a
+64-byte boundary suitable for TensorLoad and TensorLoadTranspose32. Do not infer
+speedup from placement or instruction candidates alone; update this README with
+performance claims only after the optimized kernels have ET build, emulator PASS,
+extension use, and baseline-vs-optimized measurement evidence.
 
 ## Targets
 

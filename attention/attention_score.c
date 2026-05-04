@@ -2,6 +2,7 @@
 #include "tpa/tpa.h"
 
 #include "attention_common.h"
+#include "attention_et.h"
 
 struct attention_score_ws {
     struct attention_score_packet out __attribute__((aligned(64)));
@@ -11,7 +12,8 @@ struct attention_score_ws {
 
 TPA_STATIC_ASSERT(sizeof(struct attention_score_ws) <= ATTENTION_SCORE_WS_BYTES,
                   "attention score manifest workspace too small");
-TPA_PROC_MEM_META(attention_score_meta, 1202u, 0u);
+TPA_PROC_MEM_META(attention_score_meta, 1202u,
+                  ATTENTION_TENSOR_SCRATCH_BYTES);
 
 tpa_op_t attention_score_recv(void);
 tpa_op_t attention_score_send(void);
@@ -48,7 +50,10 @@ tpa_op_t attention_score_send(void)
     }
 
     attention_trace_head(ATTENTION_TRACE_SCORE_BEGIN, head);
-    attention_compute_scores(w->in, &w->out);
+    if (attention_compute_scores_tensor(w->in, &w->out)) {
+        attention_fail();
+        return tpa_stop();
+    }
     attention_trace_head(ATTENTION_TRACE_SCORE_END, head);
 
     return tpa_send(ch, &w->out, sizeof(w->out), attention_score_done);

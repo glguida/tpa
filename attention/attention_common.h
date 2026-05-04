@@ -1,6 +1,7 @@
 #ifndef ATTENTION_COMMON_H
 #define ATTENTION_COMMON_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "test.h"
@@ -12,10 +13,15 @@
 #define ATTENTION_HEAD_DIM 16u
 #define ATTENTION_SCORE_SCALE 0.25f
 #define ATTENTION_TOLERANCE 0.001f
+#define ATTENTION_PACKET_HEADER_BYTES 64u
+#define ATTENTION_PACKET_HEADER_PAD_BYTES \
+    (ATTENTION_PACKET_HEADER_BYTES - sizeof(uint32_t))
+#define ATTENTION_MATRIX_ROW_BYTES (ATTENTION_HEAD_DIM * sizeof(float))
+#define ATTENTION_TENSOR_SCRATCH_BYTES (32u * TPA_CACHELINE_BYTES)
 
-#define ATTENTION_HEAD_INPUT_BYTES 3076u
-#define ATTENTION_SCORE_PACKET_BYTES 2052u
-#define ATTENTION_SOFTMAX_PACKET_BYTES 2052u
+#define ATTENTION_HEAD_INPUT_BYTES 3136u
+#define ATTENTION_SCORE_PACKET_BYTES 2112u
+#define ATTENTION_SOFTMAX_PACKET_BYTES 2112u
 
 #define ATTENTION_QKV_WS_BYTES 16384u
 #define ATTENTION_SCORE_WS_BYTES 4096u
@@ -34,25 +40,55 @@
 
 struct attention_head_input {
     uint32_t head;
+    uint8_t header_pad[ATTENTION_PACKET_HEADER_PAD_BYTES];
     float q[ATTENTION_SEQ_LEN][ATTENTION_HEAD_DIM];
     float k[ATTENTION_SEQ_LEN][ATTENTION_HEAD_DIM];
     float v[ATTENTION_SEQ_LEN][ATTENTION_HEAD_DIM];
-};
+} __attribute__((aligned(64)));
 
 struct attention_score_packet {
     uint32_t head;
+    uint8_t header_pad[ATTENTION_PACKET_HEADER_PAD_BYTES];
     float score[ATTENTION_SEQ_LEN][ATTENTION_SEQ_LEN];
     float v[ATTENTION_SEQ_LEN][ATTENTION_HEAD_DIM];
-};
+} __attribute__((aligned(64)));
 
 struct attention_softmax_packet {
     uint32_t head;
+    uint8_t header_pad[ATTENTION_PACKET_HEADER_PAD_BYTES];
     float weight[ATTENTION_SEQ_LEN][ATTENTION_SEQ_LEN];
     float v[ATTENTION_SEQ_LEN][ATTENTION_HEAD_DIM];
-};
+} __attribute__((aligned(64)));
 
 TPA_STATIC_ASSERT(ATTENTION_HEADS * ATTENTION_HEAD_DIM == ATTENTION_EMBED_DIM,
                   "attention dimensions must concatenate to embedding dim");
+TPA_STATIC_ASSERT(ATTENTION_MATRIX_ROW_BYTES == TPA_CACHELINE_BYTES,
+                  "attention matrix rows must be one cacheline");
+TPA_STATIC_ASSERT(offsetof(struct attention_head_input, q) ==
+                      ATTENTION_PACKET_HEADER_BYTES,
+                  "attention q matrix must start after aligned header");
+TPA_STATIC_ASSERT(offsetof(struct attention_head_input, k) %
+                          TPA_CACHELINE_BYTES ==
+                      0,
+                  "attention k matrix must be cacheline aligned");
+TPA_STATIC_ASSERT(offsetof(struct attention_head_input, v) %
+                          TPA_CACHELINE_BYTES ==
+                      0,
+                  "attention v matrix must be cacheline aligned");
+TPA_STATIC_ASSERT(offsetof(struct attention_score_packet, score) ==
+                      ATTENTION_PACKET_HEADER_BYTES,
+                  "attention score matrix must start after aligned header");
+TPA_STATIC_ASSERT(offsetof(struct attention_score_packet, v) %
+                          TPA_CACHELINE_BYTES ==
+                      0,
+                  "attention score packet v matrix must be cacheline aligned");
+TPA_STATIC_ASSERT(offsetof(struct attention_softmax_packet, weight) ==
+                      ATTENTION_PACKET_HEADER_BYTES,
+                  "attention weight matrix must start after aligned header");
+TPA_STATIC_ASSERT(offsetof(struct attention_softmax_packet, v) %
+                          TPA_CACHELINE_BYTES ==
+                      0,
+                  "attention softmax packet v matrix must be cacheline aligned");
 TPA_STATIC_ASSERT(sizeof(struct attention_head_input) ==
                       ATTENTION_HEAD_INPUT_BYTES,
                   "attention_head_input channel payload size drifted");
@@ -91,6 +127,13 @@ static inline float attention_centered_value(uint32_t x)
     return (float)centered * 0.03125f;
 }
 
+static inline void attention_clear_header_padding(
+    uint8_t pad[ATTENTION_PACKET_HEADER_PAD_BYTES])
+{
+    for (uint32_t i = 0; i < ATTENTION_PACKET_HEADER_PAD_BYTES; i++)
+        pad[i] = 0u;
+}
+
 static inline float attention_q_value(uint32_t head, uint32_t row,
                                       uint32_t dim)
 {
@@ -119,6 +162,7 @@ static inline void attention_fill_head_input(struct attention_head_input *pkt,
                                              uint32_t head)
 {
     pkt->head = head;
+    attention_clear_header_padding(pkt->header_pad);
     for (uint32_t row = 0; row < ATTENTION_SEQ_LEN; row++) {
         for (uint32_t dim = 0; dim < ATTENTION_HEAD_DIM; dim++) {
             pkt->q[row][dim] = attention_q_value(head, row, dim);
@@ -144,6 +188,7 @@ static inline void attention_compute_scores(
     struct attention_score_packet *out)
 {
     out->head = in->head;
+    attention_clear_header_padding(out->header_pad);
 
     for (uint32_t row = 0; row < ATTENTION_SEQ_LEN; row++) {
         for (uint32_t dim = 0; dim < ATTENTION_HEAD_DIM; dim++)
@@ -226,6 +271,7 @@ static inline void attention_compute_softmax(
     struct attention_softmax_packet *out)
 {
     out->head = in->head;
+    attention_clear_header_padding(out->header_pad);
 
     for (uint32_t row = 0; row < ATTENTION_SEQ_LEN; row++) {
         attention_softmax_row(in->score[row], out->weight[row]);

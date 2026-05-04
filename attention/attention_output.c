@@ -2,9 +2,12 @@
 #include "tpa/tpa.h"
 
 #include "attention_common.h"
+#include "attention_et.h"
 
 struct attention_output_ws {
     struct attention_softmax_packet *pkt[ATTENTION_HEADS];
+    float output[ATTENTION_HEADS][ATTENTION_SEQ_LEN][ATTENTION_HEAD_DIM]
+        __attribute__((aligned(64)));
     uint32_t len[ATTENTION_HEADS];
     uint32_t next_port;
     uint32_t received_mask;
@@ -12,14 +15,28 @@ struct attention_output_ws {
 
 TPA_STATIC_ASSERT(sizeof(struct attention_output_ws) <= ATTENTION_OUTPUT_WS_BYTES,
                   "attention output manifest workspace too small");
-TPA_PROC_MEM_META(attention_output_meta, 1204u, 0u);
+TPA_PROC_MEM_META(attention_output_meta, 1204u,
+                  ATTENTION_TENSOR_SCRATCH_BYTES);
 
 tpa_op_t attention_output_start(void);
 tpa_op_t attention_output_recv_next(void);
 tpa_op_t attention_output_after_recv(void);
 tpa_op_t attention_output_check(void);
 
-static int attention_validate_packet(const struct attention_softmax_packet *pkt,
+static int attention_compute_output_packet(
+    const struct attention_softmax_packet *pkt,
+    float output[ATTENTION_SEQ_LEN][ATTENTION_HEAD_DIM], uint32_t port)
+{
+    if (!pkt || pkt->head != port || pkt->head >= ATTENTION_HEADS)
+        return 0;
+
+    return attention_et_matmul_16x16(output, pkt->weight, pkt->v,
+                                     ATTENTION_ET_TENSOR_LOAD_NORMAL) == 0;
+}
+
+static int attention_validate_output(const struct attention_softmax_packet *pkt,
+                                     const float output[ATTENTION_SEQ_LEN]
+                                                       [ATTENTION_HEAD_DIM],
                                      uint32_t port)
 {
     if (!pkt || pkt->head != port || pkt->head >= ATTENTION_HEADS)
@@ -27,7 +44,7 @@ static int attention_validate_packet(const struct attention_softmax_packet *pkt,
 
     for (uint32_t row = 0; row < ATTENTION_SEQ_LEN; row++) {
         for (uint32_t dim = 0; dim < ATTENTION_HEAD_DIM; dim++) {
-            float got = attention_packet_output_value(pkt, row, dim);
+            float got = output[row][dim];
             float expect = attention_reference_output_value(pkt->head, row,
                                                             dim);
             float diff = attention_absf(got - expect);
@@ -118,7 +135,9 @@ tpa_op_t attention_output_check(void)
 
     for (uint32_t head = 0; head < ATTENTION_HEADS; head++) {
         if (w->len[head] != sizeof(*w->pkt[head]) ||
-            !attention_validate_packet(w->pkt[head], head)) {
+            !attention_compute_output_packet(w->pkt[head], w->output[head],
+                                             head) ||
+            !attention_validate_output(w->pkt[head], w->output[head], head)) {
             attention_fail();
             return tpa_stop();
         }

@@ -2,6 +2,7 @@
 #include "tpa/tpa.h"
 
 #include "attention_common.h"
+#include "attention_et.h"
 
 struct attention_softmax_ws {
     struct attention_softmax_packet out __attribute__((aligned(64)));
@@ -49,7 +50,7 @@ tpa_op_t attention_softmax_send(void)
     }
 
     attention_trace_head(ATTENTION_TRACE_SOFTMAX_BEGIN, head);
-    attention_compute_softmax(w->in, &w->out);
+    attention_compute_softmax_ps(w->in, &w->out);
     attention_trace_head(ATTENTION_TRACE_SOFTMAX_END, head);
 
     return tpa_send(ch, &w->out, sizeof(w->out), attention_softmax_done);

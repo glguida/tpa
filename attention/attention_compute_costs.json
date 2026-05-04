@@ -1,6 +1,6 @@
 {
   "attention_qkv_gen_pdef": 1.0,
-  "attention_score_pdef": 100.0,
-  "attention_softmax_pdef": 100.0,
-  "attention_output_pdef": 1.0
+  "attention_score_pdef": 40.0,
+  "attention_softmax_pdef": 70.0,
+  "attention_output_pdef": 120.0
 }
