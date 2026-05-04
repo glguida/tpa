@@ -9,7 +9,7 @@ function kind_of(sym)
 {
     if (sym ~ /^(_start|main|send_resume|recv_resume|tpa_)/)
         return "runtime";
-    if (sym ~ /^systolic_/)
+    if (sym ~ /^(systolic_|attention_)/)
         return "app";
     return "other";
 }

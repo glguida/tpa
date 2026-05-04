@@ -37,6 +37,12 @@ tools/trace/analyze_trace_by_hart.sh ELF TRACE_LOG --from 1000 --to 5000
 
 `TRACE_LOG` may be plain text or `.gz`.
 
+The analyzer reports broad symbol classes. Built-in runtime prefixes include
+`_start`, `main`, `send_resume`, `recv_resume`, and `tpa_`. Built-in application
+prefixes currently include `systolic_` and `attention_`, so attention trace
+windows can surface functions such as `attention_output_check` as `top_app`
+instead of grouping them under `other`.
+
 ## Requirements
 
 - ET RISC-V binutils (`riscv64-unknown-elf-nm`) on `PATH`.
