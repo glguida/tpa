@@ -103,4 +103,5 @@ tag writes. To recover tag cycles, enable DEBUG logging and filter the
 
 The cycle is the leading number before the first colon. The printed
 `validation0` value may be sign-extended; compare the low 32 bits with the tag
-values above.
+values above. To turn filtered logs into JSON/Markdown timing tables, use
+`tools/trace/parse_attention_trace.py` from the repository root.

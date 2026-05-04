@@ -43,6 +43,33 @@ prefixes currently include `systolic_` and `attention_`, so attention trace
 windows can surface functions such as `attention_output_check` as `top_app`
 instead of grouping them under `other`.
 
+## Summarize attention trace-tag logs
+
+`parse_attention_trace.py` consumes the small filtered DEBUG logs described in
+`attention/README.md` and emits JSON and/or Markdown summary tables:
+
+```sh
+tools/trace/parse_attention_trace.py \
+  --json-out /tmp/attention-trace.json \
+  --markdown-out /tmp/attention-trace.md \
+  /tmp/mapped-debug-validation-filter.log \
+  /tmp/serial-debug-validation-filter.log
+```
+
+The parser masks sign-extended `validation0` values to their low 32 bits before
+matching attention tags. By default it fails if required tags are missing; use
+`--allow-missing` only for deliberate partial traces. Run the built-in fixture
+check with:
+
+```sh
+tools/trace/parse_attention_trace.py --self-check
+```
+
+Product trace spans are timing checkpoints, not success criteria. Default
+attention ELFs report `TEST_PASS` only after full scalar reference validation, so
+benchmark reports should quote production, validation, and total PASS spans
+separately.
+
 ## Requirements
 
 - ET RISC-V binutils (`riscv64-unknown-elf-nm`) on `PATH`.
