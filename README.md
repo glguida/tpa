@@ -78,6 +78,8 @@ smoke-test doubles; they are not ET platform validation.
 - `docs/design/EDGE_BUFFER_PLAN.md` — edge-buffer planning strategy.
 - `docs/programming-model.md` — process, channel, image, and artifact terms.
 - `docs/et-architecture.md` — Erbium/ET-SoC-1 topology relevant to TPA.
+- `docs/et-simd-tensor-kernel-notes.md` — practical ET packed-single SIMD and
+  Tensor guidance for TPA kernels such as tensor matmul and attention.
 - `docs/creating-programs.md` — practical guide for creating TPA programs.
 - `docs/hardware-agnostic-programming.md` — how to keep process code and `.tpp`
   graphs hardware-independent while using placement/mapping artifacts.

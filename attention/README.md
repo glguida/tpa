@@ -12,6 +12,12 @@ The graph fans out one deterministic Q/K/V source into four per-head pipelines,
 then validates the concatenated logical `[16][64]` output against a serial
 reference in `attention_output.c`.
 
+For ET packed-single SIMD and Tensor guidance specific to this 16-by-16 per-head
+shape, see `../docs/et-simd-tensor-kernel-notes.md`. Do not infer speedup from
+placement or instruction candidates alone; update this README with performance
+claims only after the optimized kernels have ET build, emulator PASS, extension
+use, and baseline-vs-optimized measurement evidence.
+
 ## Targets
 
 Build through the top-level ET superbuild. Pass `-DPYTHON` when selecting a

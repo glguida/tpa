@@ -53,9 +53,11 @@ natural transputer-like node, with `H0` and `H1` corresponding to low/high
 priority lanes in the transputer inspiration. The current structured Erbium HAL
 runs TPA placements on the even `H0` lane ids; `H1` harts remain non-runtime
 waiters in this path. This keeps tensor processes on the only Erbium hart lane
-that supports the tensor instruction set. The current structured docs should
-not overclaim full priority/preemption semantics beyond what the current runtime
-and HAL validate.
+that supports the tensor instruction set. See
+`docs/et-simd-tensor-kernel-notes.md` for the process-author constraints around
+packed-single SIMD, Tensor scratchpad setup, H0 legality, alignment, and
+validation. The current structured docs should not overclaim full
+priority/preemption semantics beyond what the current runtime and HAL validate.
 
 Erbium generated ELFs use the structured platform/startup assets under
 `platform/` and the selected Erbium HAL implementation under `tpa/hal/erbium/`.

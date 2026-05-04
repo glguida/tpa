@@ -272,7 +272,11 @@ larger YOLO downstream path:
 - the forwarded ET target is `tpa_tensor_matmul.elf`.
 
 Use it when you need an example with generated graph artifacts but do not need
-YOLO's full mapper-integrated process inventory.
+YOLO's full mapper-integrated process inventory. It is also the current
+in-repository example of ET Tensor scratchpad setup and `tensor_load()` /
+`tensor_fma()` use inside continuation-style process code; see
+`docs/et-simd-tensor-kernel-notes.md` before applying those instructions to
+attention or other fixed-size kernels.
 
 ## Build with the ET superbuild
 
