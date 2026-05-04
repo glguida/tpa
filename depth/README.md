@@ -18,14 +18,16 @@ stereo_source
 `tpa_stereo_sad.elf` demo path. Runtime hart choices remain outside process code
 and outside `stereo_sad.tpp`.
 
-The build also exposes report-only mapper targets for inspection:
+The build also exposes mapper/report targets and a distinct mapped ELF:
 
 - `tpa_stereo_sad_hand_plan_planner_json` extracts process metadata and plans the
   current hand placement;
 - `tpa_stereo_sad_map_mapped_program` maps the same graph with
-  `machines/erbium.json`, writes a map report, mapped-program JSON,
-  mapper-generated `.place`, scratch header, and edge-buffer config header, but
-  does not replace the hand-placed runtime ELF.
+  `machines/erbium.json` and writes a map report, mapped-program JSON,
+  mapper-generated `.place`, scratch header, and edge-buffer config header;
+- `tpa_stereo_sad_mapped.elf` consumes the mapper-generated placement and edge
+  config header while keeping `tpa_stereo_sad.elf` as the hand-placed runtime
+  path.
 
 The mapper cost hints in `stereo_sad_compute_costs.json` intentionally make
 workers much more expensive than the source/checker so the scheduler sees the
@@ -51,11 +53,17 @@ Build through the top-level ET superbuild:
 ```sh
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium
 cmake --build build-et-erbium --target tpa_stereo_sad.elf
+cmake --build build-et-erbium --target tpa_stereo_sad_map_mapped_program
+cmake --build build-et-erbium --target tpa_stereo_sad_mapped.elf
 /opt/et/bin/erbium_emu \
   -minions 0x1f \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/depth/tpa_stereo_sad.elf \
   -max_cycles 100000000
+/opt/et/bin/erbium_emu \
+  -minions 0xff \
+  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/depth/tpa_stereo_sad_mapped.elf \
+  -max_cycles 100000000
 ```
 
-The device subbuild also registers the Erbium CTest `tpa_stereo_sad_erbium`
-when `erbium_emu` is available.
+The device subbuild also registers Erbium CTests `tpa_stereo_sad_erbium` and
+`tpa_stereo_sad_mapped_erbium` when `erbium_emu` is available.

@@ -60,6 +60,7 @@ cmake --build build-et-erbium --target tpa_fast_attention.elf
 cmake --build build-et-erbium --target tpa_fast_attention_serial.elf
 cmake --build build-et-erbium --target tpa_stereo_sad_map_mapped_program
 cmake --build build-et-erbium --target tpa_stereo_sad.elf
+cmake --build build-et-erbium --target tpa_stereo_sad_mapped.elf
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
@@ -71,6 +72,7 @@ cmake --build build-et-erbium --target tpa_negative_expected_fail.elf
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention.elf -max_cycles 5000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention_serial.elf -max_cycles 5000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/depth/tpa_stereo_sad.elf -max_cycles 100000000
+/opt/et/bin/erbium_emu -minions 0xff -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/depth/tpa_stereo_sad_mapped.elf -max_cycles 100000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/yolov5n/tpa_yolov5n_downstream.elf -max_cycles 100000000
 
 cmake -S . -B build-et-etsoc1 -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=etsoc1
@@ -84,10 +86,11 @@ ET RISC-V toolchain or required ET CMake packages are unavailable. The
 `tpa_host_tools` target builds `tpa_launcher` in the host subproject. The
 `tpa_pipe_demo.elf`, `tpa_empty.elf`, `tpa_tensor_matmul.elf`,
 `tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`,
-and representative runtime-regression ELF targets are generated through the TPA
-process/program flow, not as handcrafted standalone executables. The stereo SAD
-mapper target is report-only and does not replace the hand-placed demo ELF. The
-YOLO downstream planner/map artifact targets and downstream device ELF are
+`tpa_stereo_sad_mapped.elf`, and representative runtime-regression ELF targets
+are generated through the TPA process/program flow, not as handcrafted
+standalone executables. The stereo SAD hand-placed and mapped ELFs are distinct
+runtime targets; the mapped ELF consumes the mapper-generated placement and edge
+config header. The YOLO downstream planner/map artifact targets and downstream device ELF are
 integrated and have Erbium emulator PASS-marker validation.
 
 ### Host launcher
@@ -227,8 +230,9 @@ targets, not archived generated JSON.
   Erbium emulator validation; `tpa_negative_expected_fail.elf` reports the
   intended FAIL marker.
 - `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
-  `tpa_fast_attention_serial.elf`, and `tpa_stereo_sad.elf` build and report
-  PASS markers under Erbium emulator validation.
+  `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`, and
+  `tpa_stereo_sad_mapped.elf` build and report PASS markers under Erbium
+  emulator validation.
 - YOLO downstream planner/map artifact generation, device ELF link, and Erbium
   emulator PASS-marker validation are integrated. The full YOLO host/demo
   launcher integration remains follow-up. Representative YOLO block-test

@@ -122,6 +122,7 @@ cmake --build build-et-erbium --target tpa_fast_attention.elf
 cmake --build build-et-erbium --target tpa_fast_attention_serial.elf
 cmake --build build-et-erbium --target tpa_stereo_sad_map_mapped_program
 cmake --build build-et-erbium --target tpa_stereo_sad.elf
+cmake --build build-et-erbium --target tpa_stereo_sad_mapped.elf
 /opt/et/bin/erbium_emu \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf \
   -max_cycles 10000
@@ -132,6 +133,10 @@ cmake --build build-et-erbium --target tpa_stereo_sad.elf
 /opt/et/bin/erbium_emu \
   -minions 0x1f \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/depth/tpa_stereo_sad.elf \
+  -max_cycles 100000000
+/opt/et/bin/erbium_emu \
+  -minions 0xff \
+  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/depth/tpa_stereo_sad_mapped.elf \
   -max_cycles 100000000
 ```
 
@@ -240,13 +245,14 @@ Ported and validated today:
 - ET superbuild integration for device and host subprojects.
 - Erbium `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_tensor_matmul.elf`,
   `tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`,
-  `tpa_stereo_sad.elf`, and representative message/queue/negative regression
-  ELF build paths.
+  `tpa_stereo_sad.elf`, `tpa_stereo_sad_mapped.elf`, and representative
+  message/queue/negative regression ELF build paths.
 - Cooperative runtime scheduler execution for generated graph programs, with
   Erbium emulator PASS validation for `tpa_empty.elf`, `tpa_pipe_demo.elf`,
   `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
-  `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`, representative
-  message/channel tests, and representative queue tests.
+  `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`,
+  `tpa_stereo_sad_mapped.elf`, representative message/channel tests, and
+  representative queue tests.
 - Negative expected-failure execution reports the intended Erbium FAIL marker.
 - YOLO downstream planner/map artifact generation, downstream device ELF link,
   and Erbium emulator PASS-marker runtime validation.

@@ -50,6 +50,7 @@ cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_empty.elf
 cmake --build build-et-erbium --target tpa_stereo_sad_map_mapped_program
+cmake --build build-et-erbium --target tpa_stereo_sad_mapped.elf
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_plan_planner_json
 cmake --build build-et-erbium --target tpa_yolov5n_downstream_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
@@ -58,11 +59,12 @@ cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 The stereo SAD mapper/report target and YOLO downstream planner/map targets use
 the structured `machines/` JSONs and write generated planner JSON,
 mapped-program JSON, placement, scratch config, and edge-buffer config artifacts
-under the device build tree. The stereo SAD mapper/report target is report-only;
-the validated demo ELF still uses the reviewed hand placement. The generated
-`kernels/`, `depth/`, and `yolov5n/` ELFs can be loaded with `erbium_emu` as
-documented in
-the repository-level `README.md` and `docs/USAGE.md`.
+under the device build tree. The stereo SAD mapped ELF consumes the generated
+placement and edge-buffer config header as a distinct target named
+`tpa_stereo_sad_mapped.elf`; the hand-placed `tpa_stereo_sad.elf` target remains
+available. The generated `kernels/`, `depth/`, and `yolov5n/` ELFs can be loaded
+with `erbium_emu` as documented in the repository-level `README.md` and
+`docs/USAGE.md`.
 
 These ET builds are platform validation. Host smoke-test-double builds are only
 local syntax/unit smoke tests and must not be treated as Erbium or ET-SoC-1

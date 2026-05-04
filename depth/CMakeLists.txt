@@ -120,7 +120,14 @@ endfunction()
 
 function(depth_add_mapped_program NAME PROGRAM_PATH)
     set(options)
-    set(oneValueArgs COMPUTE_COSTS_JSON MACHINE_JSON)
+    set(oneValueArgs
+        COMPUTE_COSTS_JSON
+        MACHINE_JSON
+        OUT_EDGE_HEADER_VAR
+        OUT_MAPPED_PROGRAM_VAR
+        OUT_PLACEMENT_VAR
+        OUT_REPORT_VAR
+    )
     set(multiValueArgs PROCESS_TARGETS)
     cmake_parse_arguments(DEPTHMAP "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -190,6 +197,19 @@ function(depth_add_mapped_program NAME PROGRAM_PATH)
         "${SCRATCH_HEADER_OUT}"
         "${EDGE_HEADER_OUT}"
     )
+
+    if (DEPTHMAP_OUT_EDGE_HEADER_VAR)
+        set(${DEPTHMAP_OUT_EDGE_HEADER_VAR} "${EDGE_HEADER_OUT}" PARENT_SCOPE)
+    endif()
+    if (DEPTHMAP_OUT_MAPPED_PROGRAM_VAR)
+        set(${DEPTHMAP_OUT_MAPPED_PROGRAM_VAR} "${MAPPED_PROGRAM_OUT}" PARENT_SCOPE)
+    endif()
+    if (DEPTHMAP_OUT_PLACEMENT_VAR)
+        set(${DEPTHMAP_OUT_PLACEMENT_VAR} "${PLACEMENT_OUT}" PARENT_SCOPE)
+    endif()
+    if (DEPTHMAP_OUT_REPORT_VAR)
+        set(${DEPTHMAP_OUT_REPORT_VAR} "${REPORT_OUT}" PARENT_SCOPE)
+    endif()
 endfunction()
 
 add_tpa_process(
@@ -221,6 +241,10 @@ depth_add_mapped_program(
         "${TPA_DEPTH_STEREO_SAD_COMPUTE_COSTS_JSON}"
     MACHINE_JSON
         "${TPA_DEPTH_STEREO_SAD_MACHINE_JSON}"
+    OUT_EDGE_HEADER_VAR TPA_STEREO_SAD_MAPPED_EDGE_HEADER
+    OUT_MAPPED_PROGRAM_VAR TPA_STEREO_SAD_MAPPED_PROGRAM
+    OUT_PLACEMENT_VAR TPA_STEREO_SAD_MAPPED_PLACEMENT
+    OUT_REPORT_VAR TPA_STEREO_SAD_MAP_REPORT
 )
 
 add_tpa_program(
@@ -234,6 +258,21 @@ add_tpa_program(
     LINKER_SCRIPT
         "${TPA_DEPTH_DEMO_LDS}"
 )
+
+add_tpa_program(
+    NAME tpa_stereo_sad_mapped
+    PROCESSES
+        tpa_stereo_sad_proc
+    PROGRAM
+        "${CMAKE_CURRENT_SOURCE_DIR}/stereo_sad.tpp"
+    PLACEMENT
+        "${TPA_STEREO_SAD_MAPPED_PLACEMENT}"
+    EDGE_CONFIG_HEADER
+        "${TPA_STEREO_SAD_MAPPED_EDGE_HEADER}"
+    LINKER_SCRIPT
+        "${TPA_DEPTH_DEMO_LDS}"
+)
+add_dependencies(tpa_stereo_sad_mapped.elf tpa_stereo_sad_map_mapped_program)
 
 if (TPA_PLATFORM_ID STREQUAL "erbium")
     find_program(TPA_ERBIUM_EMU
@@ -255,6 +294,16 @@ if (TPA_PLATFORM_ID STREQUAL "erbium")
                 -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_stereo_sad_erbium.log
                 -DMAX_CYCLES=100000000
                 -DMINIONS=0x1f
+                -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
+        )
+        add_test(
+            NAME tpa_stereo_sad_mapped_erbium
+            COMMAND "${CMAKE_COMMAND}"
+                -DEMU=${TPA_ERBIUM_EMU}
+                -DELF=$<TARGET_FILE:tpa_stereo_sad_mapped.elf>
+                -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_stereo_sad_mapped_erbium.log
+                -DMAX_CYCLES=100000000
+                -DMINIONS=0xff
                 -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
         )
     endif()
