@@ -76,3 +76,23 @@ The demo emits stable 32-bit trace tags with `arch_trace()`:
 
 The emulator PASS/FAIL markers still come from `TEST_PASS` / `TEST_FAIL`; the
 trace tags are for inspection and timing comparison only.
+
+### Extracting trace-tag cycles
+
+INFO-level `erbium_emu` output shows PASS/FAIL markers but not all `arch_trace()`
+tag writes. To recover tag cycles, enable DEBUG logging and filter the
+`validation0` CSR writes. Raw DEBUG logs can exceed 1 GiB per logged hart, so use
+`-lt` to limit harts and stream-filter when only tag timing is needed:
+
+```sh
+/opt/et/bin/erbium_emu \
+  -l -lt 0 -lt 2 -lt 4 -lt 6 -lt 8 \
+  -minions 0x1f \
+  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention.elf \
+  -max_cycles 5000000 2>&1 \
+  | awk '/validation0 =/ || /Signal end test/ { print }'
+```
+
+The cycle is the leading number before the first colon. The printed
+`validation0` value may be sign-extended; compare the low 32 bits with the tag
+values above.
