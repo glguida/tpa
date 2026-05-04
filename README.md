@@ -238,13 +238,14 @@ Ported and validated today:
 
 - ET superbuild integration for device and host subprojects.
 - Erbium `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_tensor_matmul.elf`,
-  `tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`, and representative
-  message/queue/negative regression ELF build paths.
+  `tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`,
+  `tpa_stereo_sad.elf`, and representative message/queue/negative regression
+  ELF build paths.
 - Cooperative runtime scheduler execution for generated graph programs, with
   Erbium emulator PASS validation for `tpa_empty.elf`, `tpa_pipe_demo.elf`,
   `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
-  `tpa_fast_attention_serial.elf`, representative message/channel tests, and
-  representative queue tests.
+  `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`, representative
+  message/channel tests, and representative queue tests.
 - Negative expected-failure execution reports the intended Erbium FAIL marker.
 - YOLO downstream planner/map artifact generation, downstream device ELF link,
   and Erbium emulator PASS-marker runtime validation.

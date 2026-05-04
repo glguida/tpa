@@ -278,6 +278,42 @@ in-repository example of ET Tensor scratchpad setup and `tensor_load()` /
 `docs/et-simd-tensor-kernel-notes.md` before applying those instructions to
 attention or other fixed-size kernels.
 
+## Full no-weights example: `tpa_stereo_sad`
+
+`depth/stereo_sad.*` is the current full depth-vision demo. It demonstrates a
+larger hand-placed TPA graph without external data or model artifacts:
+
+```text
+stereo_source
+  -> sad_worker stripe 0 -> stereo_checker port 0
+  -> sad_worker stripe 1 -> stereo_checker port 1
+  -> sad_worker stripe 2 -> stereo_checker port 2
+  -> sad_worker stripe 3 -> stereo_checker port 3
+```
+
+Files:
+
+- `depth/stereo_sad.c` — source, worker, checker, and deterministic synthetic
+  stereo data policy.
+- `depth/stereo_sad_common.h` — fixed 96x64, 5x5 SAD, max-disparity-32 packet
+  layout and shared validation helpers.
+- `depth/stereo_sad.tpm` — process kinds for the source, reusable worker, and
+  checker.
+- `depth/stereo_sad.tpp` — hardware-independent source/four-worker/checker graph
+  and edge capacities.
+- `depth/stereo_sad.place` — reviewed Erbium hand placement for the first demo
+  target.
+- `depth/CMakeLists.txt` — `add_tpa_process()` / `add_tpa_program()` integration
+  and the Erbium CTest registration.
+
+The source process regenerates deterministic synthetic grayscale stereo data
+using the same `bands:6,12,18` policy as the depth block-test generator. It does
+not load external images, datasets, pretrained weights, or third-party stereo
+code. `depth/stereo_sad.place` is the current hand placement; mapper-generated
+placement, mapped-program JSON, and map reports remain follow-up work.
+The forwarded ET target is `tpa_stereo_sad.elf`, and the Erbium CTest is
+`tpa_stereo_sad_erbium` when `erbium_emu` is available.
+
 ## Build with the ET superbuild
 
 Configure from the repository root. Use the top-level CMake entry point, not an

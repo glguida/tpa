@@ -107,6 +107,9 @@ Current structured pieces are:
   `tpa_pipe_demo`, and the generated tensor matmul demo.
 - `attention/` — fixed-size structured fast-attention demo with parallel and
   serial Erbium placements.
+- `depth/` — no-weights stereo SAD depth demo for deterministic 96x64
+  synthetic grayscale input, using a source/four-worker/checker graph and hand
+  Erbium placement.
 - `yolov5n/` — currently ported YOLO downstream process sources and CMake
   planner/map/device targets.
 - `tests/yolo/` — YOLO block-test sources/assets with representative Erbium
@@ -122,11 +125,11 @@ The current structured repo validates these paths:
 - Erbium ET configure and build through the ET superbuild;
 - `tpa_host_tools` builds `tpa_launcher`;
 - `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_tensor_matmul.elf`,
-  `tpa_fast_attention.elf`, and `tpa_fast_attention_serial.elf` build through
-  the generated TPA process/program flow;
+  `tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`, and
+  `tpa_stereo_sad.elf` build through the generated TPA process/program flow;
 - `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_tensor_matmul.elf`,
-  `tpa_fast_attention.elf`, and `tpa_fast_attention_serial.elf` run under
-  `erbium_emu` and report PASS markers;
+  `tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`, and
+  `tpa_stereo_sad.elf` run under `erbium_emu` and report PASS markers;
 - representative message/channel and queue regression ELFs build and report
   PASS markers under `erbium_emu`;
 - `tpa_negative_expected_fail.elf` builds and reports the expected FAIL marker
@@ -148,10 +151,13 @@ maintenance, wake/wait operations, lifecycle hooks, tracing, and diagnostics.
 
 Generated graph-program ELFs now link the cooperative runtime scheduler and
 execute continuations. The current validated Erbium PASS set covers the empty,
-pipe, and tensor matmul demos plus representative message/channel and queue
-regression tests. YOLO downstream device-runtime validation covers the CMake
-planner/map/device path and Erbium PASS marker; the full YOLO host/demo pipeline
-remains follow-up.
+pipe, tensor matmul, fast-attention, and no-weights stereo SAD demos plus
+representative message/channel and queue regression tests. The stereo SAD demo
+uses deterministic synthetic input and does not depend on external images,
+datasets, model weights, or third-party stereo code. It uses hand placement;
+mapper-generated placement/report work remains follow-up. YOLO downstream
+device-runtime validation covers the CMake planner/map/device path and Erbium
+PASS marker; the full YOLO host/demo pipeline remains follow-up.
 
 ### Image generation
 
