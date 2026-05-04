@@ -1,0 +1,25 @@
+pdef yolov8n_p3_source_pdef user 820 yolov8n_p3_source_start 0
+port yolov8n_p3_source_pdef 0 out
+
+pdef yolov8n_p4_source_pdef user 821 yolov8n_p4_source_start 0
+port yolov8n_p4_source_pdef 0 out
+
+pdef yolov8n_detect_p5_source_pdef user 822 yolov8n_detect_p5_source_start 0
+port yolov8n_detect_p5_source_pdef 0 out
+
+pdef yolov8n_p3_detect_pdef user 823 yolov8n_p3_detect_start 32
+port yolov8n_p3_detect_pdef 0 in
+port yolov8n_p3_detect_pdef 1 out
+
+pdef yolov8n_p4_detect_pdef user 824 yolov8n_p4_detect_start 32
+port yolov8n_p4_detect_pdef 0 in
+port yolov8n_p4_detect_pdef 1 out
+
+pdef yolov8n_detect_p5_pdef user 825 yolov8n_detect_p5_start 32
+port yolov8n_detect_p5_pdef 0 in
+port yolov8n_detect_p5_pdef 1 out
+
+pdef yolov8n_detect_checker_pdef user 826 yolov8n_detect_checker_start 48
+port yolov8n_detect_checker_pdef 0 in
+port yolov8n_detect_checker_pdef 1 in
+port yolov8n_detect_checker_pdef 2 in

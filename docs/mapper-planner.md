@@ -315,8 +315,8 @@ placement and edge-buffer config header from the mapper output.
 
 The current structured repo has integrated YOLOv5n downstream planner/map
 artifact paths, downstream device ELF link, and Erbium PASS-marker runtime
-validation. It also has an opt-in YOLOv8n P5 Detect/DFL external-header
-milestone that uses the same metadata/map/placement/edge-config pattern when
+validation. It also has opt-in YOLOv8n Detect/DFL external-header milestones
+that use the same metadata/map/placement/edge-config pattern when
 `BUILD_TPA_YOLOV8N=ON` and external generated header/manifest paths are
 provided. With a planner-enabled Python environment:
 
@@ -348,11 +348,13 @@ cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 
 `yolov8n/CMakeLists.txt` keeps the external model-derived header and generated
 manifest out of git by requiring CMake cache variables, verifies their SHA-256
-checksums at configure time, extracts metadata for the P5 source/detect/checker
-processes, maps `yolov8n_p5_detect.tpp`, emits generated scratch/edge headers,
-and builds `tpa_yolov8n_p5_detect.elf` from the mapper-generated placement.
-That target validates sampled P5 Detect/DFL plumbing with synthetic-calibration
-hashes only; it does not claim full YOLOv8n graph or model accuracy validation.
+checksums at configure time, extracts metadata for the P5 and all-scale
+source/detect/checker processes, maps `yolov8n_p5_detect.tpp` and
+`yolov8n_detect_downstream.tpp`, emits generated scratch/edge headers, and
+builds `tpa_yolov8n_p5_detect.elf` plus `tpa_yolov8n_detect_downstream.elf`
+from mapper-generated placement. Those targets validate sampled Detect/DFL
+plumbing with synthetic-calibration hashes only; they do not claim full YOLOv8n
+graph or model accuracy validation.
 
 For ET-SoC-1, the YOLO mapping uses the full-card `machines/etsoc1.json` model.
 The device project therefore requires `TPA_ETSOC1_NR_SHIRES=32` for YOLO; the
@@ -369,15 +371,16 @@ Current limitations are explicit and should not be hidden:
   specifications;
 - broader process metadata extraction coverage remains follow-up;
 - YOLOv5n downstream planner/map/device ELF and Erbium PASS-marker runtime
-  validation are complete; YOLOv8n is currently limited to an opt-in P5-only
-  external-header milestone with synthetic-calibration hashes; full/demo host
-  launcher integration remains follow-up;
+  validation are complete; YOLOv8n is currently limited to opt-in Detect/DFL
+  external-header milestones with synthetic-calibration hashes for P5-only and
+  sampled P3/P4/P5 branch plumbing; full/demo host launcher integration remains
+  follow-up;
 - YOLO model artifacts and regeneration tools are ported, but heavyweight
   regeneration dependencies are not part of normal planner validation;
 - representative message/channel and queue test ELFs report PASS under Erbium,
   and the negative expected-failure ELF reports the intended FAIL marker, but
   broader scheduler coverage remains hardening follow-up;
 - DNN demos and LTFarm are archived/reference material, not active mapper inputs;
-- tensor matmul, YOLOv5n downstream, and the opt-in YOLOv8n P5 Detect/DFL
-  milestone have mapper/device paths, but broader runtime hardening remains
+- tensor matmul, YOLOv5n downstream, and the opt-in YOLOv8n Detect/DFL
+  milestones have mapper/device paths, but broader runtime hardening remains
   separate from mapper documentation.

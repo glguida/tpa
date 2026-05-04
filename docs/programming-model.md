@@ -278,15 +278,15 @@ Currently integrated generated TPA programs include:
   with a deterministic 96x64 synthetic source, four worker stripes, a checker,
   and hand Erbium placement;
 - `yolov5n/` downstream planner/map path -> `tpa_yolov5n_downstream.elf`;
-- `yolov8n/` P5 Detect/DFL external-header path ->
-  `tpa_yolov8n_p5_detect.elf` when explicitly configured with external
-  generated header/manifest paths.
+- `yolov8n/` Detect/DFL external-header paths ->
+  `tpa_yolov8n_p5_detect.elf` and `tpa_yolov8n_detect_downstream.elf` when
+  explicitly configured with external generated header/manifest paths.
 
 Original message, queue, and negative regression assets are also integrated as
 structured test ELF targets. Representative message/channel and queue ELFs now
 report PASS under Erbium, and the negative expected-failure ELF reports the
 intended FAIL marker. Tensor matmul, fast attention, stereo SAD, YOLOv5n
-downstream, and the opt-in YOLOv8n P5 Detect/DFL external-header path now have
+downstream, and the opt-in YOLOv8n Detect/DFL external-header paths now have
 Erbium PASS-marker validation. The stereo SAD demo uses deterministic synthetic
 data only; it does not require external images, datasets, model weights, or
 third-party stereo code. It uses hand placement; mapper-generated
@@ -303,7 +303,7 @@ execute process continuations. The validated Erbium PASS-marker set is still
 representative rather than exhaustive: `tpa_empty.elf`, `tpa_pipe_demo.elf`,
 `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
 `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`, YOLOv5n downstream,
-the opt-in YOLOv8n P5 Detect/DFL milestone, representative message/channel
-tests, and representative queue tests pass. Broader scheduler coverage, full
+the opt-in YOLOv8n Detect/DFL milestones, representative message/channel tests,
+and representative queue tests pass. Broader scheduler coverage, full
 YOLOv8n graph/model validation, and full YOLO host/demo integration remain
 follow-up. Documentation and tests should be explicit about that distinction.

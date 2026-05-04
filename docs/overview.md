@@ -112,8 +112,9 @@ Current structured pieces are:
   Erbium placement.
 - `yolov5n/` — currently ported YOLOv5n downstream process sources and CMake
   planner/map/device targets.
-- `yolov8n/` — opt-in external-header YOLOv8n P5 Detect/DFL downstream
-  milestone with mapper-generated placement/edge config.
+- `yolov8n/` — opt-in external-header YOLOv8n Detect/DFL downstream
+  milestones for P5-only and sampled P3/P4/P5 branch plumbing, with
+  mapper-generated placement/edge config.
 - `tests/yolo/` — YOLO block-test sources/assets with representative Erbium
   CMake/CTest coverage.
 - `planner/` — Python metadata extraction, planning, and mapping package.
@@ -138,9 +139,9 @@ The current structured repo validates these paths:
   under `erbium_emu`;
 - YOLOv5n downstream planner JSON, mapped-program artifacts, downstream device
   ELF, and Erbium PASS-marker runtime path build through CMake;
-- YOLOv8n P5 Detect/DFL external-header mapper/device target builds when
-  explicitly configured with generated header/manifest paths; it validates only
-  deterministic synthetic-calibration P5 plumbing hashes;
+- YOLOv8n Detect/DFL external-header mapper/device targets build when explicitly
+  configured with generated header/manifest paths; they validate only
+  deterministic synthetic-calibration P5 and sampled P3/P4/P5 plumbing hashes;
 - ET-SoC-1 default one-shire `tpa_core` builds;
 - host smoke-test-double builds and tests pass, but those are not platform
   validation.
@@ -162,9 +163,9 @@ uses deterministic synthetic input and does not depend on external images,
 datasets, model weights, or third-party stereo code. It uses hand placement;
 mapper-generated placement/report work remains follow-up. YOLOv5n downstream
 device-runtime validation covers the CMake planner/map/device path and Erbium
-PASS marker. YOLOv8n has an opt-in P5 Detect/DFL external-header milestone;
-full P3/P4/P5 Detect, C2f source modules, full-model validation, and the full
-YOLO host/demo pipeline remain follow-up.
+PASS marker. YOLOv8n has opt-in Detect/DFL external-header milestones for P5-only and
+sampled P3/P4/P5 branch plumbing; C2f source modules, full-model validation,
+and the full YOLO host/demo pipeline remain follow-up.
 
 ### Image generation
 
@@ -200,7 +201,7 @@ report PASS under Erbium, and the negative expected-failure ELF reports the
 intended FAIL marker; broader scheduler coverage remains hardening work. YOLO
 tools/models, representative block-test CMake/CTest coverage, YOLOv5n
 downstream planner/map/device ELF plus Erbium PASS-marker runtime validation,
-and the opt-in YOLOv8n P5 Detect/DFL external-header milestone are ported. Full
+and the opt-in YOLOv8n Detect/DFL external-header milestones are ported. Full
 YOLOv8n graph/model validation and full YOLO host/demo integration remain
 follow-up. DNN demos, `ltfarm`, and historical generated YOLO analysis are
 archived reference material rather than active runtime inputs.
