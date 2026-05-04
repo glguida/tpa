@@ -135,6 +135,8 @@ if (BUILD_TPA_DEVICE)
     if (TPA_PLATFORM_ID STREQUAL "erbium")
         tpa_forward_device_target(tpa_yolo_cbs_l40.elf)
         tpa_forward_device_target(tpa_yolo_sppf_l31_32.elf)
+        tpa_forward_device_target(tpa_yolov8n_c2f_block.elf)
+        tpa_forward_device_target(tpa_yolov8n_detect_dfl.elf)
     endif()
 endif()
 

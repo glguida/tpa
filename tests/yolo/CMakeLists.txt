@@ -159,6 +159,46 @@ add_tpa_program(
 )
 
 add_tpa_process(
+    NAME tpa_yolov8n_c2f_block_proc
+    MANIFEST
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_c2f_block.tpm"
+    SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_c2f_block.c"
+)
+
+add_tpa_program(
+    NAME tpa_yolov8n_c2f_block
+    PROCESSES
+        tpa_yolov8n_c2f_block_proc
+    PROGRAM
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_c2f_block.tpp"
+    PLACEMENT
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_c2f_block.place"
+    LINKER_SCRIPT
+        "${TPA_YOLO_LDS}"
+)
+
+add_tpa_process(
+    NAME tpa_yolov8n_detect_dfl_proc
+    MANIFEST
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_detect_dfl.tpm"
+    SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_detect_dfl.c"
+)
+
+add_tpa_program(
+    NAME tpa_yolov8n_detect_dfl
+    PROCESSES
+        tpa_yolov8n_detect_dfl_proc
+    PROGRAM
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_detect_dfl.tpp"
+    PLACEMENT
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_detect_dfl.place"
+    LINKER_SCRIPT
+        "${TPA_YOLO_LDS}"
+)
+
+add_tpa_process(
     NAME tpa_yolo_neck_up_l34_39_proc
     MANIFEST
         "${CMAKE_CURRENT_SOURCE_DIR}/neck_up_l34_39.tpm"
@@ -276,6 +316,24 @@ if (TPA_PLATFORM_ID STREQUAL "erbium" AND BUILD_TESTING AND EXISTS "${TPA_YOLO_E
             -DELF=$<TARGET_FILE:tpa_yolo_detect_l57_58_69_63_64_72.elf>
             -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_yolo_detect_l57_58_69_63_64_72.out
             -DMAX_CYCLES=400000000
+            -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
+    )
+    add_test(
+        NAME tpa_yolov8n_c2f_block
+        COMMAND "${CMAKE_COMMAND}"
+            -DEMU=${TPA_YOLO_ERBIUM_EMU}
+            -DELF=$<TARGET_FILE:tpa_yolov8n_c2f_block.elf>
+            -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_yolov8n_c2f_block.out
+            -DMAX_CYCLES=200000000
+            -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
+    )
+    add_test(
+        NAME tpa_yolov8n_detect_dfl
+        COMMAND "${CMAKE_COMMAND}"
+            -DEMU=${TPA_YOLO_ERBIUM_EMU}
+            -DELF=$<TARGET_FILE:tpa_yolov8n_detect_dfl.elf>
+            -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_yolov8n_detect_dfl.out
+            -DMAX_CYCLES=200000000
             -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
     )
     add_test(

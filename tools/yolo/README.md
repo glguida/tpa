@@ -9,6 +9,10 @@ helpers ported from the original TPA repository.
 - `inspect_yolo_artifact.py` — inspect an external YOLO `.pt`/`.onnx` artifact
   and emit a JSON architecture/provenance manifest. Its `--help` path avoids
   importing heavyweight optional packages.
+- `gen_yolov8n_synthetic_cases.py` — generate deterministic, non-model-derived
+  fixture headers for the representative YOLOv8n C2f and Detect/DFL block
+  tests, including the reduced Detect/DFL public `[1, 84, N]` channel-major
+  ordering fixture.
 - `ptq_yolov5.py` — post-training quantization helper for the YOLO model path.
 - `gen_yolo_tensor_weights.py` — generate tensor-weight headers.
 - `gen_yolo_block_case.py` — generate CBS/block test cases.
@@ -55,6 +59,8 @@ regeneration scripts. The default validation for this port is:
 
 - `python3 tools/yolo/inspect_yolo_artifact.py --help` for the lightweight
   YOLO artifact inspector;
+- `python3 tools/yolo/gen_yolov8n_synthetic_cases.py --help` for the
+  non-model-derived YOLOv8n fixture generator;
 - planner unit tests;
 - ET Erbium YOLO downstream planner/map/device targets;
 - representative `tests/yolo` block ELFs under `erbium_emu`;
