@@ -21,8 +21,9 @@ The runtime is organized around a narrow HAL boundary and ET platform build:
 9. `yolov5n/` ports the original YOLOv5n process sources/manifests and CMake planner/mapper targets for the downstream graph.
 10. `yolov8n/` contains explicit external-header downstream milestones for
    P5-only Detect/DFL, sampled P3/P4/P5 Detect/DFL branch plumbing, and sampled
-   P5 `model.21` C2f source-module feeding Detect/DFL, gated by
-   `BUILD_TPA_YOLOV8N=ON` and external generated header/manifest variables.
+   P4 `model.18` plus P5 `model.21` C2f source-modules feeding Detect/DFL,
+   gated by `BUILD_TPA_YOLOV8N=ON` and external generated header/manifest
+   variables.
 11. `tests/tpa_msg/`, `tests/tpa_queue/`, and `tests/tpa_negative/` contain
    ported original runtime regression test assets integrated through the
    structured process/program build helpers.
@@ -73,6 +74,8 @@ cmake --build build-et-erbium --target tpa_yolov8n_p5_detect_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov8n_p5_detect.elf
 cmake --build build-et-erbium --target tpa_yolov8n_p5_c2f_detect_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov8n_p5_c2f_detect.elf
+cmake --build build-et-erbium --target tpa_yolov8n_p4_c2f_detect_map_mapped_program
+cmake --build build-et-erbium --target tpa_yolov8n_p4_c2f_detect.elf
 cmake --build build-et-erbium --target tpa_yolov8n_detect_downstream_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov8n_detect_downstream.elf
 cmake --build build-et-erbium --target tpa_queue_basic.elf tpa_queue_yield.elf tpa_queue_many.elf tpa_queue_wake.elf
@@ -108,10 +111,11 @@ downstream device ELF are integrated and have Erbium emulator PASS-marker
 validation. The YOLOv8n targets are explicit external-header milestones behind
 `BUILD_TPA_YOLOV8N=ON`; `tpa_yolov8n_p5_detect.elf` validates the sampled P5
 Detect/DFL branch, `tpa_yolov8n_p5_c2f_detect.elf` validates a sampled P5
-`model.21` C2f source module feeding Detect/DFL, and
-`tpa_yolov8n_detect_downstream.elf` validates sampled P3/P4/P5 branch plumbing
-with deterministic synthetic-calibration hashes only. They do not imply full
-YOLOv8n model validation.
+`model.21` C2f source module feeding Detect/DFL,
+`tpa_yolov8n_p4_c2f_detect.elf` validates a sampled P4 `model.18` C2f source
+module feeding Detect/DFL, and `tpa_yolov8n_detect_downstream.elf` validates
+sampled P3/P4/P5 branch plumbing with deterministic synthetic-calibration hashes
+only. They do not imply full YOLOv8n model validation.
 
 ### Erbium PASS/FAIL marker validation
 
@@ -265,11 +269,11 @@ targets, not archived generated JSON.
   `tpa_fast_attention.elf` plus the serial baseline `tpa_fast_attention_serial.elf`.
 - `yolov5n/` contains the original YOLOv5n process sources/assets plus downstream planner/map targets and `tpa_yolov5n_downstream.elf`.
 - `yolov8n/` contains external-header graphs for P5-only Detect/DFL, sampled
-  P3/P4/P5 Detect/DFL branch plumbing, and sampled P5 `model.21` C2f feeding
-  Detect/DFL, building `tpa_yolov8n_p5_detect.elf`,
-  `tpa_yolov8n_p5_c2f_detect.elf`, and `tpa_yolov8n_detect_downstream.elf` when
-  configured with `BUILD_TPA_YOLOV8N=ON` and external generated header/manifest
-  paths.
+  P3/P4/P5 Detect/DFL branch plumbing, and sampled P4 `model.18` plus P5
+  `model.21` C2f feeding Detect/DFL, building `tpa_yolov8n_p5_detect.elf`,
+  `tpa_yolov8n_p5_c2f_detect.elf`, `tpa_yolov8n_p4_c2f_detect.elf`, and
+  `tpa_yolov8n_detect_downstream.elf` when configured with
+  `BUILD_TPA_YOLOV8N=ON` and external generated header/manifest paths.
 
 ## Current limitations / follow-up
 
@@ -290,9 +294,10 @@ targets, not archived generated JSON.
   Erbium emulator PASS-marker validation are integrated. YOLOv8n has
   external-header mapper/device milestones with deterministic synthetic-calibration
   hash checking for P5-only Detect/DFL, sampled P3/P4/P5 Detect/DFL branch
-  plumbing, and a sampled P5 `model.21` C2f source module feeding Detect/DFL.
-  P3/P4 C2f source-module integration, production calibration/accuracy, full
-  YOLOv8n graph validation, and full YOLO host/demo launcher integration remain
+  plumbing, and sampled P4 `model.18` plus P5 `model.21` C2f source modules
+  feeding Detect/DFL. P3 C2f source-module integration, production
+  calibration/accuracy, full YOLOv8n graph validation, and full YOLO host/demo
+  launcher integration remain
   follow-up. Representative YOLO block-test CMake/CTest coverage is available
   under `tests/yolo/`.
 - DNN demos and LTFarm are preserved as archived/reference material with

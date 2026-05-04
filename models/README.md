@@ -54,10 +54,11 @@ python tools/yolo/inspect_yolo_artifact.py \
   --output /tmp/tpa-yolov8n/yolov8n_artifact_manifest.json
 ```
 
-The manifest is architecture input only. It does not add YOLOv8n kernels, a TPA
-program graph, calibration data, generated weight headers, or Erbium validation.
-Future kernel jobs must keep immutable model data, process scratch, and
-edge/channel payload storage distinct.
+The manifest is architecture input only. The repository's YOLOv8n device
+milestones consume separately generated external headers, but this manifest does
+not itself add calibration data, generated weight headers, production accuracy
+evidence, or a full YOLOv8n program graph. Kernel jobs must keep immutable model
+data, process scratch, and edge/channel payload storage distinct.
 
 ## External YOLOv8n generated headers
 
