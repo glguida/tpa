@@ -1,0 +1,27 @@
+pdef yolov8n_p4_dense_c2f_input_source_pdef user 880 yolov8n_p4_dense_c2f_input_source_start 0
+port yolov8n_p4_dense_c2f_input_source_pdef 0 out
+
+pdef yolov8n_p4_dense_c2f_pdef user 881 yolov8n_p4_dense_c2f_start 256
+port yolov8n_p4_dense_c2f_pdef 0 in
+port yolov8n_p4_dense_c2f_pdef 1 out
+port yolov8n_p4_dense_c2f_pdef 2 out
+
+pdef yolov8n_p4_p5_model19_pdef user 910 yolov8n_p4_p5_model19_start 256
+port yolov8n_p4_p5_model19_pdef 0 in
+port yolov8n_p4_p5_model19_pdef 1 out
+port yolov8n_p4_p5_model19_pdef 2 out
+
+pdef yolov8n_p4_p5_model9_source_pdef user 911 yolov8n_p4_p5_model9_source_start 0
+port yolov8n_p4_p5_model9_source_pdef 0 out
+
+pdef yolov8n_p4_p5_concat_pdef user 912 yolov8n_p4_p5_concat_start 256
+port yolov8n_p4_p5_concat_pdef 0 in
+port yolov8n_p4_p5_concat_pdef 1 in
+port yolov8n_p4_p5_concat_pdef 2 out
+port yolov8n_p4_p5_concat_pdef 3 out
+
+pdef yolov8n_p4_p5_checker_pdef user 913 yolov8n_p4_p5_checker_start 96
+port yolov8n_p4_p5_checker_pdef 0 in
+port yolov8n_p4_p5_checker_pdef 1 in
+port yolov8n_p4_p5_checker_pdef 2 in
+port yolov8n_p4_p5_checker_pdef 3 in

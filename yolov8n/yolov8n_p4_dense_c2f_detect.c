@@ -448,7 +448,7 @@ static int verify_c2f_layers(void)
     const yolov8n_external_detect_c2f_layer_t *cv2 =
         &yolov8n_external_detect_c2f_layers[YV8N_P4_DENSE_C2F_CV2_ID];
 
-    if (YOLOV8N_EXTERNAL_DETECT_C2F_N_LAYERS != 31u)
+    if (YOLOV8N_EXTERNAL_DETECT_C2F_N_LAYERS != 32u)
         return -1;
     if (cv1->K_out != 128u || cv1->C_in != 192u || cv1->kH != 1u ||
         cv1->kW != 1u)
@@ -484,7 +484,7 @@ static int verify_detect_layers(void)
     const yolov8n_external_detect_c2f_layer_t *dfl =
         &yolov8n_external_detect_c2f_layers[YV8N_P4_DENSE_C2F_DFL_ID];
 
-    if (YOLOV8N_EXTERNAL_DETECT_C2F_N_LAYERS != 31u)
+    if (YOLOV8N_EXTERNAL_DETECT_C2F_N_LAYERS != 32u)
         return -1;
     if (box0->K_out != 64u || box0->C_in != 128u || box0->kH != 3u ||
         box0->kW != 3u || box0->pad_h != 1u || box0->pad_w != 1u)

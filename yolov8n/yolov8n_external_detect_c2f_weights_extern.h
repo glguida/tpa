@@ -20,7 +20,7 @@ typedef struct {
     float           act_out_scale;
 } yolov8n_external_detect_c2f_layer_t;
 
-#define YOLOV8N_EXTERNAL_DETECT_C2F_N_LAYERS 31
+#define YOLOV8N_EXTERNAL_DETECT_C2F_N_LAYERS 32
 
 extern const yolov8n_external_detect_c2f_layer_t * const
     yolov8n_external_detect_c2f_layers_exported;

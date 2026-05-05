@@ -333,7 +333,7 @@ static int verify_selected_layer_shapes(void)
     const yolov8n_external_detect_c2f_layer_t *dfl =
         &yolov8n_external_detect_c2f_layers[YV8N_P5_DFL_ID];
 
-    if (YOLOV8N_EXTERNAL_DETECT_C2F_N_LAYERS != 31u)
+    if (YOLOV8N_EXTERNAL_DETECT_C2F_N_LAYERS != 32u)
         return -1;
     if (box0->K_out != 64u || box0->C_in != 256u || box0->kH != 3u ||
         box0->kW != 3u || box0->pad_h != 1u || box0->pad_w != 1u)

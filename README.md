@@ -54,9 +54,10 @@ smoke-test doubles; they are not ET platform validation.
   per-scale P3 `model.15`, P4 `model.18`, and P5 `model.21` C2f
   source-modules feeding Detect/DFL, a sampled combined P3/P4/P5 C2f+Detect
   downstream graph, dense P3 `model.15`, P4 `model.18`, and P5 `model.21` C2f
-  feature-map validation feeding sampled Detect/DFL, and a dense combined
-  P3/P4/P5 C2f+Detect downstream graph, gated by `BUILD_TPA_YOLOV8N=ON` and
-  external generated weight header/manifest cache variables.
+  feature-map validation feeding sampled Detect/DFL, a dense combined
+  P3/P4/P5 C2f+Detect downstream graph, and a P4-to-P5 `model.19` neck-tail
+  Conv+Concat graph, gated by `BUILD_TPA_YOLOV8N=ON` and external generated
+  weight header/manifest cache variables.
 - `tests/tpa_msg/`, `tests/tpa_queue/`, `tests/tpa_negative/` — ported
   original message/channel, scheduler/queue, and expected-failure runtime test
   assets integrated through the structured TPA process/program build path.
@@ -172,9 +173,9 @@ cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
   -max_cycles 100000000
 ```
 
-YOLOv8n Detect/DFL is an explicit external-header milestone. It requires the
-external generated header/manifest and uses synthetic-calibration hashes only;
-it is not full YOLOv8n model or accuracy validation. See
+YOLOv8n external-header milestones require the external generated
+header/manifest and use synthetic-calibration hashes only; they are not full
+YOLOv8n model or accuracy validation. See
 `docs/yolo-demo.md#yolov8n-calibration-data-and-generated-artifact-policy` for
 the artifact, calibration, and claim checklist:
 
@@ -200,6 +201,8 @@ cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p4_c2f_detect_map_map
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p4_c2f_detect.elf
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p4_dense_c2f_detect_map_mapped_program
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p4_dense_c2f_detect.elf
+cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p4_p5_neck_tail_map_mapped_program
+cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p4_p5_neck_tail.elf
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_dense_c2f_detect_downstream_map_mapped_program
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_dense_c2f_detect_downstream.elf
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_c2f_detect_downstream_map_mapped_program
@@ -319,9 +322,10 @@ Ported and validated today:
   `model.18`, and P5 `model.21` C2f source modules feeding Detect/DFL, a
   sampled combined P3/P4/P5 C2f+Detect downstream graph, dense P3
   `model.15`, P4 `model.18`, and P5 `model.21` C2f feature-map validation
-  feeding sampled Detect/DFL, and a dense combined P3/P4/P5 C2f+Detect graph
-  that validates all three dense C2f summaries together while Detect remains
-  sampled.
+  feeding sampled Detect/DFL, a dense combined P3/P4/P5 C2f+Detect graph that
+  validates all three dense C2f summaries together while Detect remains sampled,
+  and a P4-to-P5 `model.19` neck-tail Conv+Concat graph that consumes dense P4
+  C2f output and a deterministic synthetic SPPF-side edge.
 - ET-SoC-1 default one-shire `tpa_core` build.
 - `tpa_launcher` host tool target.
 - Python planner package, checked-in machine JSONs, and planner tests.

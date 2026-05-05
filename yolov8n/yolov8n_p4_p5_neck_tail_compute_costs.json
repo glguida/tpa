@@ -1,0 +1,8 @@
+{
+  "yolov8n_p4_dense_c2f_input_source_pdef": 25,
+  "yolov8n_p4_dense_c2f_pdef": 170000,
+  "yolov8n_p4_p5_model19_pdef": 70000,
+  "yolov8n_p4_p5_model9_source_pdef": 25,
+  "yolov8n_p4_p5_concat_pdef": 2000,
+  "yolov8n_p4_p5_checker_pdef": 50
+}

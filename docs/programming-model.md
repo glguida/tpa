@@ -284,7 +284,8 @@ Currently integrated generated TPA programs include:
   `tpa_yolov8n_p4_c2f_detect.elf`, and `tpa_yolov8n_p5_c2f_detect.elf`), the
   dense P3/P4/P5 C2f+Detect ELFs `tpa_yolov8n_p3_dense_c2f_detect.elf`,
   `tpa_yolov8n_p4_dense_c2f_detect.elf`, and
-  `tpa_yolov8n_p5_dense_c2f_detect.elf`, the sampled combined C2f+Detect graph
+  `tpa_yolov8n_p5_dense_c2f_detect.elf`, the P4-to-P5 neck-tail graph
+  `tpa_yolov8n_p4_p5_neck_tail.elf`, the sampled combined C2f+Detect graph
   `tpa_yolov8n_c2f_detect_downstream.elf`, and the dense combined C2f+Detect
   graph `tpa_yolov8n_dense_c2f_detect_downstream.elf` when explicitly
   configured with external generated header/manifest paths.
@@ -293,8 +294,8 @@ Original message, queue, and negative regression assets are also integrated as
 structured test ELF targets. Representative message/channel and queue ELFs now
 report PASS under Erbium, and the negative expected-failure ELF reports the
 intended FAIL marker. Tensor matmul, fast attention, stereo SAD, YOLOv5n
-downstream, and the opt-in YOLOv8n Detect/DFL external-header paths now have
-Erbium PASS-marker validation. The stereo SAD demo uses deterministic synthetic
+downstream, and the opt-in YOLOv8n Detect/DFL/C2f/neck-tail external-header
+paths now have Erbium PASS-marker validation. The stereo SAD demo uses deterministic synthetic
 data only; it does not require external images, datasets, model weights, or
 third-party stereo code. It uses hand placement; mapper-generated
 placement/report work remains follow-up. YOLO tools/models and representative
@@ -310,7 +311,7 @@ execute process continuations. The validated Erbium PASS-marker set is still
 representative rather than exhaustive: `tpa_empty.elf`, `tpa_pipe_demo.elf`,
 `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
 `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`, YOLOv5n downstream,
-the opt-in YOLOv8n Detect/DFL milestones, representative message/channel tests,
+the opt-in YOLOv8n Detect/DFL/C2f/neck-tail milestones, representative message/channel tests,
 and representative queue tests pass. Broader scheduler coverage, full
 YOLOv8n graph/model validation, and full YOLO host/demo integration remain
 follow-up. Documentation and tests should be explicit about that distinction.

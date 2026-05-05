@@ -102,11 +102,12 @@ explicit inputs; committed code must not name AgentWS workspace paths.
 
 The selected modules come from `yolov8n_external_layer_selection.json`, which is
 validated against the checked-in artifact manifest. The selection covers Detect
-source C2f modules `model.15`, `model.18`, and `model.21`, plus the Detect/DFL
-branches under `model.22` needed to produce 64 box-distribution and 80 class
-channels per scale. Detect input tensors remain graph edge/channel payloads;
-generated weights and quantization tables are immutable model data, not process
-scratch or persistent process state.
+source C2f modules `model.15`, `model.18`, and `model.21`, the P4-to-P5
+neck-down `model.19` Conv module, plus the Detect/DFL branches under `model.22`
+needed to produce 64 box-distribution and 80 class channels per scale. Detect
+input tensors, neck tensors, and concat tensors remain graph edge/channel
+payloads; generated weights and quantization tables are immutable model data,
+not process scratch or persistent process state.
 
 ## Normal validation
 

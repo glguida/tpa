@@ -117,8 +117,9 @@ Current structured pieces are:
   `model.15`, P4 `model.18`, and P5 `model.21` C2f source-modules feeding
   Detect/DFL, a sampled combined P3/P4/P5 C2f+Detect downstream graph,
   dense P3 `model.15`, P4 `model.18`, and P5 `model.21` C2f feature-map
-  validation feeding sampled Detect/DFL, and a dense combined P3/P4/P5
-  C2f+Detect downstream graph, with mapper-generated placement/edge config.
+  validation feeding sampled Detect/DFL, a dense combined P3/P4/P5 C2f+Detect
+  downstream graph, and a P4-to-P5 `model.19` neck-tail Conv+Concat graph, with
+  mapper-generated placement/edge config.
 - `tests/yolo/` — YOLO block-test sources/assets with representative Erbium
   CMake/CTest coverage.
 - `planner/` — Python metadata extraction, planning, and mapping package.
@@ -148,9 +149,11 @@ The current structured repo validates these paths:
   deterministic synthetic-calibration P5 Detect/DFL, sampled P3/P4/P5
   Detect/DFL, sampled per-scale P3/P4/P5 C2f-to-Detect plumbing hashes, a
   sampled combined P3/P4/P5 C2f+Detect downstream graph, dense P3/P4/P5 C2f
-  feature-map hashes feeding sampled per-scale Detect, and a dense combined
+  feature-map hashes feeding sampled per-scale Detect, a dense combined
   P3/P4/P5 C2f+Detect graph that validates all three dense C2f summaries
-  together while Detect remains sampled;
+  together while Detect remains sampled, and a P4-to-P5 `model.19` neck-tail
+  Conv+Concat graph over dense P4 C2f output plus a deterministic synthetic
+  SPPF-side edge;
 - ET-SoC-1 default one-shire `tpa_core` builds;
 - host smoke-test-double builds and tests pass, but those are not platform
   validation.
@@ -176,9 +179,9 @@ PASS marker. YOLOv8n has opt-in external-header milestones for P5-only
 Detect/DFL, sampled P3/P4/P5 Detect/DFL branch plumbing, sampled per-scale
 P3/P4/P5 C2f source modules feeding Detect/DFL, a sampled combined P3/P4/P5
 C2f+Detect downstream graph, dense P3/P4/P5 C2f feature-map validation feeding
-sampled per-scale Detect, and dense combined P3/P4/P5 C2f+Detect graph
-composition; full-model validation and the full YOLO host/demo pipeline remain
-follow-up.
+sampled per-scale Detect, dense combined P3/P4/P5 C2f+Detect graph composition,
+and a P4-to-P5 `model.19` neck-tail Conv+Concat graph; full-model validation
+and the full YOLO host/demo pipeline remain follow-up.
 
 ### Image generation
 

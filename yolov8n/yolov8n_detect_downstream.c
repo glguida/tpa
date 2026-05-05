@@ -426,7 +426,7 @@ static int verify_scale_layers(const detect_scale_config_t *cfg)
     const yolov8n_external_detect_c2f_layer_t *dfl =
         &yolov8n_external_detect_c2f_layers[YV8N_DFL_ID];
 
-    if (YOLOV8N_EXTERNAL_DETECT_C2F_N_LAYERS != 31u)
+    if (YOLOV8N_EXTERNAL_DETECT_C2F_N_LAYERS != 32u)
         return -1;
     if (box0->K_out != 64u || box0->C_in != cfg->input_c || box0->kH != 3u ||
         box0->kW != 3u || box0->pad_h != 1u || box0->pad_w != 1u)

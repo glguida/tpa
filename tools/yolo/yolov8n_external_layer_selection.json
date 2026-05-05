@@ -7,7 +7,7 @@
     "pt_sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36",
     "onnx_sha256": "3192f31d65cf4d6a3f00c06a0ba1ae9b78f9c3a14f50c60ea3b086fbcec4f034"
   },
-  "scope": "First external YOLOv8n INT8 downstream milestone: Detect source C2f modules model.15/model.18/model.21 and Detect/DFL branches model.22 that consume those feature maps.",
+  "scope": "First external YOLOv8n INT8 downstream milestone family: Detect source C2f modules model.15/model.18/model.21, the P4-to-P5 neck-down model.19 Conv boundary, and Detect/DFL branches model.22 that consume the selected feature maps.",
   "artifact_policy": {
     "generated_weight_headers": "external-untracked-output-only",
     "source_model_binaries": "external-not-checked-in",
@@ -93,7 +93,46 @@
     "raw_channels_per_scale": 144,
     "public_output_channels_after_decode": 84
   },
-  "full_n_layers": 31,
+  "neck_tail_edges": {
+    "p4_to_p5_neck_tail": {
+      "source_module": "model.18",
+      "neck_downsample_module": "model.19",
+      "concat_module": "model.20",
+      "synthetic_sppf_side_source": "model.9",
+      "input_shape_nchw": [
+        1,
+        128,
+        40,
+        40
+      ],
+      "neck_downsample_output_shape_nchw": [
+        1,
+        128,
+        20,
+        20
+      ],
+      "synthetic_sppf_side_shape_nchw": [
+        1,
+        256,
+        20,
+        20
+      ],
+      "concat_output_shape_nchw": [
+        1,
+        384,
+        20,
+        20
+      ],
+      "int8_edge_payload_bytes": {
+        "p4_c2f_to_model19": 204800,
+        "model19_to_concat": 51200,
+        "synthetic_model9_to_concat": 102400,
+        "concat_to_checker": 153600
+      },
+      "artifact_policy": "The synthetic SPPF-side source is deterministic non-model-derived data; model-derived activations remain external/untracked."
+    }
+  },
+  "full_n_layers": 32,
   "layers": {
     "0": "model.15.cv1",
     "1": "model.15.m.0.cv1",
@@ -125,7 +164,8 @@
     "27": "model.22.cv3.2.0",
     "28": "model.22.cv3.2.1",
     "29": "model.22.cv3.2.2",
-    "30": "model.22.dfl.conv"
+    "30": "model.22.dfl.conv",
+    "31": "model.19"
   },
   "layer_groups": [
     {
@@ -599,6 +639,69 @@
           "in_channels": 384,
           "out_channels": 256,
           "batch_norm_features": 256
+        }
+      ]
+    },
+    {
+      "name": "p4_to_p5_neck_tail_model19",
+      "top_level_module": "model.19",
+      "top_level_type": "Conv",
+      "input_shape_nchw": [
+        1,
+        128,
+        40,
+        40
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        20,
+        20
+      ],
+      "output_feeds_concat_module": "model.20",
+      "concat_synthetic_side_source": "model.9",
+      "concat_output_shape_nchw": [
+        1,
+        384,
+        20,
+        20
+      ],
+      "output_is_detect_input_edge": false,
+      "internal_flow": "Stride-2 Conv+BN+SiLU neck-downsample from dense P4 model.18 output; model.20 concatenates this output before a deterministic non-model-derived synthetic model.9/SPPF-side tensor to form the model.21 input shape.",
+      "quantized_modules": [
+        {
+          "export_id": 31,
+          "module": "model.19",
+          "role": "p4_to_p5_neck_downsample",
+          "type": "Conv",
+          "parameter_count_recursive": 147712,
+          "kind": "conv_bn_silu",
+          "conv": "model.19.conv",
+          "batch_norm": "model.19.bn",
+          "activation": "SiLU",
+          "weight_shape": [
+            128,
+            128,
+            3,
+            3
+          ],
+          "bias": false,
+          "kernel_size": [
+            3,
+            3
+          ],
+          "stride": [
+            2,
+            2
+          ],
+          "padding": [
+            1,
+            1
+          ],
+          "groups": 1,
+          "in_channels": 128,
+          "out_channels": 128,
+          "batch_norm_features": 128
         }
       ]
     },
