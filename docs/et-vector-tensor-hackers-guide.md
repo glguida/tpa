@@ -22,6 +22,7 @@ Use this guide to remember what those rules imply for code review.
 | `kernels/tpa_packed_single_row.c` | Minimal structured packed-single row micro-example: aligned 16-float edge rows, `flw.ps`/`fmul.ps`/`fadd.ps`/`fsw.ps`, scalar checking, and decoded objdump evidence. |
 | `kernels/tpa_tensor_alignment.c` | Small Tensor alignment/error evidence target: 64-byte-header packet contract, aligned 16-by-16 FP32 TensorLoad/TensorFMA success path, and controlled `tensor_error[4]` expected-error subtest with L1 scratchpad disabled. |
 | `kernels/tpa_tensor_matmul.c` | Current in-repository Tensor matrix multiply process: scratchpad setup, `tensor_load`, `tensor_fma`, waits, error handling, and packed-single register-file load/store helpers. |
+| `kernels/tpa_pmu_counter_sanity.c` | Narrow structured Erbium PMU CSR sanity target: one process on runtime hart 0, documented counter CSR reads/writes only, no PMU-control ESR recipe. |
 | `attention/attention_et.h` | Current reusable ET helper patterns for 16-by-16 FP32 TensorFMA, packed-single row copy/scale, and the opt-in softmax subtract-max packed-single experiment. |
 | `attention/attention_common.h` | Packet layout, 64-byte headers, static asserts, trace tags, and scalar reference helpers for a fixed 16-by-16 workload. |
 | `attention/attention_score.c`, `attention/attention_softmax.c`, `attention/attention_output.c` | Continuation integration around Tensor score/output products, packed-single row work, and scalar validation. |
@@ -1054,25 +1055,92 @@ Attention packed-single subtract-max evidence:
 
 PMU counter sanity evidence:
 
-- `tpa_pmu_counter_sanity.elf` is the current narrow structured Erbium PMU CSR
-  sanity target. It is built through the top-level ET superbuild and the
-  `.c + .tpm + .tpp + .place` TPA path.
-- The target validates only a documented M-mode CSR subset: `mcycle` and
-  `minstret` read as zero, `mhpmcounter9` reads as zero, `mhpmevent3 = NONE`
-  leaves `mhpmcounter3` unchanged across deterministic work, and
-  `mhpmevent3 = RETIRED_INST0` makes `mhpmcounter3` advance across two fixed
-  instruction loops.
-- The Erbium CTest uses `-minions 0x1` to reduce shared-counter aggregation
-  hazards. A direct DEBUG run records raw `validation0` trace values showing
-  `retired_delta1 = 648` and `retired_delta2 = 1289`, followed by an
-  application PASS marker at cycle `10363`; the raw direct-emulator exit is
-  still `1` afterward because of the normal post-PASS sleeping-harts caveat.
-- The target intentionally does not write a PMU-control ESR. The local PRM says
-  the PMU requires ESR control, but the Erbium and ET-SoC-1 ESR addresses and
-  bit semantics are not yet documented in this repository as a safe portable
-  process-level API. Treat this target as Erbium emulator PMU-access sanity, not
-  as a complete operational recipe for ET-SoC-1, silicon, or published
-  per-kernel measurement.
+`kernels/tpa_pmu_counter_sanity.c` is the current narrow structured Erbium PMU
+CSR sanity target. It is built as `tpa_pmu_counter_sanity.elf` through the
+required top-level ET superbuild and the `.c + .tpm + .tpp + .place` TPA path.
+The graph has one process instance, no channels, and checked-in placement on
+runtime hart `0`. The device-subbuild CTest is `tpa_pmu_counter_sanity` and uses
+`-minions 0x1` to reduce shared-counter aggregation hazards.
+
+| Evidence item | Current result |
+| --- | --- |
+| Structured target | `tpa_pmu_counter_sanity.elf` |
+| CTest | `tpa_pmu_counter_sanity` |
+| Graph/placement | one process, one instance, no channels, runtime hart `0` |
+| Minion mask | CTest and direct evidence use `-minions 0x1` |
+| CSR reads | documented `mcycle`, `minstret`, `mhpmcounter9`, and `mhpmcounter3` |
+| CSR writes | documented `mhpmevent3` and `mhpmcounter3` |
+| Not used | PMU-control ESRs and arbitrary undocumented registers |
+| Observed tied-zero values | `mcycle=0`, `minstret=0`, `mhpmcounter9=0`, `none_delta=0` |
+| Observed retired-instruction movement | `retired_delta1=648`, `retired_delta2=1289` |
+| Deterministic sink | `work_sink=0x123456b8` |
+| Direct DEBUG run | application PASS at cycle `10363`; raw exit `1` afterward due the normal post-PASS sleeping-harts caveat |
+| Objdump evidence | `csrr mcycle`, `csrr minstret`, `csrr mhpmcounter9`, `csrw mhpmevent3`, `csrw mhpmcounter3`, `csrr mhpmcounter3` |
+
+This target proves only narrow current-Erbium-emulator PMU CSR access sanity:
+`mcycle` and `minstret` are observed as tied-zero in this environment,
+`mhpmcounter9` is tied zero, event selector `NONE` leaves `mhpmcounter3`
+unchanged across deterministic work, and selector `RETIRED_INST0` makes
+`mhpmcounter3` advance across two fixed instruction loops. It is not a benchmark,
+not a calibrated measurement method, and not evidence for Tensor-event counters,
+cycle-event counters, PMU-control ESR programming, ET-SoC-1, silicon, PCIe, host
+launcher behavior, cross-platform behavior, or production performance.
+
+Conservative PMU/counter measurement checklist for future jobs:
+
+1. **Isolate the target and harts.** Name the exact ELF, CTest or direct command,
+   runtime hart ids, and minion mask. Prefer the smallest mask that runs the
+   target while the selector ownership story is immature.
+2. **State counter scope.** Document whether the counter is per-hart,
+   shared-neighborhood, or otherwise aggregated. The PRM notes that even harts
+   in a neighborhood share `mhpmcounter3`-`mhpmcounter6` values and can count the
+   union of configured events.
+3. **Identify selector ownership.** State which code writes `mhpmevent*`, which
+   harts share that selector/counter, and how other processes are prevented from
+   changing it during the measurement.
+4. **Avoid PMU-control ESR writes until owned.** Do not write PMU-control ESRs or
+   undocumented registers from a measurement job until platform owners provide a
+   reviewed process-level API, address mapping, enable/disable bit semantics, and
+   privilege model for Erbium and ET-SoC-1.
+5. **Reset and prime explicitly.** Write the selected event and counter reset in
+   source, add fences where the target uses them, and record source/objdump
+   evidence for those accesses.
+6. **Preserve correctness separately.** PASS/FAIL validation is required even if
+   counter values look plausible. Keep PASS-marker evidence separate from raw
+   direct-emulator exit status and separate from counter interpretation.
+7. **Collect comparable runs.** For a performance claim, capture baseline and
+   variant under the same build, input, placement, minion mask, logging mode,
+   warmup policy, and counter selector discipline.
+8. **Record objdump/source evidence.** Preserve the exact objdump command and
+   evidence for counter reads/writes, including `csrr`/`csrw` lines and the
+   source helpers that generated them.
+9. **Explain noise and aggregation.** State expected sources of counter movement:
+   startup, scheduler, trace, validation, shared harts, debug logging, and any
+   event union caused by neighboring selectors.
+10. **Review before claiming speedup.** Treat counter output as diagnostic data
+    until the method, selector ownership, baseline/variant comparison, and
+    statistical interpretation are reviewed.
+
+Hard gate: broader PMU measurement jobs must not write PMU-control ESRs, use
+shared selectors opportunistically, or publish per-kernel measurements until the
+project has a reviewed PMU ownership/API decision. That decision must define who
+may program `mhpmevent*`, how shared counters are partitioned or serialized, how
+PMU-control ESRs are enabled on each platform, and how measurements coexist with
+TPA scheduling and validation code.
+
+Open PMU questions for platform owners:
+
+- Which PMU-control ESR address and bit value should TPA use on Erbium and on
+  ET-SoC-1, and at what privilege level?
+- Should PMU access be a HAL/runtime service rather than direct process inline
+  assembly?
+- How should the runtime serialize or allocate `mhpmevent3`-`mhpmevent8` when
+  several harts in a neighborhood can observe or program shared counters?
+- Which events are safe first targets for Tensor/SIMD measurement, and what
+  synthetic workload should define their expected movement?
+- How should CTest wrappers preserve PASS-marker evidence, raw emulator exit
+  status, and parsed counter values without turning diagnostics into benchmark
+  claims?
 
 Trace checks should prove that the optimized path actually ran. Trace tags are
 application-specific; the pattern is not:
