@@ -53,9 +53,10 @@ smoke-test doubles; they are not ET platform validation.
   P5-only Detect/DFL, sampled P3/P4/P5 Detect/DFL branch plumbing, sampled
   per-scale P3 `model.15`, P4 `model.18`, and P5 `model.21` C2f
   source-modules feeding Detect/DFL, a sampled combined P3/P4/P5 C2f+Detect
-  downstream graph, and dense P5 `model.21` C2f feature-map validation feeding
-  Detect/DFL, gated by `BUILD_TPA_YOLOV8N=ON` and external generated weight
-  header/manifest cache variables.
+  downstream graph, dense P4 `model.18` C2f feature-map validation feeding
+  sampled P4 Detect/DFL, and dense P5 `model.21` C2f feature-map validation
+  feeding Detect/DFL, gated by `BUILD_TPA_YOLOV8N=ON` and external generated
+  weight header/manifest cache variables.
 - `tests/tpa_msg/`, `tests/tpa_queue/`, `tests/tpa_negative/` — ported
   original message/channel, scheduler/queue, and expected-failure runtime test
   assets integrated through the structured TPA process/program build path.
@@ -195,6 +196,8 @@ cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p3_c2f_detect_map_map
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p3_c2f_detect.elf
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p4_c2f_detect_map_mapped_program
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p4_c2f_detect.elf
+cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p4_dense_c2f_detect_map_mapped_program
+cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p4_dense_c2f_detect.elf
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_c2f_detect_downstream_map_mapped_program
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_c2f_detect_downstream.elf
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_detect_downstream_map_mapped_program
@@ -310,7 +313,8 @@ Ported and validated today:
   deterministic synthetic-calibration hashes for sampled P5 Detect/DFL,
   sampled P3/P4/P5 Detect/DFL branch points, sampled P3 `model.15`, P4
   `model.18`, and P5 `model.21` C2f source modules feeding Detect/DFL, a
-  sampled combined P3/P4/P5 C2f+Detect downstream graph, and dense P5
+  sampled combined P3/P4/P5 C2f+Detect downstream graph, dense P4 `model.18`
+  C2f feature-map validation feeding sampled P4 Detect/DFL, and dense P5
   `model.21` C2f feature-map validation feeding Detect/DFL.
 - ET-SoC-1 default one-shire `tpa_core` build.
 - `tpa_launcher` host tool target.

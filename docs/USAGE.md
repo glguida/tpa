@@ -22,7 +22,8 @@ The runtime is organized around a narrow HAL boundary and ET platform build:
 10. `yolov8n/` contains explicit external-header downstream milestones for
    P5-only Detect/DFL, sampled P3/P4/P5 Detect/DFL branch plumbing, sampled P3
    `model.15`, P4 `model.18`, and P5 `model.21` C2f source-modules feeding
-   Detect/DFL, a sampled combined P3/P4/P5 C2f+Detect downstream graph, and
+   Detect/DFL, a sampled combined P3/P4/P5 C2f+Detect downstream graph, dense
+   P4 `model.18` C2f feature-map validation feeding sampled P4 Detect/DFL, and
    dense P5 `model.21` C2f feature-map validation feeding Detect/DFL, gated by
    `BUILD_TPA_YOLOV8N=ON` and external generated header/manifest variables.
 11. `tests/tpa_msg/`, `tests/tpa_queue/`, and `tests/tpa_negative/` contain
@@ -81,6 +82,8 @@ cmake --build build-et-erbium --target tpa_yolov8n_p3_c2f_detect_map_mapped_prog
 cmake --build build-et-erbium --target tpa_yolov8n_p3_c2f_detect.elf
 cmake --build build-et-erbium --target tpa_yolov8n_p4_c2f_detect_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov8n_p4_c2f_detect.elf
+cmake --build build-et-erbium --target tpa_yolov8n_p4_dense_c2f_detect_map_mapped_program
+cmake --build build-et-erbium --target tpa_yolov8n_p4_dense_c2f_detect.elf
 cmake --build build-et-erbium --target tpa_yolov8n_c2f_detect_downstream_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov8n_c2f_detect_downstream.elf
 cmake --build build-et-erbium --target tpa_yolov8n_detect_downstream_map_mapped_program
@@ -122,8 +125,10 @@ Detect/DFL branch, `tpa_yolov8n_p5_c2f_detect.elf`,
 sampled P5 `model.21`, P4 `model.18`, and P3 `model.15` C2f source modules
 feeding Detect/DFL, `tpa_yolov8n_c2f_detect_downstream.elf` composes those
 sampled per-scale C2f+Detect branches in one mapped graph,
-`tpa_yolov8n_p5_dense_c2f_detect.elf` validates all 400 P5 C2f output points
-feeding sampled P5 Detect, and `tpa_yolov8n_detect_downstream.elf` validates
+`tpa_yolov8n_p4_dense_c2f_detect.elf` validates all 1600 P4 C2f output points
+feeding sampled P4 Detect, `tpa_yolov8n_p5_dense_c2f_detect.elf` validates all
+400 P5 C2f output points feeding sampled P5 Detect, and
+`tpa_yolov8n_detect_downstream.elf` validates
 sampled P3/P4/P5 branch plumbing with deterministic synthetic-calibration hashes
 only. They do not imply full YOLOv8n model validation. See
 `docs/yolo-demo.md#yolov8n-calibration-data-and-generated-artifact-policy` for
@@ -282,11 +287,13 @@ targets, not archived generated JSON.
 - `yolov5n/` contains the original YOLOv5n process sources/assets plus downstream planner/map targets and `tpa_yolov5n_downstream.elf`.
 - `yolov8n/` contains external-header graphs for P5-only Detect/DFL, sampled
   P3/P4/P5 Detect/DFL branch plumbing, sampled P3 `model.15`, P4 `model.18`,
-  and P5 `model.21` C2f feeding Detect/DFL, and a sampled combined P3/P4/P5
-  C2f+Detect downstream graph, and dense P5 `model.21` C2f feature-map
+  and P5 `model.21` C2f feeding Detect/DFL, a sampled combined P3/P4/P5
+  C2f+Detect downstream graph, dense P4 `model.18` C2f feature-map validation
+  feeding sampled P4 Detect/DFL, and dense P5 `model.21` C2f feature-map
   validation feeding Detect/DFL, building `tpa_yolov8n_p5_detect.elf`,
   `tpa_yolov8n_p5_c2f_detect.elf`, `tpa_yolov8n_p5_dense_c2f_detect.elf`,
-  `tpa_yolov8n_p4_c2f_detect.elf`, `tpa_yolov8n_p3_c2f_detect.elf`,
+  `tpa_yolov8n_p4_c2f_detect.elf`, `tpa_yolov8n_p4_dense_c2f_detect.elf`,
+  `tpa_yolov8n_p3_c2f_detect.elf`,
   `tpa_yolov8n_c2f_detect_downstream.elf`, and
   `tpa_yolov8n_detect_downstream.elf` when configured with
   `BUILD_TPA_YOLOV8N=ON` and external generated header/manifest paths.
@@ -312,8 +319,9 @@ targets, not archived generated JSON.
   hash checking for P5-only Detect/DFL, sampled P3/P4/P5 Detect/DFL branch
   plumbing, sampled P3 `model.15`, P4 `model.18`, and P5 `model.21` C2f
   source modules feeding Detect/DFL, a sampled combined P3/P4/P5 C2f+Detect
-  downstream graph, and dense P5 C2f feature-map validation feeding sampled P5
-  Detect. Dense P3/P4 and dense combined coverage, production
+  downstream graph, dense P4 C2f feature-map validation feeding sampled P4
+  Detect, and dense P5 C2f feature-map validation feeding sampled P5 Detect.
+  Dense P3 and dense combined coverage, production
   calibration/accuracy, full YOLOv8n graph validation, and full YOLO host/demo
   launcher integration remain follow-up. Representative YOLO block-test
   CMake/CTest coverage is available under `tests/yolo/`.
