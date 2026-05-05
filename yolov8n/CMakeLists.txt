@@ -709,6 +709,77 @@ target_compile_definitions(
 )
 
 add_tpa_process(
+    NAME tpa_yolov8n_dense_c2f_detect_downstream_proc
+    MANIFEST "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_dense_c2f_detect_downstream.tpm"
+    SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_c2f_detect_downstream_weights.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p3_dense_c2f_detect.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p4_dense_c2f_detect.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p5_dense_c2f_detect.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_dense_c2f_detect_downstream.c"
+    INCLUDES ${TPA_YOLOV8N_INCLUDES}
+)
+target_compile_definitions(
+    tpa_yolov8n_dense_c2f_detect_downstream_proc
+    PRIVATE
+        TPA_YOLOV8N_EXTERNAL_WEIGHTS_HEADER=\"${TPA_YOLOV8N_EXTERNAL_WEIGHTS_EXTERN_HEADER}\"
+        TPA_YOLOV8N_EXTERNAL_WEIGHTS_SOURCE_HEADER=\"${TPA_YOLOV8N_EXTERNAL_WEIGHTS_HEADER}\"
+        TPA_YOLOV8N_EXTERNAL_WEIGHTS_MANIFEST=\"${TPA_YOLOV8N_EXTERNAL_WEIGHTS_MANIFEST}\"
+)
+yolov8n_add_process_metadata(
+    tpa_yolov8n_dense_c2f_detect_downstream_proc
+    "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_dense_c2f_detect_downstream.tpm"
+    TPA_YOLOV8N_DENSE_C2F_DETECT_DOWNSTREAM_JSON
+)
+
+yolov8n_add_plan_report(
+    tpa_yolov8n_dense_c2f_detect_downstream_plan
+    "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_dense_c2f_detect_downstream.tpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_dense_c2f_detect_downstream.place"
+    PROCESS_TARGETS tpa_yolov8n_dense_c2f_detect_downstream_proc
+)
+
+yolov8n_add_mapped_program(
+    tpa_yolov8n_dense_c2f_detect_downstream_map
+    "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_dense_c2f_detect_downstream.tpp"
+    PROCESS_TARGETS tpa_yolov8n_dense_c2f_detect_downstream_proc
+    OUT_PLACEMENT_VAR TPA_YOLOV8N_DENSE_C2F_DETECT_DOWNSTREAM_MAPPED_PLACEMENT
+    OUT_SCRATCH_HEADER_VAR TPA_YOLOV8N_DENSE_C2F_DETECT_DOWNSTREAM_SCRATCH_HEADER
+    OUT_EDGE_HEADER_VAR TPA_YOLOV8N_DENSE_C2F_DETECT_DOWNSTREAM_EDGE_HEADER
+    OUT_REPORT_VAR TPA_YOLOV8N_DENSE_C2F_DETECT_DOWNSTREAM_MAP_REPORT
+    OUT_MAPPED_PROGRAM_VAR TPA_YOLOV8N_DENSE_C2F_DETECT_DOWNSTREAM_MAPPED_PROGRAM
+    COMPUTE_COSTS_JSON "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_dense_c2f_detect_downstream_compute_costs.json"
+    MACHINE_JSON "${TPA_YOLOV8N_MACHINE_JSON}"
+    NUM_MINIONS 4
+)
+
+add_tpa_program_test(
+    NAME tpa_yolov8n_dense_c2f_detect_downstream
+    PROCESSES tpa_yolov8n_dense_c2f_detect_downstream_proc
+    PROGRAM "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_dense_c2f_detect_downstream.tpp"
+    PLACEMENT "${TPA_YOLOV8N_DENSE_C2F_DETECT_DOWNSTREAM_MAPPED_PLACEMENT}"
+    EDGE_CONFIG_HEADER "${TPA_YOLOV8N_DENSE_C2F_DETECT_DOWNSTREAM_EDGE_HEADER}"
+    LINKER_SCRIPT "${TPA_YOLOV8N_LDS}"
+    INCLUDES ${TPA_YOLOV8N_INCLUDES}
+)
+target_sources(
+    tpa_yolov8n_dense_c2f_detect_downstream.elf
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p5_arena.c"
+)
+add_dependencies(
+    tpa_yolov8n_dense_c2f_detect_downstream.elf
+    tpa_yolov8n_dense_c2f_detect_downstream_map_mapped_program
+)
+target_compile_definitions(
+    tpa_yolov8n_dense_c2f_detect_downstream.elf
+    PRIVATE
+        TPA_YOLOV8N_EXTERNAL_WEIGHTS_HEADER=\"${TPA_YOLOV8N_EXTERNAL_WEIGHTS_HEADER}\"
+        TPA_YOLOV8N_EXTERNAL_WEIGHTS_MANIFEST=\"${TPA_YOLOV8N_EXTERNAL_WEIGHTS_MANIFEST}\"
+        YV8N_P5_SCRATCH_CONFIG_HEADER=\"${TPA_YOLOV8N_DENSE_C2F_DETECT_DOWNSTREAM_SCRATCH_HEADER}\"
+)
+
+add_tpa_process(
     NAME tpa_yolov8n_c2f_detect_downstream_proc
     MANIFEST "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_c2f_detect_downstream.tpm"
     SOURCES
@@ -909,6 +980,17 @@ if (TPA_PLATFORM_ID STREQUAL "erbium" AND BUILD_TESTING AND EXISTS "${TPA_YOLOV8
             -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
     )
     set_tests_properties(tpa_yolov8n_p3_dense_c2f_detect PROPERTIES TIMEOUT 9000)
+    add_test(
+        NAME tpa_yolov8n_dense_c2f_detect_downstream
+        COMMAND "${CMAKE_COMMAND}"
+            -DEMU=${TPA_YOLOV8N_ERBIUM_EMU}
+            -DELF=$<TARGET_FILE:tpa_yolov8n_dense_c2f_detect_downstream.elf>
+            -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_yolov8n_dense_c2f_detect_downstream.out
+            -DMAX_CYCLES=42000000000
+            -DMINIONS=0xf
+            -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
+    )
+    set_tests_properties(tpa_yolov8n_dense_c2f_detect_downstream PROPERTIES TIMEOUT 14400)
     add_test(
         NAME tpa_yolov8n_p3_c2f_detect
         COMMAND "${CMAKE_COMMAND}"

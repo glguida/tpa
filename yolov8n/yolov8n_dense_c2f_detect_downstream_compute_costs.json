@@ -1,0 +1,12 @@
+{
+  "yolov8n_p3_dense_c2f_input_source_pdef": 25,
+  "yolov8n_p3_dense_c2f_pdef": 340000,
+  "yolov8n_p3_dense_c2f_detect_pdef": 12000,
+  "yolov8n_p4_dense_c2f_input_source_pdef": 25,
+  "yolov8n_p4_dense_c2f_pdef": 170000,
+  "yolov8n_p4_dense_c2f_detect_pdef": 12000,
+  "yolov8n_p5_dense_c2f_input_source_pdef": 25,
+  "yolov8n_p5_dense_c2f_pdef": 120000,
+  "yolov8n_p5_dense_c2f_detect_pdef": 6000,
+  "yolov8n_dense_c2f_detect_downstream_checker_pdef": 50
+}
