@@ -541,7 +541,43 @@ In `kernels/tpa_tensor_matmul.c`, the inner loop waits for load id 0 but not id
 kernel should wait for every load it depends on unless PRM source/destination
 rules and reviewed evidence justify omitting a wait.
 
-## 11. TensorQuant, TensorStore, Reduce, and Broadcast
+## 11. Secondary Tensor families: PRM facts and validation boundary
+
+The current in-repository TPA evidence is narrow and should be treated that
+way. Validated examples cover normal FP32 TensorLoad to L1SCP, FP32
+TensorLoadTranspose32, TensorFMA32, TensorWait, `tensor_error` clear/read, the
+L1SCP-disabled expected-error path, packed-single row transforms, and attention
+packed-single substeps. They do not make every PRM-described Tensor family a
+reusable TPA recipe.
+
+Use the summaries below as PRM-derived design notes until a small target proves
+the exact family under the TPA build, mapper/place, emulator, disassembly, trace,
+wait, and error-handling path.
+
+| Family | PRM role | Why it is risky in TPA process graphs | Current repository evidence | Minimum evidence before treating as a recipe |
+| --- | --- | --- | --- | --- |
+| TensorStore / TensorStoreFromScp | CSR `0x87f` writes vector-register rows or L1SCP rows to memory, bypassing normal caches; completion is waited with TensorWait event 8. | Store results are consumed through ordinary TPA memory/edge paths, so cache visibility, `TensorWait 8`, row-size encoding, stride, and write-after-write hazards matter. Cooperative store modes also encode placement assumptions through `mhartid` relationships. | No current TPA evidence target relies on TensorStore or TensorStoreFromScp for PASS. Existing TensorFMA examples store vector-register results with `fsw.ps` pairs after `TensorWait 7`. | One positive H0 target for TensorStore and one for TensorStoreFromScp that writes known rows, waits event 8, reads via ordinary memory, validates values, checks `tensor_error`, and includes objdump evidence for `csrw 0x87f`. A separate expected-error target should cover an invalid cooperative store mode without hanging. |
+| TensorQuant | CSR `0x806` applies a sequence of up to ten transformations to matrix A in the vector register file, with optional L1SCP operands for some transforms; completion is waited with event 10. | Transform semantics are data-type and rounding-mode dependent. Some transforms require L1SCP, some can trap on invalid `frm`, and useful claims need scalar references plus tolerance policy. | No current TPA evidence target executes TensorQuant. Existing quant discussion is PRM/header-derived only. | A focused target for one transform family at a time: initialize vector-register rows, issue TensorQuant, wait event 10, store/read back results, compare against scalar reference, check `tensor_error`, and record disassembly plus tolerance rationale. |
+| TensorReduce / TensorBroadcast | CSR `0x800` transfers vector-register values between harts and optionally reduces them through explicit send/receive or tree actions; completion is waited with event 9. | Participating harts must issue compatible operations. A missing sender/receiver or wrong tree step can stall the reduction graph, so this is graph-level synchronization, not a local arithmetic optimization. | No current TPA target validates TensorReduce or TensorBroadcast. The guide's reduce/broadcast material is PRM-derived. | A two-H0 or four-H0 fixed-placement target with explicit send/receive or tree schedule, watchdog-friendly timeout policy, trace tags on every participant, TensorWait event 9, scalar validation of the collective result, and objdump evidence for `csrw 0x800`. |
+| Cooperative TensorLoad / cooperative TensorLoadB | `tensor_coop` plus `COOP=1` lets selected harts cooperate on the same physical TensorLoad address and operation. | All participants must agree on group id, neighborhood/minion masks, instruction variant, and physical addresses. Group reuse needs synchronization. Mismatches are undefined and can corrupt data or hang. | No current TPA target validates cooperative TensorLoad. Current examples use non-cooperative loads. | A fixed-placement multi-H0 target proving one cooperative load with identical address/mask/group on all participants, trace tags before/after the cooperative operation, waits on the correct load id, scalar validation of the loaded/FMA result, and a documented policy for not running unsafe mismatch negatives by default. |
+| Cooperative TensorStore | PRM describes pair/quad cooperative stores that coalesce multiple Minion requests to the same cache line. | Unlike `tensor_coop`, the store cooperation encoding depends on valid `COOP/SIZE` combinations and hart address relationships. It also has memory visibility hazards with downstream TPA readers. | No current TPA target validates cooperative TensorStore; only the PRM error bit for invalid store cooperation is summarized. | Start with non-cooperative TensorStore. Then add a fixed two-H0 store target with explicit placement/address relationships, TensorWait event 8, post-store ordinary-memory validation, and an expected-error test for one invalid `COOP/SIZE` encoding. |
+| TensorLoadInterleave8/16 with lower-precision FMA | Interleave loads reshape 8-bit or 16-bit memory rows into the L1SCP B layout required by `TensorIMA8A32` or `TensorFMA16A32`. | Layout is not a cosmetic transpose: address alignment, row count interpretation, interleaving order, signedness, FMA opcode, and scalar reference math all change. | Current TPA Tensor evidence is FP32-only (`TensorLoad`, `TensorLoadTranspose32`, `TensorFMA32`). | A generated 8-bit or 16-bit packet with static layout assertions, one lower-precision FMA opcode, wait events for both loads and FMA, scalar reference including signedness/rounding, `tensor_error` check, and objdump evidence for the interleave load encoding. |
+| TensorLoadB / TenB-heavy path | TensorLoadB streams B through TenB and must pair with a following TensorFMA that consumes TenB. | Unpaired or incorrectly paired TenB loads can leave the Tensor co-processor in undefined state. Pairing rules differ from L1SCP B loads and are easy to violate when continuations branch or fail. | Current TPA examples intentionally avoid TenB and keep B in L1SCP. TenB behavior is documented from the PRM, headers, and simulator inspection only. | One positive paired TensorLoadB/TensorFMA target that proves the B-in-TenB path, plus one carefully isolated expected-error target for a documented `tensor_error[6]` pairing failure. The target must clear errors, avoid leaving unpaired TenB state before PASS/FAIL, and record waits/objdump. |
+| TensorLoadL2Scp | CSR `0x85f` copies memory to L2 scratchpad and uses TensorWait ids 2/3. It is one of the Tensor instructions allowed on H1 by the PRM. | The TPA ownership, visibility, and lifetime of L2 scratchpad data must be defined before it can be a process-local staging mechanism. H1 legality does not by itself define a safe graph contract. | No current TPA evidence target validates TensorLoadL2Scp or L2 scratchpad ownership. | A small target that defines which process/hart owns the L2 scratchpad region, issues `TensorLoadL2Scp`, waits id 2 or 3, consumes the data through a documented path, validates values, checks `tensor_error`, and states whether H1 participation is intentionally covered. |
+
+Promotion checklist for any secondary Tensor family:
+
+1. Name the exact PRM instruction variant and CSR encoding under test.
+2. State placement requirements, including H0/H1 legality and any participating
+   hart set.
+3. Declare row layout, alignment, stride, packet offsets, edge capacities, and
+   scratch/workspace budgets with static assertions where possible.
+4. Clear `tensor_error`, issue the operation, wait for the correct event id, and
+   read `tensor_error` only after the wait.
+5. Validate data against a scalar reference or an exact expected error value.
+6. Record ET build/run evidence, PASS/FAIL marker behavior, objdump/CSR grep,
+   and trace tags sufficient to prove the path executed.
+7. Keep positive recipes separate from expected-error or hang-risk experiments.
 
 ### TensorQuant
 
@@ -1130,7 +1166,8 @@ by an in-flight TensorFMA.
 
 ### Pattern D: Cross-hart reduction or broadcast
 
-Use only when the dataflow graph actually wants a cross-hart collective.
+Use only when the dataflow graph actually wants a cross-hart collective. This is
+a design sketch, not a validated repository recipe yet.
 
 ```text
 explicit placement/grouping -> matching send/recv or tree actions -> wait 9 ->
@@ -1138,7 +1175,9 @@ error check -> continue
 ```
 
 This is not a replacement for local accumulation unless placement and
-synchronization are part of the design.
+synchronization are part of the design. Promote it to a recipe only after a
+fixed-placement evidence target validates compatible participant behavior,
+trace visibility, scalar results, wait event 9, and `tensor_error` handling.
 
 ## 23. Open questions and evidence gaps
 
@@ -1155,10 +1194,19 @@ answered before turning patterns into a reusable ET math library:
   when older source waited for one id in a validated example?
 - Is there any deterministic, documented way to observe a misaligned-address
   TensorLoad failure, given that the row address encoding omits low six bits?
+- Which TensorStore and TensorStoreFromScp positive/negative subtests should be
+  validated first, and how should ordinary-memory visibility be checked after
+  TensorWait event 8?
 - Which cooperative TensorLoad/TensorStore patterns are worth validating first,
   and what graph-level synchronization should they require?
+- Which TensorLoadInterleave8/16 layout should be the first lower-precision FMA
+  evidence target, and what signedness/rounding reference should it use?
+- Which TenB paired-load target can prove the B-in-TenB path without leaving
+  undefined unpaired state on failure?
 - Which TensorQuant transformations are needed by current kernels, and what
   scalar references should define their tolerance?
+- What TPA ownership rule would make TensorLoadL2Scp safe to document as a
+  process-local staging primitive?
 
 Document answers in source-adjacent comments, tests, or this guide when they are
 validated.
