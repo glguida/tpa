@@ -419,12 +419,134 @@ file contains inline assembly is not enough to claim an optimized Erbium path.
 A host smoke test is not ET platform validation. Mapper placement is not a
 performance measurement.
 
+### Reviewed Erbium evidence packet: tensor matmul and attention
+
+Reviewed evidence from AgentWS jobs `et-vector-tensor-attention-evidence` and
+`et-vector-tensor-attention-evidence-review` records the current Erbium ET
+superbuild behavior for `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`, and
+`tpa_fast_attention_serial.elf`. The evidence packet is under:
+
+```text
+/home/glguida/think/new-tpa-structured/agentws/jobs/et-vector-tensor-attention-evidence/workspace/
+```
+
+Primary files:
+
+- `evidence-summary.md` — narrative summary of build, runtime, disassembly,
+  trace, mapper, and unsupported-claim findings.
+- `evidence-artifact-sha256.txt` — checksum list; review verified it with
+  `sha256sum -c`.
+- `attention-trace-summary.md` and `attention-mapper-summary.md` — compact trace
+  and mapper summaries used by the tables below.
+
+The evidence build used the top-level ET superbuild and current structured TPA
+process/program/mapper path:
+
+```sh
+cmake -S . -B /tmp/et-vector-tensor-evidence-build \
+  -DET_ROOT=/opt/et \
+  -DTPA_PLATFORM=erbium \
+  -DPYTHON=$(command -v python3)
+cmake --build /tmp/et-vector-tensor-evidence-build --target tpa_tensor_matmul.elf
+cmake --build /tmp/et-vector-tensor-evidence-build --target tpa_fast_attention_map_mapped_program
+cmake --build /tmp/et-vector-tensor-evidence-build --target tpa_fast_attention.elf
+cmake --build /tmp/et-vector-tensor-evidence-build --target tpa_fast_attention_serial.elf
+```
+
+All three direct `erbium_emu` runs reported application PASS markers and then
+returned raw process exit code `1` because the emulator reported sleeping harts
+after PASS. Treat this as application PASS-marker evidence plus a post-PASS raw
+emulator condition, matching the repository's PASS-marker wrapper caveat. Do not
+report the raw exit code as a clean process success, and do not use it by itself
+to overturn the observed PASS marker.
+
+| Target | PASS marker cycle | Raw emulator exit | Evidence files |
+| --- | ---: | ---: | --- |
+| `tpa_tensor_matmul.elf` | `1,182,859` | `1` | `run-tpa_tensor_matmul.log`, `run-tpa_tensor_matmul.exitcode` |
+| `tpa_fast_attention.elf` | `4,579,357` | `1` | `run-tpa_fast_attention.log`, `run-tpa_fast_attention.exitcode` |
+| `tpa_fast_attention_serial.elf` | `4,474,439` | `1` | `run-tpa_fast_attention_serial.log`, `run-tpa_fast_attention_serial.exitcode` |
+
+Tensor instruction evidence is disassembly-backed for the expected paths. The
+RISC-V objdump used by the experiment was
+`/opt/et/bin/riscv64-unknown-elf-objdump`; snippets and full objdumps are in the
+evidence workspace.
+
+| ELF | Evidence-backed Tensor CSR writes |
+| --- | --- |
+| `tpa_tensor_matmul.elf` | `csrw 0x83f` (`TensorLoad`), `csrw 0x801` (`TensorFMA`), and `csrw 0x830` (`TensorWait`) appear in the matmul compute path, with setup CSR writes for `tensor_mask`, `tensor_coop`, and `tensor_error`. |
+| `tpa_fast_attention.elf` | The score path and output path both show Tensor setup plus `csrw 0x83f`, `csrw 0x801`, and `csrw 0x830` in the expected regions. |
+
+Packed-single evidence is source-backed and build-backed, not mnemonic-decoded by
+that objdump. `kernels/tpa_tensor_matmul.c` and `attention/attention_et.h`
+contain inline assembly with `flw.ps`, `fsw.ps`, and `fmul.ps`; the ET build and
+Erbium PASS runs prove those sources compiled and executed in these targets. The
+available objdump printed the corresponding encodings as custom `.insn` words,
+not as decoded `flw.ps`/`fsw.ps`/`fmul.ps` mnemonics. Therefore the honest claim
+is: packed-single inline assembly is present in source and compiled successfully,
+while this evidence packet does not provide decoded packed-single objdump
+mnemonics.
+
+Attention DEBUG trace extraction also worked. The trace command used
+`erbium_emu -l` with `-lt 0 -lt 2 -lt 4 -lt 6 -lt 8`, filtered `validation0`
+writes and PASS/FAIL markers, and parsed the filtered log with
+`tools/trace/parse_attention_trace.py`. These are trace checkpoints for the
+current target, not speedup claims.
+
+| Aggregate metric | Cycles |
+| --- | ---: |
+| `program_begin→pass_tag` | `4,570,356` |
+| `program_begin→PASS marker` | `4,570,360` |
+| `output_begin→all_received` | `207,361` |
+| `all_received→output_end` | `4,364,029` |
+| `output_begin→output_end` | `4,571,390` |
+| product sum | `513` |
+| scalar validation sum | `4,363,296` |
+| residual output overhead | `220` |
+
+| Head | Score | Softmax | Product | Scalar validation |
+| ---: | ---: | ---: | ---: | ---: |
+| 0 | `560` | `9,984` | `165` | `1,090,848` |
+| 1 | `560` | `9,980` | `116` | `1,090,784` |
+| 2 | `560` | `9,980` | `116` | `1,090,784` |
+| 3 | `560` | `9,986` | `116` | `1,090,880` |
+
+Interpretation limits:
+
+- The trace spans are from one current Erbium emulator run and one current
+  mapping; they are not stable production performance numbers.
+- No controlled baseline-vs-optimized comparison was measured, so this packet
+  does **not** support a speedup claim.
+- The output process performs scalar reference validation after production output
+  work, and the trace shows scalar validation dominates the output-to-PASS span.
+- The output process can start and wait before the QKV generator emits
+  `program_begin`; do not read every aggregate span as strict serial phase
+  ordering.
+
+Attention mapper evidence shows Tensor-using work on H0 contexts and separates
+memory categories in the mapped-program summary:
+
+| Mapper value | Evidence |
+| --- | --- |
+| Placement | QKV plus head 0 score/softmax on `m0:h0`; heads 1, 2, and 3 score/softmax on `m1:h0`, `m2:h0`, and `m3:h0`; output/check on `m4:h0`. Hart ids are `0`, `2`, `4`, `6`, and `8`. |
+| Edge buffer bytes | `20,992` |
+| Immutable bytes | `248` |
+| Process data bytes | `128` |
+| Scratch total bytes | `10,240` |
+| Total bytes | `31,608`, `fits=true` |
+
+This packet supports statements about the current Erbium build/run path, Tensor
+CSR use, source-backed packed-single inline assembly, trace extraction, and
+H0-only attention placement. It does not support claims about decoded
+packed-single objdump mnemonics, baseline-vs-optimized speedup, ET-SoC-1,
+silicon/PCIe, host demo behavior, production performance, or cross-machine
+stability. No host smoke-test-double evidence was used.
+
 ### Claim-to-evidence checklist
 
 | Claim | Minimum evidence |
 | --- | --- |
 | Documentation describes existing source accurately | Source inspection and grep showing no contradictory docs. |
-| A process uses packed-single instructions | Source or disassembly showing `.ps` mnemonics such as `flw.ps`, `fsw.ps`, `fmul.ps`, `fmadd.ps`, `fmax.ps`, `fexp.ps`, or `frcp.ps`. |
+| A process uses packed-single instructions | Source or decoded disassembly showing `.ps` mnemonics such as `flw.ps`, `fsw.ps`, `fmul.ps`, `fmadd.ps`, `fmax.ps`, `fexp.ps`, or `frcp.ps`; if objdump emits custom `.insn` words instead, state that decoding gap and keep the claim source-backed/build-backed. |
 | A process uses Tensor instructions | Source or disassembly showing Tensor CSR writes such as `tensor_load`/CSR `0x83f`, `tensor_fma`/CSR `0x801`, and `tensor_wait`/CSR `0x830`. |
 | A generated ELF works on Erbium | Top-level ET superbuild plus `erbium_emu` or registered CTest showing the application PASS marker and no explicit FAIL. |
 | A Tensor process is legally placed | Placement or mapped-program JSON showing H0-capable contexts; for current Erbium, even runtime hart ids from `machines/erbium.json`. |
@@ -473,8 +595,12 @@ tensor_load tensor_fma tensor_wait
 csrw 0x83f csrw 0x801 csrw 0x830
 ```
 
-The local toolchain path depends on the ET platform installation. Do not replace
-missing ET binutils with a host-only claim; log the validation gap.
+The local toolchain path depends on the ET platform installation. Some ET
+objdump versions may not decode packed-single mnemonics and may print custom
+`.insn` words instead. In that case, do not claim mnemonic-decoded packed-single
+disassembly; record the source-backed inline assembly, successful ET build/run,
+and objdump decoding gap. Do not replace missing ET binutils with a host-only
+claim; log the validation gap.
 
 ### Attention trace tags
 
@@ -516,8 +642,9 @@ hypothetical, YOLOv8n vector/tensor status, or unsupported performance claims.
 Use small experiments to retire one risk at a time.
 
 1. **Tensor matmul evidence refresh.** Build `tpa_tensor_matmul.elf`, run under
-   Erbium, confirm the PASS marker, and disassemble for Tensor CSR writes and
-   packed-single RF load/store helpers.
+   Erbium, confirm the PASS marker, disassemble for Tensor CSR writes, and
+   verify packed-single RF load/store helpers through decoded disassembly or an
+   explicit source-backed/objdump-decoding-gap note.
 2. **Packed-single micro-example.** Add or adapt a small row-local process that
    copies/scales a 16-float row with packed-single helpers, validates output
    deterministically, and disassembles to `.ps` mnemonics.
