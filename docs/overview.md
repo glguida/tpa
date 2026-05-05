@@ -120,8 +120,9 @@ Current structured pieces are:
   Detect/DFL, a sampled combined P3/P4/P5 C2f+Detect downstream graph,
   dense P3 `model.15`, P4 `model.18`, and P5 `model.21` C2f feature-map
   validation feeding sampled Detect/DFL, a dense combined P3/P4/P5 C2f+Detect
-  downstream graph, and a P4-to-P5 `model.19` neck-tail Conv+Concat graph, with
-  mapper-generated placement/edge config.
+  downstream graph, a P4-to-P5 `model.19` neck-tail Conv+Concat graph, and a
+  graph that feeds that neck-tail concat into dense P5 `model.21` C2f plus
+  sampled P5 Detect/DFL, with mapper-generated placement/edge config.
 - `tests/yolo/` — YOLO block-test sources/assets with representative Erbium
   CMake/CTest coverage.
 - `planner/` — Python metadata extraction, planning, and mapping package.
@@ -159,9 +160,10 @@ The current structured repo validates these paths:
   sampled combined P3/P4/P5 C2f+Detect downstream graph, dense P3/P4/P5 C2f
   feature-map hashes feeding sampled per-scale Detect, a dense combined
   P3/P4/P5 C2f+Detect graph that validates all three dense C2f summaries
-  together while Detect remains sampled, and a P4-to-P5 `model.19` neck-tail
+  together while Detect remains sampled, a P4-to-P5 `model.19` neck-tail
   Conv+Concat graph over dense P4 C2f output plus a deterministic synthetic
-  SPPF-side edge;
+  SPPF-side edge, and a graph that feeds that concat edge into dense P5
+  `model.21` C2f plus sampled P5 Detect/DFL;
 - ET-SoC-1 default one-shire `tpa_core` builds;
 - host smoke-test-double builds and tests pass, but those are not platform
   validation.
@@ -189,7 +191,8 @@ Detect/DFL, sampled P3/P4/P5 Detect/DFL branch plumbing, sampled per-scale
 P3/P4/P5 C2f source modules feeding Detect/DFL, a sampled combined P3/P4/P5
 C2f+Detect downstream graph, dense P3/P4/P5 C2f feature-map validation feeding
 sampled per-scale Detect, dense combined P3/P4/P5 C2f+Detect graph composition,
-and a P4-to-P5 `model.19` neck-tail Conv+Concat graph; full-model validation
+a P4-to-P5 `model.19` neck-tail Conv+Concat graph, and a graph that feeds that
+concat into dense P5 `model.21` C2f plus sampled P5 Detect/DFL; full-model validation
 and the full YOLO host/demo pipeline remain follow-up.
 
 ### Image generation

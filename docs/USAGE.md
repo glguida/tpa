@@ -25,9 +25,10 @@ The runtime is organized around a narrow HAL boundary and ET platform build:
    Detect/DFL, a sampled combined P3/P4/P5 C2f+Detect downstream graph,
    dense P3 `model.15`, P4 `model.18`, and P5 `model.21` C2f feature-map
    validation feeding sampled Detect/DFL, a dense combined P3/P4/P5 C2f+Detect
-   downstream graph, and a P4-to-P5 `model.19` neck-tail Conv+Concat graph,
-   gated by `BUILD_TPA_YOLOV8N=ON` and external generated header/manifest
-   variables.
+   downstream graph, a P4-to-P5 `model.19` neck-tail Conv+Concat graph, and a
+   graph that feeds that neck-tail concat into dense P5 `model.21` C2f and
+   sampled P5 Detect/DFL, gated by `BUILD_TPA_YOLOV8N=ON` and external
+   generated header/manifest variables.
 11. `tests/tpa_msg/`, `tests/tpa_queue/`, and `tests/tpa_negative/` contain
    ported original runtime regression test assets integrated through the
    structured process/program build helpers.
@@ -95,6 +96,8 @@ cmake --build build-et-erbium --target tpa_yolov8n_p4_dense_c2f_detect_map_mappe
 cmake --build build-et-erbium --target tpa_yolov8n_p4_dense_c2f_detect.elf
 cmake --build build-et-erbium --target tpa_yolov8n_p4_p5_neck_tail_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov8n_p4_p5_neck_tail.elf
+cmake --build build-et-erbium --target tpa_yolov8n_p4_p5_neck_tail_p5_detect_map_mapped_program
+cmake --build build-et-erbium --target tpa_yolov8n_p4_p5_neck_tail_p5_detect.elf
 cmake --build build-et-erbium --target tpa_yolov8n_dense_c2f_detect_downstream_map_mapped_program
 cmake --build build-et-erbium --target tpa_yolov8n_dense_c2f_detect_downstream.elf
 cmake --build build-et-erbium --target tpa_yolov8n_c2f_detect_downstream_map_mapped_program
@@ -152,6 +155,8 @@ feeding sampled P3 Detect, `tpa_yolov8n_p4_dense_c2f_detect.elf` validates all
 feeding sampled P5 Detect, `tpa_yolov8n_p4_p5_neck_tail.elf` validates a
 P4-to-P5 `model.19` stride-2 Conv plus `model.20` concat over dense P4 C2f
 output and a deterministic synthetic SPPF-side edge,
+`tpa_yolov8n_p4_p5_neck_tail_p5_detect.elf` feeds that concat edge into dense
+P5 `model.21` C2f and sampled P5 Detect/DFL,
 `tpa_yolov8n_dense_c2f_detect_downstream.elf` composes the dense P3/P4/P5 C2f
 branches in one mapped graph with sampled per-scale Detect, and
 `tpa_yolov8n_detect_downstream.elf` validates sampled P3/P4/P5 branch plumbing
@@ -324,11 +329,13 @@ targets, not archived generated JSON.
   and P5 `model.21` C2f feeding Detect/DFL, a sampled combined P3/P4/P5
   C2f+Detect downstream graph, dense P3 `model.15`, P4 `model.18`, and P5
   `model.21` C2f feature-map validation feeding sampled Detect/DFL, a dense
-  combined P3/P4/P5 C2f+Detect downstream graph, and a P4-to-P5 `model.19`
-  neck-tail Conv+Concat graph, building
+  combined P3/P4/P5 C2f+Detect downstream graph, a P4-to-P5 `model.19`
+  neck-tail Conv+Concat graph, and a graph that feeds that concat into dense P5
+  `model.21` C2f plus sampled P5 Detect/DFL, building
   `tpa_yolov8n_p5_detect.elf`, `tpa_yolov8n_p5_c2f_detect.elf`,
   `tpa_yolov8n_p5_dense_c2f_detect.elf`, `tpa_yolov8n_p4_c2f_detect.elf`,
   `tpa_yolov8n_p4_dense_c2f_detect.elf`, `tpa_yolov8n_p4_p5_neck_tail.elf`,
+  `tpa_yolov8n_p4_p5_neck_tail_p5_detect.elf`,
   `tpa_yolov8n_p3_c2f_detect.elf`, `tpa_yolov8n_p3_dense_c2f_detect.elf`,
   `tpa_yolov8n_dense_c2f_detect_downstream.elf`,
   `tpa_yolov8n_c2f_detect_downstream.elf`, and
@@ -362,8 +369,10 @@ targets, not archived generated JSON.
   source modules feeding Detect/DFL, a sampled combined P3/P4/P5 C2f+Detect
   downstream graph, dense P3/P4/P5 C2f feature-map validation feeding sampled
   per-scale Detect, a dense combined P3/P4/P5 C2f+Detect graph that validates
-  all three dense C2f summaries together, and a P4-to-P5 `model.19` neck-tail
-  Conv+Concat graph that does not yet feed P5 C2f. Production
+  all three dense C2f summaries together, a P4-to-P5 `model.19` neck-tail
+  Conv+Concat graph, and a graph that feeds that concat into dense P5
+  `model.21` C2f plus sampled P5 Detect/DFL. The SPPF-side `model.9` edge in
+  the neck-tail graphs remains deterministic synthetic data. Production
   calibration/accuracy, full YOLOv8n graph validation, and full YOLO host/demo
   launcher integration remain follow-up. Representative YOLO block-test
   CMake/CTest coverage is available under `tests/yolo/`.

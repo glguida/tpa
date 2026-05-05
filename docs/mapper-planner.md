@@ -350,26 +350,30 @@ cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 manifest out of git by requiring CMake cache variables, verifies their SHA-256
 checksums at configure time, extracts metadata for the P5 Detect-only, sampled
 per-scale P3/P4/P5 C2f+Detect, dense P3/P4/P5 C2f+Detect, P4-to-P5
-neck-tail Conv+Concat, sampled combined P3/P4/P5 C2f+Detect, dense combined
-P3/P4/P5 C2f+Detect, and all-scale source/detect/checker processes, maps
+neck-tail Conv+Concat, P4-to-P5-neck-tail-into-P5 sampled Detect, sampled
+combined P3/P4/P5 C2f+Detect, dense combined P3/P4/P5 C2f+Detect, and
+all-scale source/detect/checker processes, maps
 `yolov8n_p5_detect.tpp`,
 `yolov8n_p3_c2f_detect.tpp`, `yolov8n_p3_dense_c2f_detect.tpp`,
 `yolov8n_p4_c2f_detect.tpp`, `yolov8n_p4_dense_c2f_detect.tpp`,
-`yolov8n_p4_p5_neck_tail.tpp`, `yolov8n_p5_c2f_detect.tpp`,
-`yolov8n_p5_dense_c2f_detect.tpp`, `yolov8n_dense_c2f_detect_downstream.tpp`,
+`yolov8n_p4_p5_neck_tail.tpp`, `yolov8n_p4_p5_neck_tail_p5_detect.tpp`,
+`yolov8n_p5_c2f_detect.tpp`, `yolov8n_p5_dense_c2f_detect.tpp`,
+`yolov8n_dense_c2f_detect_downstream.tpp`,
 `yolov8n_c2f_detect_downstream.tpp`, and `yolov8n_detect_downstream.tpp`, emits
 generated scratch/edge headers, and builds `tpa_yolov8n_p5_detect.elf`,
 `tpa_yolov8n_p3_c2f_detect.elf`, `tpa_yolov8n_p3_dense_c2f_detect.elf`,
 `tpa_yolov8n_p4_c2f_detect.elf`, `tpa_yolov8n_p4_dense_c2f_detect.elf`,
-`tpa_yolov8n_p4_p5_neck_tail.elf`, `tpa_yolov8n_p5_c2f_detect.elf`,
+`tpa_yolov8n_p4_p5_neck_tail.elf`,
+`tpa_yolov8n_p4_p5_neck_tail_p5_detect.elf`, `tpa_yolov8n_p5_c2f_detect.elf`,
 `tpa_yolov8n_p5_dense_c2f_detect.elf`,
 `tpa_yolov8n_dense_c2f_detect_downstream.elf`,
 `tpa_yolov8n_c2f_detect_downstream.elf`, and `tpa_yolov8n_detect_downstream.elf`
 from mapper-generated placement. Those targets validate sampled and dense
 P3/P4/P5 C2f/Detect/DFL plumbing plus a P4-to-P5 neck-tail Conv+Concat boundary
-with synthetic-calibration hashes only; Detect coverage remains sampled, the
-neck-tail graph does not yet feed P5 C2f, and these targets do not claim full
-YOLOv8n graph or model accuracy validation.
+and the first neck-tail concat into dense P5 `model.21` C2f plus sampled P5
+Detect with synthetic-calibration hashes only; Detect coverage remains sampled,
+the SPPF-side `model.9` edge remains deterministic synthetic data, and these
+targets do not claim full YOLOv8n graph or model accuracy validation.
 
 For ET-SoC-1, the YOLO mapping uses the full-card `machines/etsoc1.json` model.
 The device project therefore requires `TPA_ETSOC1_NR_SHIRES=32` for YOLO; the
@@ -391,8 +395,9 @@ Current limitations are explicit and should not be hidden:
   P3/P4/P5 Detect/DFL branch plumbing, sampled per-scale P3/P4/P5 C2f feeding
   Detect/DFL, a sampled combined P3/P4/P5 C2f+Detect downstream graph,
   dense P3/P4/P5 C2f feature-map validation feeding sampled per-scale Detect,
-  a dense combined P3/P4/P5 C2f+Detect graph, and a P4-to-P5 `model.19`
-  neck-tail Conv+Concat graph; full/demo host launcher integration remains
+  a dense combined P3/P4/P5 C2f+Detect graph, a P4-to-P5 `model.19`
+  neck-tail Conv+Concat graph, and a graph that feeds that concat into dense P5
+  `model.21` C2f plus sampled P5 Detect/DFL; full/demo host launcher integration remains
   follow-up;
 - YOLO model artifacts and regeneration tools are ported, but heavyweight
   regeneration dependencies are not part of normal planner validation;

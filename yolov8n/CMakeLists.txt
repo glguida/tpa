@@ -778,6 +778,77 @@ target_compile_definitions(
 )
 
 add_tpa_process(
+    NAME tpa_yolov8n_p4_p5_neck_tail_p5_detect_proc
+    MANIFEST "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p4_p5_neck_tail_p5_detect.tpm"
+    SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_c2f_detect_downstream_weights.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p4_dense_c2f_detect.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p4_p5_neck_tail.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p5_dense_c2f_detect.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p4_p5_neck_tail_p5_detect.c"
+    INCLUDES ${TPA_YOLOV8N_INCLUDES}
+)
+target_compile_definitions(
+    tpa_yolov8n_p4_p5_neck_tail_p5_detect_proc
+    PRIVATE
+        TPA_YOLOV8N_EXTERNAL_WEIGHTS_HEADER=\"${TPA_YOLOV8N_EXTERNAL_WEIGHTS_EXTERN_HEADER}\"
+        TPA_YOLOV8N_EXTERNAL_WEIGHTS_SOURCE_HEADER=\"${TPA_YOLOV8N_EXTERNAL_WEIGHTS_HEADER}\"
+        TPA_YOLOV8N_EXTERNAL_WEIGHTS_MANIFEST=\"${TPA_YOLOV8N_EXTERNAL_WEIGHTS_MANIFEST}\"
+)
+yolov8n_add_process_metadata(
+    tpa_yolov8n_p4_p5_neck_tail_p5_detect_proc
+    "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p4_p5_neck_tail_p5_detect.tpm"
+    TPA_YOLOV8N_P4_P5_NECK_TAIL_P5_DETECT_JSON
+)
+
+yolov8n_add_plan_report(
+    tpa_yolov8n_p4_p5_neck_tail_p5_detect_plan
+    "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p4_p5_neck_tail_p5_detect.tpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p4_p5_neck_tail_p5_detect.place"
+    PROCESS_TARGETS tpa_yolov8n_p4_p5_neck_tail_p5_detect_proc
+)
+
+yolov8n_add_mapped_program(
+    tpa_yolov8n_p4_p5_neck_tail_p5_detect_map
+    "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p4_p5_neck_tail_p5_detect.tpp"
+    PROCESS_TARGETS tpa_yolov8n_p4_p5_neck_tail_p5_detect_proc
+    OUT_PLACEMENT_VAR TPA_YOLOV8N_P4_P5_NECK_TAIL_P5_DETECT_MAPPED_PLACEMENT
+    OUT_SCRATCH_HEADER_VAR TPA_YOLOV8N_P4_P5_NECK_TAIL_P5_DETECT_SCRATCH_HEADER
+    OUT_EDGE_HEADER_VAR TPA_YOLOV8N_P4_P5_NECK_TAIL_P5_DETECT_EDGE_HEADER
+    OUT_REPORT_VAR TPA_YOLOV8N_P4_P5_NECK_TAIL_P5_DETECT_MAP_REPORT
+    OUT_MAPPED_PROGRAM_VAR TPA_YOLOV8N_P4_P5_NECK_TAIL_P5_DETECT_MAPPED_PROGRAM
+    COMPUTE_COSTS_JSON "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p4_p5_neck_tail_p5_detect_compute_costs.json"
+    MACHINE_JSON "${TPA_YOLOV8N_MACHINE_JSON}"
+    NUM_MINIONS 4
+)
+
+add_tpa_program_test(
+    NAME tpa_yolov8n_p4_p5_neck_tail_p5_detect
+    PROCESSES tpa_yolov8n_p4_p5_neck_tail_p5_detect_proc
+    PROGRAM "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p4_p5_neck_tail_p5_detect.tpp"
+    PLACEMENT "${TPA_YOLOV8N_P4_P5_NECK_TAIL_P5_DETECT_MAPPED_PLACEMENT}"
+    EDGE_CONFIG_HEADER "${TPA_YOLOV8N_P4_P5_NECK_TAIL_P5_DETECT_EDGE_HEADER}"
+    LINKER_SCRIPT "${TPA_YOLOV8N_LDS}"
+    INCLUDES ${TPA_YOLOV8N_INCLUDES}
+)
+target_sources(
+    tpa_yolov8n_p4_p5_neck_tail_p5_detect.elf
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_p5_arena.c"
+)
+add_dependencies(
+    tpa_yolov8n_p4_p5_neck_tail_p5_detect.elf
+    tpa_yolov8n_p4_p5_neck_tail_p5_detect_map_mapped_program
+)
+target_compile_definitions(
+    tpa_yolov8n_p4_p5_neck_tail_p5_detect.elf
+    PRIVATE
+        TPA_YOLOV8N_EXTERNAL_WEIGHTS_HEADER=\"${TPA_YOLOV8N_EXTERNAL_WEIGHTS_HEADER}\"
+        TPA_YOLOV8N_EXTERNAL_WEIGHTS_MANIFEST=\"${TPA_YOLOV8N_EXTERNAL_WEIGHTS_MANIFEST}\"
+        YV8N_P5_SCRATCH_CONFIG_HEADER=\"${TPA_YOLOV8N_P4_P5_NECK_TAIL_P5_DETECT_SCRATCH_HEADER}\"
+)
+
+add_tpa_process(
     NAME tpa_yolov8n_dense_c2f_detect_downstream_proc
     MANIFEST "${CMAKE_CURRENT_SOURCE_DIR}/yolov8n_dense_c2f_detect_downstream.tpm"
     SOURCES
@@ -1049,6 +1120,17 @@ if (TPA_PLATFORM_ID STREQUAL "erbium" AND BUILD_TESTING AND EXISTS "${TPA_YOLOV8
             -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
     )
     set_tests_properties(tpa_yolov8n_p4_p5_neck_tail PROPERTIES TIMEOUT 9000)
+    add_test(
+        NAME tpa_yolov8n_p4_p5_neck_tail_p5_detect
+        COMMAND "${CMAKE_COMMAND}"
+            -DEMU=${TPA_YOLOV8N_ERBIUM_EMU}
+            -DELF=$<TARGET_FILE:tpa_yolov8n_p4_p5_neck_tail_p5_detect.elf>
+            -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_yolov8n_p4_p5_neck_tail_p5_detect.out
+            -DMAX_CYCLES=60000000000
+            -DMINIONS=0xf
+            -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
+    )
+    set_tests_properties(tpa_yolov8n_p4_p5_neck_tail_p5_detect PROPERTIES TIMEOUT 18000)
     add_test(
         NAME tpa_yolov8n_p3_dense_c2f_detect
         COMMAND "${CMAKE_COMMAND}"

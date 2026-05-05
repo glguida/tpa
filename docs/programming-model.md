@@ -289,9 +289,10 @@ Currently integrated generated TPA programs include:
   dense P3/P4/P5 C2f+Detect ELFs `tpa_yolov8n_p3_dense_c2f_detect.elf`,
   `tpa_yolov8n_p4_dense_c2f_detect.elf`, and
   `tpa_yolov8n_p5_dense_c2f_detect.elf`, the P4-to-P5 neck-tail graph
-  `tpa_yolov8n_p4_p5_neck_tail.elf`, the sampled combined C2f+Detect graph
-  `tpa_yolov8n_c2f_detect_downstream.elf`, and the dense combined C2f+Detect
-  graph `tpa_yolov8n_dense_c2f_detect_downstream.elf` when explicitly
+  `tpa_yolov8n_p4_p5_neck_tail.elf`, the P4-to-P5-neck-tail-into-P5 graph
+  `tpa_yolov8n_p4_p5_neck_tail_p5_detect.elf`, the sampled combined C2f+Detect
+  graph `tpa_yolov8n_c2f_detect_downstream.elf`, and the dense combined
+  C2f+Detect graph `tpa_yolov8n_dense_c2f_detect_downstream.elf` when explicitly
   configured with external generated header/manifest paths.
 
 Original message, queue, and negative regression assets are also integrated as
@@ -300,14 +301,15 @@ report PASS under Erbium, and the negative expected-failure ELF reports the
 intended FAIL marker. The packed-single row micro-example, tensor
 alignment/error micro-example, PMU counter sanity micro-example, tensor matmul,
 fast attention, the packed-single softmax subtract-max attention experiment,
-stereo SAD, YOLOv5n downstream, and
-the opt-in YOLOv8n Detect/DFL/C2f/neck-tail external-header paths now have
-Erbium PASS-marker validation. The stereo SAD demo uses deterministic synthetic
-data only; it does not require external images, datasets, model weights, or
-third-party stereo code. It uses hand placement; mapper-generated
-placement/report work remains follow-up. YOLO tools/models and representative
-block tests are ported; full YOLOv8n graph/model validation and full YOLO
-host/demo integration remain follow-up work.
+stereo SAD, YOLOv5n downstream, and the opt-in YOLOv8n
+Detect/DFL/C2f/neck-tail external-header paths, including the neck-tail concat
+feeding dense P5 C2f plus sampled Detect, now have Erbium PASS-marker
+validation. The stereo SAD demo uses deterministic synthetic data only; it does
+not require external images, datasets, model weights, or third-party stereo
+code. It uses hand placement; mapper-generated placement/report work remains
+follow-up. YOLO tools/models and representative block tests are ported; full
+YOLOv8n graph/model validation and full YOLO host/demo integration remain
+follow-up work.
 Original DNN demos and LTFarm are archived under `docs/archive/` as reference
 material, not active generated program targets.
 
@@ -321,7 +323,8 @@ representative rather than exhaustive: `tpa_empty.elf`, `tpa_pipe_demo.elf`,
 `tpa_fast_attention.elf`,
 `tpa_fast_attention_ps_softmax_subtract.elf`,
 `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`, YOLOv5n downstream,
-the opt-in YOLOv8n Detect/DFL/C2f/neck-tail milestones, representative message/channel tests,
+the opt-in YOLOv8n Detect/DFL/C2f/neck-tail milestones, including the
+neck-tail-into-P5 sampled Detect target, representative message/channel tests,
 and representative queue tests pass. Broader scheduler coverage, full
 YOLOv8n graph/model validation, and full YOLO host/demo integration remain
 follow-up. Documentation and tests should be explicit about that distinction.
