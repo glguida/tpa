@@ -349,12 +349,14 @@ cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 `yolov8n/CMakeLists.txt` keeps the external model-derived header and generated
 manifest out of git by requiring CMake cache variables, verifies their SHA-256
 checksums at configure time, extracts metadata for the P5 Detect-only, sampled
-P3/P4/P5 C2f+Detect, and all-scale source/detect/checker processes, maps
-`yolov8n_p5_detect.tpp`, `yolov8n_p3_c2f_detect.tpp`,
-`yolov8n_p4_c2f_detect.tpp`, `yolov8n_p5_c2f_detect.tpp`, and
+per-scale P3/P4/P5 C2f+Detect, combined P3/P4/P5 C2f+Detect, and all-scale
+source/detect/checker processes, maps `yolov8n_p5_detect.tpp`,
+`yolov8n_p3_c2f_detect.tpp`, `yolov8n_p4_c2f_detect.tpp`,
+`yolov8n_p5_c2f_detect.tpp`, `yolov8n_c2f_detect_downstream.tpp`, and
 `yolov8n_detect_downstream.tpp`, emits generated scratch/edge headers, and
 builds `tpa_yolov8n_p5_detect.elf`, `tpa_yolov8n_p3_c2f_detect.elf`,
-`tpa_yolov8n_p4_c2f_detect.elf`, `tpa_yolov8n_p5_c2f_detect.elf`, and
+`tpa_yolov8n_p4_c2f_detect.elf`, `tpa_yolov8n_p5_c2f_detect.elf`,
+`tpa_yolov8n_c2f_detect_downstream.elf`, and
 `tpa_yolov8n_detect_downstream.elf` from mapper-generated placement. Those
 targets validate sampled C2f/Detect/DFL plumbing with synthetic-calibration
 hashes only; they do not claim full YOLOv8n graph or model accuracy validation.
@@ -376,8 +378,9 @@ Current limitations are explicit and should not be hidden:
 - YOLOv5n downstream planner/map/device ELF and Erbium PASS-marker runtime
   validation are complete; YOLOv8n is currently limited to opt-in external-header
   milestones with synthetic-calibration hashes for P5-only Detect/DFL, sampled
-  P3/P4/P5 Detect/DFL branch plumbing, and sampled per-scale P3/P4/P5 C2f
-  feeding Detect/DFL; full/demo host launcher integration remains follow-up;
+  P3/P4/P5 Detect/DFL branch plumbing, sampled per-scale P3/P4/P5 C2f feeding
+  Detect/DFL, and a sampled combined P3/P4/P5 C2f+Detect downstream graph;
+  full/demo host launcher integration remains follow-up;
 - YOLO model artifacts and regeneration tools are ported, but heavyweight
   regeneration dependencies are not part of normal planner validation;
 - representative message/channel and queue test ELFs report PASS under Erbium,

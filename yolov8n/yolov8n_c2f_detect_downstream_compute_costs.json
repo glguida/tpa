@@ -1,0 +1,12 @@
+{
+  "yolov8n_p3_c2f_input_source_pdef": 50,
+  "yolov8n_p3_c2f_pdef": 24000,
+  "yolov8n_p3_c2f_detect_pdef": 12000,
+  "yolov8n_p4_c2f_input_source_pdef": 25,
+  "yolov8n_p4_c2f_pdef": 22000,
+  "yolov8n_p4_c2f_detect_pdef": 18000,
+  "yolov8n_p5_c2f_input_source_pdef": 25,
+  "yolov8n_p5_c2f_pdef": 15000,
+  "yolov8n_p5_c2f_detect_pdef": 6000,
+  "yolov8n_c2f_detect_downstream_checker_pdef": 50
+}

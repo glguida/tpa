@@ -50,10 +50,11 @@ smoke-test doubles; they are not ET platform validation.
 - `yolov5n/` — current YOLOv5n downstream process sources and planner/map/device
   targets.
 - `yolov8n/` — explicit external-header YOLOv8n downstream milestones for
-  P5-only Detect/DFL, sampled P3/P4/P5 Detect/DFL branch plumbing, and sampled
-  P3 `model.15`, P4 `model.18`, and P5 `model.21` C2f source-modules feeding
-  Detect/DFL, gated by `BUILD_TPA_YOLOV8N=ON` and external generated weight
-  header/manifest cache variables.
+  P5-only Detect/DFL, sampled P3/P4/P5 Detect/DFL branch plumbing, sampled
+  per-scale P3 `model.15`, P4 `model.18`, and P5 `model.21` C2f
+  source-modules feeding Detect/DFL, and a sampled combined P3/P4/P5
+  C2f+Detect downstream graph, gated by `BUILD_TPA_YOLOV8N=ON` and external
+  generated weight header/manifest cache variables.
 - `tests/tpa_msg/`, `tests/tpa_queue/`, `tests/tpa_negative/` — ported
   original message/channel, scheduler/queue, and expected-failure runtime test
   assets integrated through the structured TPA process/program build path.
@@ -189,6 +190,8 @@ cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p3_c2f_detect_map_map
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p3_c2f_detect.elf
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p4_c2f_detect_map_mapped_program
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_p4_c2f_detect.elf
+cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_c2f_detect_downstream_map_mapped_program
+cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_c2f_detect_downstream.elf
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_detect_downstream_map_mapped_program
 cmake --build build-et-erbium-yolov8n --target tpa_yolov8n_detect_downstream.elf
 /opt/et/bin/erbium_emu \
@@ -300,8 +303,9 @@ Ported and validated today:
 - YOLOv8n external-header mapper/device milestones are integrated behind
   `BUILD_TPA_YOLOV8N=ON`; they consume external generated weights and validate
   deterministic synthetic-calibration hashes for sampled P5 Detect/DFL,
-  sampled P3/P4/P5 Detect/DFL branch points, and sampled P3 `model.15`, P4
-  `model.18`, and P5 `model.21` C2f source modules feeding Detect/DFL.
+  sampled P3/P4/P5 Detect/DFL branch points, sampled P3 `model.15`, P4
+  `model.18`, and P5 `model.21` C2f source modules feeding Detect/DFL, and a
+  sampled combined P3/P4/P5 C2f+Detect downstream graph.
 - ET-SoC-1 default one-shire `tpa_core` build.
 - `tpa_launcher` host tool target.
 - Python planner package, checked-in machine JSONs, and planner tests.

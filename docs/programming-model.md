@@ -279,10 +279,12 @@ Currently integrated generated TPA programs include:
   and hand Erbium placement;
 - `yolov5n/` downstream planner/map path -> `tpa_yolov5n_downstream.elf`;
 - `yolov8n/` Detect/DFL external-header paths ->
-  `tpa_yolov8n_p5_detect.elf`, `tpa_yolov8n_detect_downstream.elf`, and the
+  `tpa_yolov8n_p5_detect.elf`, `tpa_yolov8n_detect_downstream.elf`, the
   sampled per-scale C2f+Detect ELFs (`tpa_yolov8n_p3_c2f_detect.elf`,
-  `tpa_yolov8n_p4_c2f_detect.elf`, and `tpa_yolov8n_p5_c2f_detect.elf`) when
-  explicitly configured with external generated header/manifest paths.
+  `tpa_yolov8n_p4_c2f_detect.elf`, and `tpa_yolov8n_p5_c2f_detect.elf`), and
+  the sampled combined C2f+Detect graph
+  `tpa_yolov8n_c2f_detect_downstream.elf` when explicitly configured with
+  external generated header/manifest paths.
 
 Original message, queue, and negative regression assets are also integrated as
 structured test ELF targets. Representative message/channel and queue ELFs now
