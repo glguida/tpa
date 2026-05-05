@@ -282,7 +282,8 @@ Currently integrated generated TPA programs include:
   `tpa_yolov8n_p5_detect.elf`, `tpa_yolov8n_detect_downstream.elf`, the
   sampled per-scale C2f+Detect ELFs (`tpa_yolov8n_p3_c2f_detect.elf`,
   `tpa_yolov8n_p4_c2f_detect.elf`, and `tpa_yolov8n_p5_c2f_detect.elf`), the
-  dense P4/P5 C2f+Detect ELFs `tpa_yolov8n_p4_dense_c2f_detect.elf` and
+  dense P3/P4/P5 C2f+Detect ELFs `tpa_yolov8n_p3_dense_c2f_detect.elf`,
+  `tpa_yolov8n_p4_dense_c2f_detect.elf`, and
   `tpa_yolov8n_p5_dense_c2f_detect.elf`, and the sampled combined C2f+Detect
   graph `tpa_yolov8n_c2f_detect_downstream.elf`
   when explicitly configured with external generated header/manifest paths.

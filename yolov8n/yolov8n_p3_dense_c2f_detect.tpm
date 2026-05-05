@@ -1,0 +1,15 @@
+pdef yolov8n_p3_dense_c2f_input_source_pdef user 890 yolov8n_p3_dense_c2f_input_source_start 0
+port yolov8n_p3_dense_c2f_input_source_pdef 0 out
+
+pdef yolov8n_p3_dense_c2f_pdef user 891 yolov8n_p3_dense_c2f_start 256
+port yolov8n_p3_dense_c2f_pdef 0 in
+port yolov8n_p3_dense_c2f_pdef 1 out
+port yolov8n_p3_dense_c2f_pdef 2 out
+
+pdef yolov8n_p3_dense_c2f_detect_pdef user 892 yolov8n_p3_dense_c2f_detect_start 24
+port yolov8n_p3_dense_c2f_detect_pdef 0 in
+port yolov8n_p3_dense_c2f_detect_pdef 1 out
+
+pdef yolov8n_p3_dense_c2f_detect_checker_pdef user 893 yolov8n_p3_dense_c2f_detect_checker_start 32
+port yolov8n_p3_dense_c2f_detect_checker_pdef 0 in
+port yolov8n_p3_dense_c2f_detect_checker_pdef 1 in

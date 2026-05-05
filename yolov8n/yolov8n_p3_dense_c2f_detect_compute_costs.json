@@ -1,0 +1,6 @@
+{
+  "yolov8n_p3_dense_c2f_input_source_pdef": 25,
+  "yolov8n_p3_dense_c2f_pdef": 340000,
+  "yolov8n_p3_dense_c2f_detect_pdef": 12000,
+  "yolov8n_p3_dense_c2f_detect_checker_pdef": 25
+}
