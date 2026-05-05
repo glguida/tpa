@@ -122,7 +122,9 @@ feeding Detect/DFL, `tpa_yolov8n_c2f_detect_downstream.elf` composes those
 sampled per-scale C2f+Detect branches in one mapped graph, and
 `tpa_yolov8n_detect_downstream.elf` validates sampled P3/P4/P5 branch plumbing
 with deterministic synthetic-calibration hashes only. They do not imply full
-YOLOv8n model validation.
+YOLOv8n model validation. See
+`docs/yolo-demo.md#yolov8n-calibration-data-and-generated-artifact-policy` for
+the YOLOv8n artifact, calibration, and accuracy-claim policy.
 
 ### Erbium PASS/FAIL marker validation
 

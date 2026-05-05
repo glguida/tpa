@@ -1,7 +1,9 @@
 # Model Artifacts
 
 This directory contains source model artifacts or model-artifact manifests used
-by the YOLO reproduction path.
+by the YOLO reproduction path. The authoritative YOLOv8n policy and claim
+checklist is in
+`docs/yolo-demo.md#yolov8n-calibration-data-and-generated-artifact-policy`.
 
 ## Checked-in YOLOv5n artifacts
 
@@ -79,4 +81,6 @@ calling the heavyweight PTQ exporter. It writes generated headers and
 outputs are model-derived immutable weight/quantization data for future kernels,
 not process scratch and not graph edge/channel payloads. Do not commit them, the
 external model binaries, calibration data, or model-derived activations unless
-project owners explicitly approve vendoring.
+project owners explicitly approve vendoring. Pass generated paths to builds with
+explicit CMake cache variables or equivalent inputs; do not hardcode AgentWS
+workspace or scratch paths in committed source.

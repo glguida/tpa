@@ -172,7 +172,9 @@ cmake --build build-et-erbium --target tpa_yolov5n_downstream.elf
 
 YOLOv8n Detect/DFL is an explicit external-header milestone. It requires the
 external generated header/manifest and uses synthetic-calibration hashes only;
-it is not full YOLOv8n model or accuracy validation:
+it is not full YOLOv8n model or accuracy validation. See
+`docs/yolo-demo.md#yolov8n-calibration-data-and-generated-artifact-policy` for
+the artifact, calibration, and claim checklist:
 
 ```sh
 cmake -S . -B build-et-erbium-yolov8n \

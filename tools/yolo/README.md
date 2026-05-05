@@ -66,6 +66,8 @@ SHA-256 checksums, and architecture facts for future YOLOv8n planning.
 Keep YOLOv8n model binaries, generated weights, calibration images, model
 activations, and generated checksum manifests outside the repository unless
 project owners explicitly approve vendoring AGPL-3.0/model-derived artifacts.
+The claim/provenance checklist is
+`docs/yolo-demo.md#yolov8n-calibration-data-and-generated-artifact-policy`.
 The default generator output directory is `/tmp/tpa-yolov8n/generated-weights`,
 and the wrapper refuses repository-local output unless
 `--allow-repo-out-dir` is supplied deliberately.
@@ -95,7 +97,8 @@ production quantization evidence. Before generation, the wrapper verifies
 `<stem>_generated_manifest.json` beside the header with source artifact,
 selection-config, calibration, command, output checksum, and policy metadata so
 future process/kernel jobs can cite exact external outputs without committing
-them.
+them. Pass the resulting paths through CMake cache variables or equivalent
+explicit inputs; committed code must not name AgentWS workspace paths.
 
 The selected modules come from `yolov8n_external_layer_selection.json`, which is
 validated against the checked-in artifact manifest. The selection covers Detect
