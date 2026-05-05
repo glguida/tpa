@@ -1,0 +1,2 @@
+# pdef <name> <user|sys> <pid> <start> <ws_sz>
+pdef pmu_counter_sanity_pdef user 721 pmu_counter_sanity_start 0

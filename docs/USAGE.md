@@ -65,6 +65,7 @@ cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_empty.elf
 cmake --build build-et-erbium --target tpa_packed_single_row.elf
 cmake --build build-et-erbium --target tpa_tensor_alignment.elf
+cmake --build build-et-erbium --target tpa_pmu_counter_sanity.elf
 cmake --build build-et-erbium --target tpa_tensor_matmul.elf
 cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
 cmake --build build-et-erbium --target tpa_fast_attention.elf
@@ -106,6 +107,7 @@ cmake --build build-et-erbium --target tpa_negative_expected_fail.elf
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf -max_cycles 10000
 /opt/et/bin/erbium_emu -minions 0x7 -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_packed_single_row.elf -max_cycles 1000000
 /opt/et/bin/erbium_emu -minions 0x3 -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_tensor_alignment.elf -max_cycles 1000000
+/opt/et/bin/erbium_emu -minions 0x1 -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pmu_counter_sanity.elf -max_cycles 100000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_tensor_matmul.elf -max_cycles 2000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention.elf -max_cycles 5000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention_ps_softmax_subtract.elf -max_cycles 5000000
@@ -126,8 +128,8 @@ The top-level CMake discovers `ProjectFunctions.cmake`, calls
 ET RISC-V toolchain or required ET CMake packages are unavailable. The
 `tpa_host_tools` target builds `tpa_launcher` in the host subproject. The
 `tpa_pipe_demo.elf`, `tpa_empty.elf`, `tpa_packed_single_row.elf`,
-`tpa_tensor_alignment.elf`, `tpa_tensor_matmul.elf`,
-`tpa_fast_attention.elf`,
+`tpa_tensor_alignment.elf`, `tpa_pmu_counter_sanity.elf`,
+`tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
 `tpa_fast_attention_ps_softmax_subtract.elf`,
 `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`,
 `tpa_stereo_sad_mapped.elf`, and representative runtime-regression ELF targets
@@ -339,9 +341,9 @@ targets, not archived generated JSON.
   for loading generated ELFs through ET runtime device layers.
 - Generated graph-program ELFs now link the cooperative runtime scheduler
   instead of the former PASS-only demo harness. `tpa_empty.elf`,
-  `tpa_pipe_demo.elf`, `tpa_packed_single_row.elf`, and
-  `tpa_tensor_alignment.elf` execute continuations and report PASS under
-  Erbium emulator validation.
+  `tpa_pipe_demo.elf`, `tpa_packed_single_row.elf`,
+  `tpa_tensor_alignment.elf`, and `tpa_pmu_counter_sanity.elf` execute
+  continuations and report PASS under Erbium emulator validation.
 - Representative message/channel and queue regression ELFs report PASS under
   Erbium emulator validation; `tpa_negative_expected_fail.elf` reports the
   intended FAIL marker.

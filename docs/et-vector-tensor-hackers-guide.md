@@ -1052,6 +1052,28 @@ Attention packed-single subtract-max evidence:
   spans are effectively unchanged at the program level and are not a speedup
   claim; the output scalar validation span still dominates PASS time.
 
+PMU counter sanity evidence:
+
+- `tpa_pmu_counter_sanity.elf` is the current narrow structured Erbium PMU CSR
+  sanity target. It is built through the top-level ET superbuild and the
+  `.c + .tpm + .tpp + .place` TPA path.
+- The target validates only a documented M-mode CSR subset: `mcycle` and
+  `minstret` read as zero, `mhpmcounter9` reads as zero, `mhpmevent3 = NONE`
+  leaves `mhpmcounter3` unchanged across deterministic work, and
+  `mhpmevent3 = RETIRED_INST0` makes `mhpmcounter3` advance across two fixed
+  instruction loops.
+- The Erbium CTest uses `-minions 0x1` to reduce shared-counter aggregation
+  hazards. A direct DEBUG run records raw `validation0` trace values showing
+  `retired_delta1 = 648` and `retired_delta2 = 1289`, followed by an
+  application PASS marker at cycle `10363`; the raw direct-emulator exit is
+  still `1` afterward because of the normal post-PASS sleeping-harts caveat.
+- The target intentionally does not write a PMU-control ESR. The local PRM says
+  the PMU requires ESR control, but the Erbium and ET-SoC-1 ESR addresses and
+  bit semantics are not yet documented in this repository as a safe portable
+  process-level API. Treat this target as Erbium emulator PMU-access sanity, not
+  as a complete operational recipe for ET-SoC-1, silicon, or published
+  per-kernel measurement.
+
 Trace checks should prove that the optimized path actually ran. Trace tags are
 application-specific; the pattern is not:
 
@@ -1186,8 +1208,9 @@ answered before turning patterns into a reusable ET math library:
 
 - Which packed-single mnemonics are fully decoded by the currently pinned ET
   binutils, and which still appear as `.insn`?
-- Which PMU events are stable enough in the current runtime to use for published
-  per-kernel measurements?
+- What project-level PMU-control API and validation evidence are needed before
+  the current Erbium CSR sanity target can become a reusable measurement recipe
+  for broader platforms or published per-kernel measurements?
 - What is the preferred project-level abstraction for H0-only process-kind
   requirements when future machine descriptions expose H1 contexts?
 - Should conservative new TensorFMA helpers always wait for both load ids even

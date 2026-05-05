@@ -70,6 +70,24 @@ add_tpa_program(
         "${CMAKE_CURRENT_SOURCE_DIR}/tpa_tensor_alignment.place"
 )
 
+add_tpa_process(
+    NAME tpa_pmu_counter_sanity_proc
+    MANIFEST
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_pmu_counter_sanity.tpm"
+    SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_pmu_counter_sanity.c"
+)
+
+add_tpa_program(
+    NAME tpa_pmu_counter_sanity
+    PROCESSES
+        tpa_pmu_counter_sanity_proc
+    PROGRAM
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_pmu_counter_sanity.tpp"
+    PLACEMENT
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_pmu_counter_sanity.place"
+)
+
 if (TPA_PLATFORM_ID STREQUAL "erbium")
     find_program(TPA_ERBIUM_EMU
         NAMES erbium_emu
@@ -100,6 +118,16 @@ if (TPA_PLATFORM_ID STREQUAL "erbium")
                 -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_tensor_alignment.log
                 -DMAX_CYCLES=1000000
                 -DMINIONS=0x3
+                -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
+        )
+        add_test(
+            NAME tpa_pmu_counter_sanity
+            COMMAND "${CMAKE_COMMAND}"
+                -DEMU=${TPA_ERBIUM_EMU}
+                -DELF=$<TARGET_FILE:tpa_pmu_counter_sanity.elf>
+                -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_pmu_counter_sanity.log
+                -DMAX_CYCLES=100000
+                -DMINIONS=0x1
                 -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
         )
     endif()

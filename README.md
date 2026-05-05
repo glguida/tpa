@@ -42,8 +42,8 @@ smoke-test doubles; they are not ET platform validation.
 - `cmake/gen_tpa_image.cmake` — image generation from `.tpm`, `.tpp`, and
   `.place` or mapper output.
 - `kernels/` — current simple generated programs: `tpa_empty`,
-  `tpa_pipe_demo`, `tpa_packed_single_row`, `tpa_tensor_alignment`, and
-  `tpa_tensor_matmul`.
+  `tpa_pipe_demo`, `tpa_packed_single_row`, `tpa_tensor_alignment`,
+  `tpa_pmu_counter_sanity`, and `tpa_tensor_matmul`.
 - `attention/` — fixed-size structured fast-attention demo with parallel and
   serial Erbium placements.
 - `depth/` — no-weights stereo SAD depth demo with source, four worker stripes,
@@ -130,6 +130,7 @@ cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_packed_single_row.elf
 cmake --build build-et-erbium --target tpa_tensor_alignment.elf
+cmake --build build-et-erbium --target tpa_pmu_counter_sanity.elf
 cmake --build build-et-erbium --target tpa_tensor_matmul.elf
 cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
 cmake --build build-et-erbium --target tpa_fast_attention.elf
@@ -150,6 +151,10 @@ cmake --build build-et-erbium --target tpa_stereo_sad_mapped.elf
   -minions 0x3 \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_tensor_alignment.elf \
   -max_cycles 1000000
+/opt/et/bin/erbium_emu \
+  -minions 0x1 \
+  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pmu_counter_sanity.elf \
+  -max_cycles 100000
 /opt/et/bin/erbium_emu \
   -minions 0x1f \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention.elf \
@@ -323,7 +328,8 @@ Ported and validated today:
 - ET superbuild integration for device and host subprojects.
 - Erbium `tpa_empty.elf`, `tpa_pipe_demo.elf`,
   `tpa_packed_single_row.elf`, `tpa_tensor_alignment.elf`,
-  `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
+  `tpa_pmu_counter_sanity.elf`, `tpa_tensor_matmul.elf`,
+  `tpa_fast_attention.elf`,
   `tpa_fast_attention_ps_softmax_subtract.elf`,
   `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`,
   `tpa_stereo_sad_mapped.elf`, and representative
@@ -331,7 +337,8 @@ Ported and validated today:
 - Cooperative runtime scheduler execution for generated graph programs, with
   Erbium emulator PASS validation for `tpa_empty.elf`, `tpa_pipe_demo.elf`,
   `tpa_packed_single_row.elf`, `tpa_tensor_alignment.elf`,
-  `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
+  `tpa_pmu_counter_sanity.elf`, `tpa_tensor_matmul.elf`,
+  `tpa_fast_attention.elf`,
   `tpa_fast_attention_ps_softmax_subtract.elf`,
   `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`,
   `tpa_stereo_sad_mapped.elf`, representative message/channel tests, and

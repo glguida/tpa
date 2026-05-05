@@ -67,6 +67,7 @@ Current validated Erbium runtime targets include:
 - `tpa_pipe_demo.elf`;
 - `tpa_packed_single_row.elf`;
 - `tpa_tensor_alignment.elf`;
+- `tpa_pmu_counter_sanity.elf`;
 - `tpa_tensor_matmul.elf`;
 - `tpa_fast_attention.elf`, `tpa_fast_attention_ps_softmax_subtract.elf`, and
   `tpa_fast_attention_serial.elf`;

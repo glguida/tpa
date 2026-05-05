@@ -306,6 +306,32 @@ It proves the 64-byte-header success path and the PRM-defined
 scratchpad-disabled error path; it does not prove that a misaligned TensorLoad
 address reports an error.
 
+## PMU counter sanity micro-example: `tpa_pmu_counter_sanity`
+
+`kernels/tpa_pmu_counter_sanity.*` is a small Erbium PMU/counter evidence
+target. It uses one process on runtime hart `0` and no channels. The process
+reads the documented always-zero `mcycle`, `minstret`, and `mhpmcounter9` CSRs,
+then configures `mhpmevent3`/`mhpmcounter3` for a deterministic
+`RETIRED_INST0` sanity check around fixed instruction loops. It emits raw counter
+words as `validation0` trace tags when run with Erbium DEBUG logging, clears the
+selector before PASS/FAIL, and reports PASS only when the counter behavior
+matches the narrow documented subset it exercises.
+
+Files:
+
+- `kernels/tpa_pmu_counter_sanity.c` — one-process PMU CSR checks and trace
+  value emission;
+- `kernels/tpa_pmu_counter_sanity.tpm` — process kind declaration;
+- `kernels/tpa_pmu_counter_sanity.tpp` — one-instance graph;
+- `kernels/tpa_pmu_counter_sanity.place` — hand placement on Erbium H0 runtime
+  hart `0`;
+- `kernels/CMakeLists.txt` — `tpa_pmu_counter_sanity.elf` target and Erbium
+  CTest registration when `erbium_emu` is available.
+
+Use it as a PMU access sanity check only. It is not a speed or throughput
+benchmark, does not validate ET-SoC-1 or silicon behavior, and intentionally
+avoids unreviewed PMU-control ESR writes.
+
 ## Intermediate example: `tpa_tensor_matmul`
 
 `kernels/tpa_tensor_matmul.*` is the intermediate original demo now ported to
@@ -374,6 +400,7 @@ Erbium:
 ```sh
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
+cmake --build build-et-erbium --target tpa_pmu_counter_sanity.elf
 ```
 
 The generated ELF is under the ET device sub-build, currently:
