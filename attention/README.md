@@ -29,6 +29,8 @@ specific planner Python environment:
 cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python3)
 cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
 cmake --build build-et-erbium --target tpa_fast_attention.elf
+cmake --build build-et-erbium --target tpa_fast_attention_ps_softmax_subtract_map_mapped_program
+cmake --build build-et-erbium --target tpa_fast_attention_ps_softmax_subtract.elf
 cmake --build build-et-erbium --target tpa_fast_attention_serial.elf
 ```
 
@@ -38,6 +40,10 @@ Run under Erbium emulator:
 /opt/et/bin/erbium_emu \
   -minions 0x1f \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention.elf \
+  -max_cycles 5000000
+/opt/et/bin/erbium_emu \
+  -minions 0x1f \
+  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention_ps_softmax_subtract.elf \
   -max_cycles 5000000
 /opt/et/bin/erbium_emu \
   -minions 0x1f \
@@ -53,10 +59,20 @@ under the build-tree `attention/planner/` directory. The current mapper output
 distributes the four score/softmax head pipelines across four Erbium runtime
 harts inside the documented `-minions 0x1f` mask.
 
+`tpa_fast_attention_ps_softmax_subtract.elf` is an opt-in experiment target that
+keeps the same graph and mapping path but compiles the softmax process with
+`ATTENTION_ENABLE_PS_SOFTMAX_SUBTRACT=1`. Only the row-local
+`score[col] - max_score` preparation step changes to packed-single SIMD; row
+maximum, exponent approximation, row sum, reciprocal, and final row scaling stay
+on the existing baseline paths. Keep its evidence separate from the baseline and
+do not treat small trace differences as a speedup claim without a controlled
+comparison.
+
 `attention_serial.place` is a checked-in baseline placement: it keeps
 source/output on hart `0` and maps every score/softmax stage to hart `2` for a
-trace-inspectable comparison target. The repository must not treat either layout
-as a measured speedup claim unless traces are measured and compared separately.
+trace-inspectable comparison target. The repository must not treat any of the
+mapped, packed-single-subtract, or serial layouts as a measured speedup claim
+unless traces are measured and compared separately.
 
 ## Trace tags
 

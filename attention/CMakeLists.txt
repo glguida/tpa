@@ -190,6 +190,21 @@ attention_add_process_metadata(
 )
 
 add_tpa_process(
+    NAME tpa_attention_softmax_ps_subtract_proc
+    MANIFEST
+        "${CMAKE_CURRENT_SOURCE_DIR}/attention_softmax.tpm"
+    SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/attention_softmax.c"
+)
+target_compile_definitions(tpa_attention_softmax_ps_subtract_proc PRIVATE
+    ATTENTION_ENABLE_PS_SOFTMAX_SUBTRACT=1
+)
+attention_add_process_metadata(
+    tpa_attention_softmax_ps_subtract_proc
+    "${CMAKE_CURRENT_SOURCE_DIR}/attention_softmax.tpm"
+)
+
+add_tpa_process(
     NAME tpa_attention_output_proc
     MANIFEST
         "${CMAKE_CURRENT_SOURCE_DIR}/attention_output.tpm"
@@ -205,6 +220,13 @@ set(tpa_attention_processes
     tpa_attention_qkv_gen_proc
     tpa_attention_score_proc
     tpa_attention_softmax_proc
+    tpa_attention_output_proc
+)
+
+set(tpa_attention_ps_softmax_subtract_processes
+    tpa_attention_qkv_gen_proc
+    tpa_attention_score_proc
+    tpa_attention_softmax_ps_subtract_proc
     tpa_attention_output_proc
 )
 
@@ -231,6 +253,31 @@ add_tpa_program(
         "${TPA_FAST_ATTENTION_EDGE_HEADER}"
 )
 add_dependencies(tpa_fast_attention.elf tpa_fast_attention_map_mapped_program)
+
+attention_add_mapped_program(
+    tpa_fast_attention_ps_softmax_subtract_map
+    "${CMAKE_CURRENT_SOURCE_DIR}/attention.tpp"
+    PROCESS_TARGETS
+        ${tpa_attention_ps_softmax_subtract_processes}
+    OUT_PLACEMENT_VAR TPA_FAST_ATTENTION_PS_SOFTMAX_SUBTRACT_MAPPED_PLACEMENT
+    OUT_EDGE_HEADER_VAR TPA_FAST_ATTENTION_PS_SOFTMAX_SUBTRACT_EDGE_HEADER
+    OUT_REPORT_VAR TPA_FAST_ATTENTION_PS_SOFTMAX_SUBTRACT_MAP_REPORT
+    OUT_MAPPED_PROGRAM_VAR TPA_FAST_ATTENTION_PS_SOFTMAX_SUBTRACT_MAPPED_PROGRAM
+)
+
+add_tpa_program(
+    NAME tpa_fast_attention_ps_softmax_subtract
+    PROCESSES
+        ${tpa_attention_ps_softmax_subtract_processes}
+    PROGRAM
+        "${CMAKE_CURRENT_SOURCE_DIR}/attention.tpp"
+    PLACEMENT
+        "${TPA_FAST_ATTENTION_PS_SOFTMAX_SUBTRACT_MAPPED_PLACEMENT}"
+    EDGE_CONFIG_HEADER
+        "${TPA_FAST_ATTENTION_PS_SOFTMAX_SUBTRACT_EDGE_HEADER}"
+)
+add_dependencies(tpa_fast_attention_ps_softmax_subtract.elf
+    tpa_fast_attention_ps_softmax_subtract_map_mapped_program)
 
 add_tpa_program(
     NAME tpa_fast_attention_serial

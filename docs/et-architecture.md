@@ -68,7 +68,8 @@ Current validated Erbium runtime targets include:
 - `tpa_packed_single_row.elf`;
 - `tpa_tensor_alignment.elf`;
 - `tpa_tensor_matmul.elf`;
-- `tpa_fast_attention.elf` and `tpa_fast_attention_serial.elf`;
+- `tpa_fast_attention.elf`, `tpa_fast_attention_ps_softmax_subtract.elf`, and
+  `tpa_fast_attention_serial.elf`;
 - `tpa_stereo_sad.elf` for the no-weights stereo SAD depth demo;
 - representative message/channel and queue regression ELFs;
 - `tpa_negative_expected_fail.elf` as an intentional FAIL-marker test;

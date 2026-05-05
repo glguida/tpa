@@ -22,7 +22,7 @@ Use this guide to remember what those rules imply for code review.
 | `kernels/tpa_packed_single_row.c` | Minimal structured packed-single row micro-example: aligned 16-float edge rows, `flw.ps`/`fmul.ps`/`fadd.ps`/`fsw.ps`, scalar checking, and decoded objdump evidence. |
 | `kernels/tpa_tensor_alignment.c` | Small Tensor alignment/error evidence target: 64-byte-header packet contract, aligned 16-by-16 FP32 TensorLoad/TensorFMA success path, and controlled `tensor_error[4]` expected-error subtest with L1 scratchpad disabled. |
 | `kernels/tpa_tensor_matmul.c` | Current in-repository Tensor matrix multiply process: scratchpad setup, `tensor_load`, `tensor_fma`, waits, error handling, and packed-single register-file load/store helpers. |
-| `attention/attention_et.h` | Current reusable ET helper patterns for 16-by-16 FP32 TensorFMA and packed-single row copy/scale. |
+| `attention/attention_et.h` | Current reusable ET helper patterns for 16-by-16 FP32 TensorFMA, packed-single row copy/scale, and the opt-in softmax subtract-max packed-single experiment. |
 | `attention/attention_common.h` | Packet layout, 64-byte headers, static asserts, trace tags, and scalar reference helpers for a fixed 16-by-16 workload. |
 | `attention/attention_score.c`, `attention/attention_softmax.c`, `attention/attention_output.c` | Continuation integration around Tensor score/output products, packed-single row work, and scalar validation. |
 | `attention/README.md` | Build/run commands, mapper placement notes, trace-tag extraction, and no-speedup policy. |
@@ -808,16 +808,20 @@ one file while leaving process graph semantics in the `.tpm/.tpp` path.
 
 Key helper roles:
 
-- `attention_et_tensor_setup()` performs the cache/scratchpad/mask/error setup.
-- `attention_et_load_vector_regs()` loads sixteen 16-float rows into `f0..f31`
-  with `flw.ps` pairs.
-- `attention_et_store_vector_regs()` stores `f0..f31` back to memory with
-  `fsw.ps` pairs.
+- `attention_et_enable_tensor_scratchpad()` performs the
+  cache/scratchpad/mask/error setup.
+- `attention_et_store_rf_16x16()` stores `f0..f31` back to memory with `fsw.ps`
+  pairs.
 - `attention_et_matmul_16x16()` loads A and B into L1SCP, waits for both load
   ids, issues TensorFMA32, waits for FMA, stores the result, and checks
   `tensor_error`.
-- `attention_scale_scores_ps()` applies a row-wise scalar scale with
+- `attention_et_scale_matrix_ps()` applies row-wise scalar scaling with
   packed-single multiply after the TensorFMA product.
+- `attention_et_sub_max_row_ps()` is used only by the opt-in
+  `tpa_fast_attention_ps_softmax_subtract.elf` target. It broadcasts one scalar
+  row maximum into a packed row, subtracts it from two eight-lane halves with
+  `fsub.ps`, and stores a prepared row for the existing scalar exponent/sum
+  loop.
 
 This shows a good separation of concerns:
 
@@ -834,8 +838,10 @@ common header:
 ```
 
 The evidence packet shows extension use in disassembly and trace markers, but it
-also documents that speedup is not claimed. Use the source as an instruction
-pattern and validation example, not as a performance conclusion.
+also documents that speedup is not claimed. The packed-single subtract variant
+is similarly a correctness/evidence experiment: it isolates one softmax substep
+and keeps baseline/optimized trace evidence separate. Use the source as an
+instruction pattern and validation example, not as a performance conclusion.
 
 ## 17. Writing inline assembly that survives review
 
@@ -992,6 +998,23 @@ an aligned TensorLoad/TensorFMA path, and a scratchpad-disabled TensorLoad can
 be treated as an expected PASS subcondition when it reports `tensor_error[4]`.
 It does not prove a misaligned-address TensorLoad error, performance speedup, or
 platform portability.
+
+Attention packed-single subtract-max evidence:
+
+- `tpa_fast_attention.elf` remains the baseline mapped target.
+- `tpa_fast_attention_ps_softmax_subtract.elf` is the opt-in variant that uses
+  the same graph/mapping path but compiles `attention_softmax.c` with
+  `ATTENTION_ENABLE_PS_SOFTMAX_SUBTRACT=1`.
+- Runtime validation under Erbium reports PASS markers for both mapped targets
+  and for `tpa_fast_attention_serial.elf`; direct emulator raw exit code may
+  still be `1` after PASS due the known sleeping-harts caveat.
+- Objdump for the variant decodes the new helper as `flw.ps`, `fsub.ps`, and
+  `fsw.ps` around the softmax path. This proves instruction selection for the
+  subtract-max preparation step only.
+- Filtered trace extraction with `tools/trace/parse_attention_trace.py` keeps
+  baseline and variant measurements separate. The current observed mapped trace
+  spans are effectively unchanged at the program level and are not a speedup
+  claim; the output scalar validation span still dominates PASS time.
 
 Trace checks should prove that the optimized path actually ran. Trace tags are
 application-specific; the pattern is not:

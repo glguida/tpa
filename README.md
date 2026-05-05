@@ -133,6 +133,8 @@ cmake --build build-et-erbium --target tpa_tensor_alignment.elf
 cmake --build build-et-erbium --target tpa_tensor_matmul.elf
 cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
 cmake --build build-et-erbium --target tpa_fast_attention.elf
+cmake --build build-et-erbium --target tpa_fast_attention_ps_softmax_subtract_map_mapped_program
+cmake --build build-et-erbium --target tpa_fast_attention_ps_softmax_subtract.elf
 cmake --build build-et-erbium --target tpa_fast_attention_serial.elf
 cmake --build build-et-erbium --target tpa_stereo_sad_map_mapped_program
 cmake --build build-et-erbium --target tpa_stereo_sad.elf
@@ -151,6 +153,10 @@ cmake --build build-et-erbium --target tpa_stereo_sad_mapped.elf
 /opt/et/bin/erbium_emu \
   -minions 0x1f \
   -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention.elf \
+  -max_cycles 5000000
+/opt/et/bin/erbium_emu \
+  -minions 0x1f \
+  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention_ps_softmax_subtract.elf \
   -max_cycles 5000000
 /opt/et/bin/erbium_emu \
   -minions 0x1f \
@@ -318,13 +324,15 @@ Ported and validated today:
 - Erbium `tpa_empty.elf`, `tpa_pipe_demo.elf`,
   `tpa_packed_single_row.elf`, `tpa_tensor_alignment.elf`,
   `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
-  `tpa_fast_attention_serial.elf`,
-  `tpa_stereo_sad.elf`, `tpa_stereo_sad_mapped.elf`, and representative
+  `tpa_fast_attention_ps_softmax_subtract.elf`,
+  `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`,
+  `tpa_stereo_sad_mapped.elf`, and representative
   message/queue/negative regression ELF build paths.
 - Cooperative runtime scheduler execution for generated graph programs, with
   Erbium emulator PASS validation for `tpa_empty.elf`, `tpa_pipe_demo.elf`,
   `tpa_packed_single_row.elf`, `tpa_tensor_alignment.elf`,
   `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
+  `tpa_fast_attention_ps_softmax_subtract.elf`,
   `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`,
   `tpa_stereo_sad_mapped.elf`, representative message/channel tests, and
   representative queue tests.

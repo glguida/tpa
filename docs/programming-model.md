@@ -274,7 +274,8 @@ Currently integrated generated TPA programs include:
 - `kernels/tpa_packed_single_row.*` -> `tpa_packed_single_row.elf`;
 - `kernels/tpa_tensor_alignment.*` -> `tpa_tensor_alignment.elf`;
 - `kernels/tpa_tensor_matmul.*` -> `tpa_tensor_matmul.elf`;
-- `attention/attention.*` -> `tpa_fast_attention.elf` and
+- `attention/attention.*` -> `tpa_fast_attention.elf`,
+  `tpa_fast_attention_ps_softmax_subtract.elf`, and
   `tpa_fast_attention_serial.elf`;
 - `depth/stereo_sad.*` -> `tpa_stereo_sad.elf`, a no-weights stereo SAD demo
   with a deterministic 96x64 synthetic source, four worker stripes, a checker,
@@ -296,10 +297,10 @@ Original message, queue, and negative regression assets are also integrated as
 structured test ELF targets. Representative message/channel and queue ELFs now
 report PASS under Erbium, and the negative expected-failure ELF reports the
 intended FAIL marker. The packed-single row micro-example, tensor
-alignment/error micro-example, tensor matmul, fast attention, stereo SAD,
-YOLOv5n downstream, and the opt-in YOLOv8n Detect/DFL/C2f/neck-tail
-external-header paths now have Erbium PASS-marker validation. The stereo SAD
-demo uses deterministic synthetic
+alignment/error micro-example, tensor matmul, fast attention, the packed-single
+softmax subtract-max attention experiment, stereo SAD, YOLOv5n downstream, and
+the opt-in YOLOv8n Detect/DFL/C2f/neck-tail external-header paths now have
+Erbium PASS-marker validation. The stereo SAD demo uses deterministic synthetic
 data only; it does not require external images, datasets, model weights, or
 third-party stereo code. It uses hand placement; mapper-generated
 placement/report work remains follow-up. YOLO tools/models and representative
@@ -315,6 +316,7 @@ execute process continuations. The validated Erbium PASS-marker set is still
 representative rather than exhaustive: `tpa_empty.elf`, `tpa_pipe_demo.elf`,
 `tpa_packed_single_row.elf`, `tpa_tensor_alignment.elf`,
 `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
+`tpa_fast_attention_ps_softmax_subtract.elf`,
 `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`, YOLOv5n downstream,
 the opt-in YOLOv8n Detect/DFL/C2f/neck-tail milestones, representative message/channel tests,
 and representative queue tests pass. Broader scheduler coverage, full

@@ -165,6 +165,31 @@ static inline void attention_et_copy_matrix_ps(
         attention_et_copy_row_ps(dst[row], src[row]);
 }
 
+static inline void attention_et_sub_max_row_ps(
+    float dst[ATTENTION_SEQ_LEN], const float src[ATTENTION_SEQ_LEN],
+    float max_score)
+{
+    float max_vec[8] __attribute__((aligned(64)));
+    uint32_t mask = 0xffu;
+
+    for (uint32_t lane = 0; lane < 8u; lane++)
+        max_vec[lane] = max_score;
+
+    asm volatile(
+        "mov.m.x m0, %[mask], 0\n"
+        "flw.ps f2, 0(%[max_vec])\n"
+        "flw.ps f0, 0(%[src])\n"
+        "flw.ps f1, 32(%[src])\n"
+        "fsub.ps f0, f0, f2\n"
+        "fsub.ps f1, f1, f2\n"
+        "fsw.ps f0, 0(%[dst])\n"
+        "fsw.ps f1, 32(%[dst])\n"
+        :
+        : [mask] "r"(mask), [dst] "r"(dst), [src] "r"(src),
+          [max_vec] "r"(max_vec)
+        : "f0", "f1", "f2", "memory");
+}
+
 static inline void attention_et_mul_row_scalar_ps(
     float row[ATTENTION_HEAD_DIM], float scalar)
 {
@@ -221,10 +246,23 @@ static inline void attention_softmax_row_ps(
             max_score = score[col];
     }
 
+#if defined(ATTENTION_ENABLE_PS_SOFTMAX_SUBTRACT) && \
+    ATTENTION_ENABLE_PS_SOFTMAX_SUBTRACT
+    {
+        float prepared[ATTENTION_SEQ_LEN] __attribute__((aligned(64)));
+
+        attention_et_sub_max_row_ps(prepared, score, max_score);
+        for (uint32_t col = 0; col < ATTENTION_SEQ_LEN; col++) {
+            weight[col] = attention_exp_approx(prepared[col]);
+            sum += weight[col];
+        }
+    }
+#else
     for (uint32_t col = 0; col < ATTENTION_SEQ_LEN; col++) {
         weight[col] = attention_exp_approx(score[col] - max_score);
         sum += weight[col];
     }
+#endif
 
     if (sum > 0.0f)
         attention_et_mul_row_scalar_ps(weight, attention_reciprocal_sum(sum));

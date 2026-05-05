@@ -68,6 +68,8 @@ cmake --build build-et-erbium --target tpa_tensor_alignment.elf
 cmake --build build-et-erbium --target tpa_tensor_matmul.elf
 cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
 cmake --build build-et-erbium --target tpa_fast_attention.elf
+cmake --build build-et-erbium --target tpa_fast_attention_ps_softmax_subtract_map_mapped_program
+cmake --build build-et-erbium --target tpa_fast_attention_ps_softmax_subtract.elf
 cmake --build build-et-erbium --target tpa_fast_attention_serial.elf
 cmake --build build-et-erbium --target tpa_stereo_sad_map_mapped_program
 cmake --build build-et-erbium --target tpa_stereo_sad.elf
@@ -106,6 +108,7 @@ cmake --build build-et-erbium --target tpa_negative_expected_fail.elf
 /opt/et/bin/erbium_emu -minions 0x3 -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_tensor_alignment.elf -max_cycles 1000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_tensor_matmul.elf -max_cycles 2000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention.elf -max_cycles 5000000
+/opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention_ps_softmax_subtract.elf -max_cycles 5000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention_serial.elf -max_cycles 5000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/depth/tpa_stereo_sad.elf -max_cycles 100000000
 /opt/et/bin/erbium_emu -minions 0xff -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/depth/tpa_stereo_sad_mapped.elf -max_cycles 100000000
@@ -125,6 +128,7 @@ ET RISC-V toolchain or required ET CMake packages are unavailable. The
 `tpa_pipe_demo.elf`, `tpa_empty.elf`, `tpa_packed_single_row.elf`,
 `tpa_tensor_alignment.elf`, `tpa_tensor_matmul.elf`,
 `tpa_fast_attention.elf`,
+`tpa_fast_attention_ps_softmax_subtract.elf`,
 `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`,
 `tpa_stereo_sad_mapped.elf`, and representative runtime-regression ELF targets
 are generated through the TPA process/program flow, not as handcrafted
@@ -309,7 +313,9 @@ targets, not archived generated JSON.
   TensorLoad/TensorFMA result, and treats the PRM-defined scratchpad-disabled
   `tensor_error[4]` path as an expected negative subtest.
 - `attention/` contains the structured fixed-size fast-attention demo and builds
-  `tpa_fast_attention.elf` plus the serial baseline `tpa_fast_attention_serial.elf`.
+  `tpa_fast_attention.elf`, the opt-in packed-single softmax subtract-max
+  experiment `tpa_fast_attention_ps_softmax_subtract.elf`, and the serial
+  baseline `tpa_fast_attention_serial.elf`.
 - `yolov5n/` contains the original YOLOv5n process sources/assets plus downstream planner/map targets and `tpa_yolov5n_downstream.elf`.
 - `yolov8n/` contains external-header graphs for P5-only Detect/DFL, sampled
   P3/P4/P5 Detect/DFL branch plumbing, sampled P3 `model.15`, P4 `model.18`,
@@ -340,6 +346,7 @@ targets, not archived generated JSON.
   Erbium emulator validation; `tpa_negative_expected_fail.elf` reports the
   intended FAIL marker.
 - `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
+  `tpa_fast_attention_ps_softmax_subtract.elf`,
   `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`, and
   `tpa_stereo_sad_mapped.elf` build and report PASS markers under Erbium
   emulator validation. `tpa_tensor_alignment.elf` additionally records the

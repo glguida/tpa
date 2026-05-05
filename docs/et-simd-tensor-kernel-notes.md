@@ -15,7 +15,9 @@ path and `kernels/tpa_tensor_matmul.c` for a larger matmul graph. The fixed
 attention demo under `attention/` now uses ET helpers in current source:
 `attention/attention_et.h` provides TensorFMA-based 16-by-16 products for the
 score and output paths plus packed-single row copy/scaling helpers for softmax
-and matrix scaling. That implementation still must not be described as a
+and matrix scaling. The opt-in `tpa_fast_attention_ps_softmax_subtract.elf`
+experiment also uses packed-single `fsub.ps` only for softmax row subtract-max
+preparation. That implementation still must not be described as a
 measured speedup unless the ET build, Erbium PASS marker, extension-use
 disassembly, and baseline-vs-optimized trace/cycle evidence are all reviewed.
 
@@ -149,7 +151,8 @@ QKV generator
            |              current code uses TensorFMA32 + packed-single scaling
            v
         softmax(head i):  row-wise softmax(scores)
-           |              current code uses scalar max/exp/sum + packed-single copy/scale
+           |              baseline uses scalar max/subtract/exp/sum plus packed-single copy/scale
+           |              ps-subtract variant uses packed-single only for subtract-max preparation
            v
         output/check:     output = weights * V
                           current code uses TensorFMA32, then scalar reference validation
@@ -160,9 +163,13 @@ Current ET helper status in `attention/attention_et.h`:
 - `attention_compute_scores_tensor()` uses `attention_et_matmul_16x16()` for
   `Q * K^T`, with `TensorLoadTranspose32` for K, then scales the score matrix
   with packed-single row scaling.
-- `attention_compute_softmax_ps()` uses scalar loops for the max, exponent
-  approximation, and sum; it uses packed-single helpers for row copies and final
-  normalization scaling. Do not describe it as a fully vectorized softmax.
+- Baseline `attention_compute_softmax_ps()` uses scalar loops for max,
+  subtract-max, exponent approximation, and sum; it uses packed-single helpers
+  for row copies and final normalization scaling. The opt-in
+  `tpa_fast_attention_ps_softmax_subtract.elf` target compiles the same softmax
+  process with `ATTENTION_ENABLE_PS_SOFTMAX_SUBTRACT=1`, replacing only the
+  row-local subtract-max preparation with `flw.ps`/`fsub.ps`/`fsw.ps` over two
+  eight-lane halves. Do not describe either path as a fully vectorized softmax.
 - `attention_compute_output_packet()` uses the same TensorFMA helper for
   `softmax(weights) * V`.
 
