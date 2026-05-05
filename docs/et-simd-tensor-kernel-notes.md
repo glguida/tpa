@@ -4,14 +4,17 @@ This note collects project-specific guidance for using ET packed-single SIMD and
 Tensor instructions inside TPA process kernels. It is not a replacement for the
 ET Programmer's Reference Manual in `docs/et-programmers-reference-manual.txt`.
 Use the manual for instruction encodings and complete semantics; use this note
-for the TPA consequences that matter when writing or reviewing kernels.
+for the TPA consequences that matter when writing or reviewing kernels. For a
+longer tutorial and validation roadmap, see
+`docs/et-vector-tensor-hackers-guide.md`.
 
 The current in-repository Tensor example is `kernels/tpa_tensor_matmul.c`. The
-fixed attention demo under `attention/` is a useful shape study because each head
-uses 16-by-16 FP32 matrices, but documentation must not treat any optimized
-attention path as validated until the optimized ELF builds through the ET
-superbuild, runs under `erbium_emu`, reports the application PASS marker, and
-has measured baseline-vs-optimized evidence.
+fixed attention demo under `attention/` now uses ET helpers in current source:
+`attention/attention_et.h` provides TensorFMA-based 16-by-16 products for the
+score and output paths plus packed-single row copy/scaling helpers for softmax
+and matrix scaling. That implementation still must not be described as a
+measured speedup unless the ET build, Erbium PASS marker, extension-use
+disassembly, and baseline-vs-optimized trace/cycle evidence are all reviewed.
 
 ## Where ET extensions fit in the TPA model
 
@@ -117,7 +120,7 @@ Practical consequences for TPA kernels:
   targets that expose H1 or mixed contexts must keep Tensor kernels off illegal
   harts.
 
-## Fixed attention: extension candidates and layout constraints
+## Fixed attention: current ET helper status and layout constraints
 
 The structured attention demo has these dimensions:
 
@@ -133,43 +136,39 @@ Each per-head pipeline therefore carries 16-by-16 FP32 matrices:
 ```text
 QKV generator
     |
-    +--> score(head i):   scores = Q * K^T * scale   TensorFMA32 candidate
-           |
+    +--> score(head i):   scores = Q * K^T * scale
+           |              current code uses TensorFMA32 + packed-single scaling
            v
-        softmax(head i):  row-wise softmax(scores)   packed-single candidate
-           |
+        softmax(head i):  row-wise softmax(scores)
+           |              current code uses scalar max/exp/sum + packed-single copy/scale
            v
-        output/check:     output = weights * V       TensorFMA32 candidate
+        output/check:     output = weights * V
+                          current code uses TensorFMA32, then scalar reference validation
 ```
 
-The obvious Tensor candidates are:
+Current ET helper status in `attention/attention_et.h`:
 
-- `Q * K^T` in the score process. `TensorLoadTranspose32` is relevant for loading
-  `K` so that the Tensor FMA sees the right columns.
-- `softmax(scores) * V` in the output/check process if the implementation stores
-  or stages the softmax weights and V matrix in Tensor-ready layout.
+- `attention_compute_scores_tensor()` uses `attention_et_matmul_16x16()` for
+  `Q * K^T`, with `TensorLoadTranspose32` for K, then scales the score matrix
+  with packed-single row scaling.
+- `attention_compute_softmax_ps()` uses scalar loops for the max, exponent
+  approximation, and sum; it uses packed-single helpers for row copies and final
+  normalization scaling. Do not describe it as a fully vectorized softmax.
+- `attention_compute_output_packet()` uses the same TensorFMA helper for
+  `softmax(weights) * V`.
 
-The obvious packed-single candidates are the row-local softmax and row-copy
-operations:
-
-- two `FLW.PS` loads per 16-float row;
-- elementwise subtract/scale/multiply over two vector registers;
-- `FEXP.PS` or a vectorized polynomial approximation for exponentiation;
-- `FRCP.PS` or scalar reciprocal plus vector multiply for normalization;
-- two `FSW.PS` stores per row.
-
-The current checked-in attention packet layouts put a `uint32_t head` before the
-matrix arrays:
+The checked-in attention packet layouts now reserve a 64-byte header before the
+first matrix and statically assert that matrix rows are 64-byte aligned:
 
 ```text
 64-byte-aligned struct base
-+0:  uint32_t head
-+4:  first matrix element       <-- not 64-byte aligned
++0:   uint32_t head
++4:   header padding
++64:  first matrix row         <-- 64-byte aligned
 ```
 
-That layout is correct for the scalar reference path but is not Tensor-load
-ready for the matrix bases. An optimized implementation must choose one of these
-approaches and update all artifacts consistently:
+If another kernel still has a compact header before matrix data, choose one of
+these approaches and update all artifacts consistently:
 
 1. Change channel packet layouts to reserve a 64-byte header/alignment area
    before matrix data, so each 16-float row begins at a 64-byte-aligned address.
