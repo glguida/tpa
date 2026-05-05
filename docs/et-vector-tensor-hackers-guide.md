@@ -1,615 +1,925 @@
-# Hacker's Guide to ET Vector and Tensor Programming for TPA
+# Hacker's Guide to ET Vector and Tensor Programming
 
-This guide is a practical bridge between the TPA process/graph model and the
-ET packed-single SIMD and Tensor facilities. It is for engineers writing or
-reviewing TPA process kernels that use ET-specific instruction extensions.
+This is a field manual for writing, inspecting, debugging, and validating ET
+packed-single SIMD and Tensor code. It is not an ISA replacement. The primary
+ISA source remains `docs/et-programmers-reference-manual.txt`; this guide turns
+PRM facts and current repository evidence into programming consequences.
 
-It is not a replacement for the ET Programmer's Reference Manual (PRM) in
-`docs/et-programmers-reference-manual.txt`. Use the PRM for instruction
-encodings, CSR bit fields, and complete architectural semantics. This guide
-records the TPA-specific consequences, the current in-repository examples, and
-the validation discipline required before making claims about ET extension use.
+The guide is intentionally low-level. It explains registers, CSRs, masks,
+cache/scratchpad setup, Tensor instruction families, ordering waits, error bits,
+layout constraints, disassembly expectations, and TPA process integration. It is
+not organized around any model or product roadmap.
 
-## 1. Scope and non-goals
+## 1. Source map and trust rules
 
-### Scope
-
-This guide covers:
-
-- where ET packed-single SIMD and Tensor code belongs in a TPA program;
-- how to keep `.tpm`, `.tpp`, placement, scratch, edge payloads, immutable model
-  data, and process workspace separate;
-- the packed-single facts that matter for row-local FP32 kernels;
-- the Tensor facts that matter for FP32 16-by-16 tiles;
-- alignment and payload-layout contracts for Tensor-ready edge packets;
-- the current examples in `kernels/tpa_tensor_matmul.c` and `attention/`;
-- how to validate extension use without confusing scalar/reference coverage,
-  host smoke tests, source inspection, or mapper placement with optimized
-  Erbium performance evidence.
-
-### Non-goals
-
-This guide does not:
-
-- define new ET ISA semantics;
-- replace the ET PRM;
-- introduce alternate CMake, image-generation, or launch paths;
-- claim speedups from ET extensions without reviewed build/run/disassembly/trace
-  evidence;
-- claim that current YOLOv8n milestones are optimized vector/tensor kernels;
-- claim full YOLOv8n graph, accuracy, production quantization, host-demo, or
-  ET-SoC-1 YOLOv8n validation.
-
-Current YOLOv8n milestones are external-header deterministic plumbing checks:
-sampled and dense C2f/Detect/DFL/neck-tail graph milestones with synthetic-
-calibration artifacts and documented external-artifact policy. They are useful
-future targets for ET vector/tensor work, but they are not current optimized
-ET vector/tensor evidence.
-
-## 2. Mental model: TPA graph vs. ET kernel code
-
-TPA separates logical dataflow from hardware realization. ET packed-single SIMD
-and Tensor instructions are implementation details of a process continuation's
-compute section; they do not belong in `.tpp` graph semantics.
-
-```text
-Process C continuation
-  recv edge payload
-  -> local compute using scalar C, packed-single SIMD, Tensor, or a mix
-  -> send edge payload
-
-.tpm manifest
-  process kind name, start continuation, persistent workspace size, ports
-
-.tpp program graph
-  process instances and logical connections with byte capacities
-
-.place or mapper output
-  runtime hart placement, channel class, scratch domains, edge storage
-```
-
-A process implementation may be ET-specific when it includes headers such as
-`<etsoc/isa/cacheops.h>` or `<etsoc/isa/tensors.h>`, or when it uses inline
-assembly for `flw.ps`, `fsw.ps`, or `fmul.ps`. That does not change the TPA
-artifact boundaries:
-
-- **Process workspace** is persistent per-instance state declared by `.tpm` and
-  accessed with `tpa_ws()`.
-- **Scratch** is transient compute memory used while a continuation runs. Tensor
-  scratchpad setup, aligned staging buffers, and temporary vector/Tensor state
-  are not edge payloads and are not persistent state unless a process explicitly
-  stores them in its workspace contract.
-- **Immutable model data** is read-only weight/blob data such as generated YOLO
-  weights. It is not scratch and is not an edge buffer.
-- **Edge/channel data** is the payload capacity declared by `.tpp` `conn` lines
-  and realized by image generation or mapper edge-buffer output.
-- **Placement** is a mapping artifact. Tensor legality may require H0-capable
-  contexts, but process code should not encode minion ids, shire ids, runtime
-  hart ids, or channel transport classes.
-
-Current Erbium TPA placement follows this separation. `machines/erbium.json`
-exposes only `h0` contexts with `hart_stride: 2`, and `docs/et-architecture.md`
-documents that current Erbium runtime placements use the even H0 lane ids. That
-matters because the ET PRM's Tensor overview says most Tensor instructions are
-only legal on hart 0 of each Minion.
-
-## 3. Source map
-
-Read these sources before changing ET vector/tensor kernels or documentation:
+Read the ET PRM first when an instruction encoding or architectural rule matters.
+Use this guide to remember what those rules imply for code review.
 
 | Source | Use |
 | --- | --- |
-| `docs/et-programmers-reference-manual.txt` | Primary local ET ISA source. Cite section names/chapters for instruction behavior. |
-| `docs/et-simd-tensor-kernel-notes.md` | Short project-specific checklist for packed-single/Tensor kernel work. |
-| `docs/et-architecture.md` | TPA-visible Erbium and ET-SoC-1 topology, H0 placement notes, host-vs-device validation distinction. |
-| `docs/programming-model.md` | Normative TPA terms: process kind, instance, port, edge, mapped program, image, scratch. |
-| `docs/creating-programs.md` | Required `.c + .tpm + .tpp + .place` or mapper-generated build path. |
-| `docs/mapper-planner.md` | Mapper inputs/outputs, machine JSON contexts, generated placement, scratch, and edge artifacts. |
-| `docs/memory-and-edge-buffers.md` | Memory taxonomy: process workspace, scratch, immutable model data, edge payloads. |
-| `kernels/tpa_packed_single_row.c` | Minimal packed-single row micro-example: source/compute/check graph, aligned 16-float edge rows, `flw.ps`/`fmul.ps`/`fadd.ps`/`fsw.ps`, and deterministic scalar validation. |
-| `kernels/tpa_tensor_matmul.c` | Current Tensor matmul example: scratchpad setup, `tensor_load`, `tensor_fma`, `tensor_wait`, error checks, packed-single RF load/store helpers. |
-| `attention/attention_common.h` | Attention dimensions, 64-byte header layout, packet sizes, trace tags, scalar reference helpers. |
-| `attention/attention_et.h` | Current attention ET helpers: TensorFMA-based 16-by-16 products and packed-single row copy/scaling helpers. |
-| `attention/README.md` | Attention build/run commands, trace tags, mapper/baseline placement status, performance-claim warning. |
-| `docs/yolo-demo.md` | Current YOLOv5n/YOLOv8n scope, external-artifact policy, and claim gates. |
-| `docs/archive/` | Reference-only historical DNN, LTFarm, and generated YOLO material; not active build inputs. |
+| `docs/et-programmers-reference-manual.txt` | Primary local reference for SIMD state, mask instructions, packed-single instructions, cache-control CSRs, Tensor CSRs, Tensor instruction encodings, wait rules, and PMU event names. |
+| `docs/et-simd-tensor-kernel-notes.md` | Short project checklist. This guide is the deeper manual. |
+| `kernels/tpa_packed_single_row.c` | Minimal structured packed-single row micro-example: aligned 16-float edge rows, `flw.ps`/`fmul.ps`/`fadd.ps`/`fsw.ps`, scalar checking, and decoded objdump evidence. |
+| `kernels/tpa_tensor_matmul.c` | Current in-repository Tensor matrix multiply process: scratchpad setup, `tensor_load`, `tensor_fma`, waits, error handling, and packed-single register-file load/store helpers. |
+| `attention/attention_et.h` | Current reusable ET helper patterns for 16-by-16 FP32 TensorFMA and packed-single row copy/scale. |
+| `attention/attention_common.h` | Packet layout, 64-byte headers, static asserts, trace tags, and scalar reference helpers for a fixed 16-by-16 workload. |
+| `attention/attention_score.c`, `attention/attention_softmax.c`, `attention/attention_output.c` | Continuation integration around Tensor score/output products, packed-single row work, and scalar validation. |
+| `attention/README.md` | Build/run commands, mapper placement notes, trace-tag extraction, and no-speedup policy. |
+| `docs/et-architecture.md` | H0 placement, Erbium and ET-SoC-1 topology, host/device validation split. |
+| `docs/programming-model.md` | Process, instance, channel/edge, scratch, image, and mapped-program terms. |
+| `docs/creating-programs.md` | Required `.c + .tpm + .tpp + .place` or mapper-generated build flow. |
+| `docs/memory-and-edge-buffers.md` | Persistent state, scratch, immutable data, and edge/channel memory taxonomy. |
+| `machines/erbium.json` | Current mapper-visible Erbium contexts: eight `h0` minion contexts with runtime hart stride 2. |
+| `~/aifoundry/et-platform/et-common-libs/include/etsoc/isa/tensors.h` | Current local wrapper definitions for Tensor CSRs, wait constants, error constants, and `flw_ps`/`fsw_ps` macros. |
+| `~/aifoundry/et-platform/et-common-libs/include/etsoc/isa/cacheops.h` | Current local wrapper definitions for cacheops, `mcache_control`, `ucache_control`, and `excl_mode`. |
+| `~/aifoundry/et-platform/sw-sysemu/insns/tensors.cpp` | Read-only simulator evidence for Tensor state machines, error updates, TenB pairing, waits, and cooperative handling. |
+| `~/aifoundry/et-platform/sw-sysemu/cache.h` | Read-only simulator constants for L1D line size, scratchpad entries, and cache-index mapping. |
+| AgentWS evidence packet `et-vector-tensor-attention-evidence` | Reviewed build/run/disassembly/trace evidence for tensor matmul and attention. |
 
-Useful ET PRM anchors:
+Trust hierarchy:
 
-- SIMD overview/state: Sections 3.1 and 3.2.
-- Mask instructions: Chapter 4, especially `MOV.M.X` and `MOVA.M.X` semantics.
-- Packed-single instructions: Chapter 5, especially Sections 5.1, 5.4, 5.7,
-  and the instruction definitions in Section 5.8.
-- Cache/scratchpad control: Chapter 8, especially `mcache_control` in Section
-  8.3.1 and `ucache_control` in Section 8.3.2.
-- Tensor overview and matrix multiply: Section 9.1.
-- Tensor CSRs and errors: Section 9.2.
-- Tensor instruction categories and `TensorWait`: Sections 9.3 and 9.3.7.
-- Tensor instruction descriptions: Section 9.4.
+1. PRM architectural text controls instruction semantics.
+2. ET platform headers control the wrapper API actually compiled by current
+   source.
+3. Current repository source controls what the project actually builds.
+4. Evidence packets control what was validated in a specific environment.
+5. This guide is explanatory; if it conflicts with a primary source, fix the
+   guide.
 
-## 4. Packed-single SIMD basics
+## 2. ET execution context model for vector and Tensor code
 
-The ET PRM describes packed-single SIMD as 256-bit floating-point registers
-viewed as eight FP32 elements. All packed-single (`.ps`) instructions execute
-under mask register `m0`.
+An ET Minion has two harts. Current TPA Erbium generated programs place runtime
+work on the even H0 lane ids. `machines/erbium.json` exposes only contexts named
+`m0:h0` through `m7:h0`, with `hart_stride: 2`; the runtime hart ids are
+therefore `0, 2, 4, ...`.
 
-Practical consequences:
+This matters because the PRM says most Tensor instructions are available only on
+hart 0 of each Minion. Hart 1 may execute only documented exceptions such as
+`TensorLoadL2Scp`, `TensorWait`, and `tensor_coop` CSR accesses. If a future
+machine description exposes H1 contexts, Tensor process kinds must be kept off
+those contexts by placement/machine policy. Do not encode a minion id or hart id
+inside process dataflow code.
 
-- A packed-single register holds **eight FP32 lanes**.
-- A 16-float row is **two packed-single registers**: bytes `0..31` and bytes
-  `32..63`.
-- Set `m0` deliberately before `.ps` operations. Use all ones (`0xff`) only when
-  all eight lanes are valid.
-- If a lane's `m0` bit is clear, computational instructions leave the
-  corresponding destination lane unchanged. Masked load/store operations may
-  suppress memory accesses for inactive lanes.
-- Scalar RV64F operations use only the low 32 bits of the widened FP register
-  and zero the upper bits. Keep scalar and packed-single register lifetimes
-  explicit in inline assembly.
+Keep these layers separate:
 
-A 16-float row copy is the simplest row-local pattern:
+```text
+TPA graph layer:
+  process kinds, ports, instances, edge byte capacities
 
-```asm
-mov.m.x m0, mask, 0      # or use the project-wide all-mask setup pattern
-flw.ps f0, 0(src)        # lanes 0..7
-flw.ps f1, 32(src)       # lanes 8..15
-fsw.ps f0, 0(dst)
-fsw.ps f1, 32(dst)
+Mapping layer:
+  runtime hart ids, direct/local/fabric/external channel classes,
+  scratch domains, edge-buffer pools
+
+Kernel layer:
+  scalar C, packed-single SIMD, Tensor CSRs, cache/scratchpad setup,
+  waits, error checks, local aligned staging
 ```
 
-`attention/attention_et.h` uses this pattern in
-`attention_et_copy_row_ps()` and uses `fmul.ps` in
-`attention_et_mul_row_scalar_ps()` to scale a 16-float row. The current
-attention softmax helper still computes the row maximum, exponent approximation,
-and row sum with scalar loops; it uses packed-single helpers for row copies and
-final normalization scaling. Do not describe it as a fully vectorized softmax.
+A process continuation can be ET-specific internally. It may include
+`<etsoc/isa/cacheops.h>`, `<etsoc/isa/tensors.h>`, or inline `.ps` assembly.
+That does not move placement, graph edges, or channel transport into source
+semantics.
 
-Packed-single is a natural fit for row-local work:
+## 3. Packed-single SIMD machine state
 
-- row copies and stores;
-- scale, bias, subtract, or multiply over 16-float rows;
-- elementwise activation approximations when the approximation is numerically
-  validated;
-- row normalization after a scalar or vector reduction has produced a factor.
+PRM sections 3 and 5 define ET packed-single SIMD.
 
-Caveats:
+Core facts:
 
-- `FEXP.PS` computes `2^x`, not `e^x` (ET PRM Section 5.7). A softmax that uses
-  it for `exp(x)` must multiply by `log2(e)` first or document and validate a
-  separate approximation.
-- Horizontal reductions over 16 lanes need a verified SIMD reduction sequence or
-  scalar cleanup. Do not assume that a row maximum or row sum is vectorized just
-  because row loads/stores are packed-single.
-- Division and some transcendental operations may trap to firmware for emulation
-  on ET-SoC-1 according to the PRM's SIMD overview. Treat them as correctness
-  tools first; measure before assuming they are the fastest path.
+- The floating-point register file is widened to 256 bits: `f0` through `f31`
+  are FLEN=256 registers.
+- A packed-single register is viewed as eight 32-bit FP lanes: `e0` occupies
+  bits `31:0`, `e1` bits `63:32`, ..., `e7` bits `255:224`.
+- Packed-integer instructions use the same widened FP registers as eight
+  int32/uint32 values.
+- Eight mask registers, `m0` through `m7`, are added. Each mask register has
+  eight bits.
+- All packed-single (`.ps`) and packed-integer (`.pi`) instructions execute
+  under `m0`.
+- Scalar RV64F instructions operate on the low 32 bits of an FP register and set
+  upper bits `32:FLEN-1` to zero. Treat scalar and packed lifetimes as separate.
+- The sticky InputDenorm flag appears in `fcsr[31]` / `fflags[31]` when an input
+  denormal is flushed to zero. Output denormals are also flushed to zero and set
+  underflow/inexact, but not InputDenorm.
+- On ET-SoC-1, division, square root, reciprocal-square-root, and sine variants
+  listed by the PRM trap to M-mode emulation. Correctness may still be available,
+  but latency assumptions must be measured.
+- Gather/scatter instructions use `GSC_PROGRESS` CSR `0x840` to record partial
+  progress on trap/interruption and clear it on successful completion.
 
-## 5. Tensor basics
+Practical register rule: a 16-float FP32 row is exactly two packed-single
+registers, 64 bytes total:
 
-The ET Tensor extension accelerates small matrix products. The PRM's Tensor
-section describes matrix multiply over A, B, and C with dimensions bounded by
-M <= 16, N <= 16, and row widths up to 64 bytes for the supported element sizes.
-For FP32, a 16-by-16 matrix is exactly 16 rows by 64 bytes per row.
+```text
+row bytes  0..31  -> one .ps register, lanes e0..e7
+row bytes 32..63  -> second .ps register, lanes e0..e7
+```
 
-### H0 legality
+## 4. Mask registers and `m0`
 
-The PRM's Tensor overview states that most Tensor instructions are available
-only on hart 0 of each Minion. Hart 1 may execute only the documented exceptions
-such as `TensorLoadL2Scp`, `TensorWait`, and `tensor_coop` CSR accesses. Current
-Erbium and ET-SoC-1 machine JSONs expose `h0` contexts for mapper-visible TPA
-work. If a future platform exposes H1 or mixed contexts, Tensor process kinds
-must be kept off illegal harts by placement/machine policy.
+PRM chapter 4 defines mask instructions. `m0` is special because it controls all
+packed-single and packed-integer operations. The other mask registers are useful
+for comparisons, saved masks, and mask algebra.
 
-### Scratchpad/cache setup
+Important operations:
 
-Tensor loads place data into L1 scratchpad, TenB, or related Tensor state. They
-are not ordinary scalar loads. Current project examples use this setup pattern:
+| Instruction | Practical use |
+| --- | --- |
+| `mov.m.x md, rs1, imm8` | Write one mask register from `rs1[7:0] | imm8`. Common all-lanes setup is `mov.m.x m0, mask, 0` with `mask = 0xff`. |
+| `mova.m.x rs1` | Split one 64-bit integer into eight mask registers: low byte to `m0`, next byte to `m1`, ..., high byte to `m7`. Current setup code passes `0xff`, which makes `m0` all-lanes active and leaves `m1..m7` zero. |
+| `mova.x.m rd` | Concatenate `m7..m0` into one integer. Useful for diagnostics or preserving all masks. |
+| `maskand`, `maskor`, `maskxor`, `masknot` | Boolean mask algebra. |
+| `maskpopc`, `maskpopcz` | Count active or inactive lanes. Useful when a compare writes a mask and code needs scalar loop bounds or validation. |
 
-1. Include `<etsoc/isa/cacheops.h>` and `<etsoc/isa/tensors.h>`.
-2. Enter an exclusive/cache-control section with `excl_mode(1)`.
-3. Evict L1D state (`et_cache_evict_l1d_to_l2()`).
-4. Execute a memory fence.
-5. Put L1D into split/scratchpad mode with `mcache_control(...)`.
-6. Initialize `tensor_mask` and `tensor_coop`.
-7. Set `m0` for packed-single helpers when needed.
-8. Clear `tensor_error` in software.
-9. Leave the exclusive section.
+Inactive-lane consequences:
 
-See `tm_enable_tensor_scratchpad()` in `kernels/tpa_tensor_matmul.c` and
-`attention_et_enable_tensor_scratchpad()` in `attention/attention_et.h`.
+- For `flw.ps`, inactive lanes do not generate memory exceptions and do not
+  update the destination lane.
+- For `fsw.ps`, inactive lanes do not generate memory exceptions and do not
+  update memory.
+- For computational instructions, inactive destination lanes are unchanged.
+- If a destination register is reused, inactive lanes keep old data. Initialize
+  or overwrite the destination before using partial masks.
+- Tensor `tensor_mask` is a different CSR. Do not confuse a vector lane mask
+  (`m0`) with a Tensor row mask (`tensor_mask`).
 
-The PRM's cache-control chapter describes `mcache_control` modes. In scratchpad
-mode, part of L1 is converted to Tensor scratchpad usable by hart 0. Changing
-these modes invalidates/zeros affected sets as documented by the PRM, so setup
-is a kernel contract, not a harmless local variable assignment.
-
-### Row alignment
-
-`TensorLoad`, `TensorLoadB`, and `TensorLoadTranspose32` use effective row
-addresses with low six address bits omitted; practical row addresses are
-64-byte aligned. A 64-byte-aligned struct is not enough if a small header places
-the first matrix at offset 4.
-
-For Tensor-ready FP32 16-by-16 payloads, ensure:
-
-- the first row base is 64-byte aligned;
-- every row stride is 64 bytes;
-- packet headers reserve a whole 64-byte area before matrix data, or process
-  code copies into aligned scratch before issuing Tensor loads;
-- static asserts check offsets and packet sizes.
-
-### `tensor_wait` and `tensor_error`
-
-Tensor and cache-management effects do not follow normal scalar program order.
-The PRM's `TensorWait` section says software must wait for producer/consumer,
-write/write, and shared-resource dependencies. Current examples use:
-
-- `tensor_wait(TENSOR_LOAD_WAIT_0)` and `tensor_wait(TENSOR_LOAD_WAIT_1)` before
-  consuming Tensor-loaded scratchpad state;
-- `tensor_wait(TENSOR_FMA_WAIT)` before consuming TensorFMA results from the
-  vector register file;
-- `get_tensor_error()` only after the relevant waits;
-- `tensor_error` clearing before the operation sequence because hardware does
-  not clear it automatically.
-
-A TPA process should report malformed packets, illegal lengths, invalid heads,
-Tensor errors, and numerical mismatches through the process's normal FAIL path.
-Do not continue silently after a Tensor error.
-
-### Cooperative Tensor operations are not the first default
-
-The PRM provides cooperative Tensor load/store and Tensor reduction/broadcast
-facilities. They require compatible operations and synchronization across
-participating harts. The current attention graph already expresses independent
-per-head pipelines, so the first local optimization path is per-head TensorFMA
-and row-local packed-single work. Revisit cooperative operations only when a
-new graph has an explicit cross-hart reduction, broadcast, or shared-memory
-traffic pattern and the placement/mapping artifacts make that coordination
-reviewable.
-
-## 6. Alignment and payload layout
-
-Tensor alignment is a graph contract when edge payloads are sent between
-processes. If a packet layout changes to satisfy Tensor, the corresponding
-`.tpp` connection capacity, `.tpm` workspace size, static asserts, and any
-mapper metadata must change with it.
-
-The current attention packets reserve a 64-byte header:
+Minimal all-lanes row copy idiom:
 
 ```c
-#define ATTENTION_PACKET_HEADER_BYTES 64u
+static inline void copy_16_fp32_ps(float dst[16], const float src[16])
+{
+    uint32_t mask = 0xffu;
 
-struct attention_head_input {
-    uint32_t head;
-    uint8_t header_pad[ATTENTION_PACKET_HEADER_PAD_BYTES];
-    float q[16][16];
-    float k[16][16];
-    float v[16][16];
+    asm volatile(
+        "mov.m.x m0, %[mask], 0\n"
+        "flw.ps f0, 0(%[src])\n"
+        "flw.ps f1, 32(%[src])\n"
+        "fsw.ps f0, 0(%[dst])\n"
+        "fsw.ps f1, 32(%[dst])\n"
+        :
+        : [mask] "r"(mask), [dst] "r"(dst), [src] "r"(src)
+        : "f0", "f1", "memory");
+}
+```
+
+This mirrors the style in `attention/attention_et.h`. Keep snippets small and
+validate generated code because compiler register allocation, clobber lists, and
+ET binutils decoding are all part of the evidence.
+
+## 5. Packed-single instruction families
+
+Use instruction families as a design checklist.
+
+### Load and store
+
+`FLW.PS` and `FSW.PS` move eight contiguous 32-bit lanes under `m0`.
+`FLQ2` and `FSQ2` move an unmasked 256-bit register. Use masked load/store when
+edge rows may be partial; use all-lanes masks for full 8-lane chunks.
+
+Current local ET header macros:
+
+```c
+#define flw_ps(fd, ptr) __asm__ volatile("flw.ps f" #fd ", (%0)" :: "r"(ptr))
+#define fsw_ps(fd, ptr) __asm__ volatile("fsw.ps f" #fd ", (%0)" :: "r"(ptr) : "memory")
+```
+
+The project sources currently use explicit inline assembly instead of these
+macros in several places. Both approaches require the same mask discipline.
+
+### Broadcast
+
+`FBC.PS`, `FBCX.PS`, and `FBCI.PS` broadcast one 32-bit memory, integer, or
+immediate-derived value into active lanes. Broadcasting a scalar to a temporary
+aligned eight-float array and loading it with `flw.ps` is simple and visible in
+source, but a direct broadcast instruction can avoid the memory temporary if the
+toolchain path is validated.
+
+### Gather and scatter
+
+`FGW.PS`, `FGH.PS`, `FGB.PS` gather arbitrary word/halfword/byte elements using
+indices in a second vector register. Halfword and byte gathers sign-extend to
+32-bit lanes. `FSCW.PS`, `FSCH.PS`, `FSCB.PS` scatter low lane portions.
+
+Restricted forms `FG32*.PS` and `FSC32*.PS` operate within a 32-byte aligned
+block and use smaller per-lane indices. Use them only when the layout contract
+really is a block-indexed layout.
+
+Trap/restart implication: arbitrary gather/scatter operations update
+`GSC_PROGRESS` on partial trap. A robust expected-failure or page-boundary test
+should check restart behavior instead of assuming the instruction is atomic over
+all lanes.
+
+### Arithmetic and fused operations
+
+`FADD.PS`, `FSUB.PS`, `FMUL.PS`, `FMADD.PS`, `FMSUB.PS`, `FNMADD.PS`,
+`FNMSUB.PS`, `FDIV.PS`, `FSQRT.PS`, `FMIN.PS`, and `FMAX.PS` operate lane-wise
+under `m0`. Most encode a rounding mode; `FMIN.PS` and `FMAX.PS` do not.
+Inactive lanes are unchanged.
+
+Use fused multiply-add only when the fused rounding behavior is intended. Do not
+silently substitute scalar `a*b + c` reference results without tolerance policy.
+
+### Moves, conversions, and swizzles
+
+- `FCMOV.PS` selects from two source registers based on a third source value.
+- `FCMOVM.PS` selects from two source registers based on `m0`.
+- `FSWIZZ.PS` permutes each 4-lane half according to four 2-bit selectors.
+- `FMVZ.X.PS` and `FMVS.X.PS` extract one lane to an integer register with zero
+  or sign extension.
+- `FCVT.*.PS` and `FCVT.PS.*` convert between FP32 and integer, FP16, and
+  normalized or small-float formats depending on the instruction.
+
+Use lane extraction for debug assertions sparingly; it serializes the vector
+mental model back into scalar code.
+
+### Comparisons and mask writes
+
+`FEQ.PS`, `FLE.PS`, and `FLT.PS` write all-ones/all-zero lane values to an FP
+register. `FEQM.PS`, `FLEM.PS`, and `FLTM.PS` write the boolean result to a mask
+register. `FCLASS.PS` writes a 10-bit FP class result per lane.
+
+Prefer mask-writing comparisons when the next operation is predicated. Read the
+mask with `mova.x.m` or count with `maskpopc` only when scalar control flow
+needs it.
+
+### Transcendentals and reciprocal operations
+
+PRM section 5.7 is easy to misuse:
+
+- `FEXP.PS` computes `2^x`, not `e^x`.
+- `FLOG.PS` computes `log2(x)`.
+- `FSIN.PS` computes `sin(2*pi*x)` and expects the source in the appropriate
+  reduced range; the PRM suggests `FFRC.PS` for range reduction.
+- `FRCP.PS` computes reciprocal and rounds toward zero.
+- `FRSQ.PS` computes reciprocal square root and is emulated on ET-SoC-1.
+
+A row-wise softmax cannot use `FEXP.PS` as `exp(x)` unless it first multiplies
+by `log2(e)` or documents a separately validated approximation.
+
+## 6. Tensor mental model
+
+PRM chapter 9 defines the Tensor extension.
+
+A Tensor is a small two-dimensional tile in a larger row-major matrix or in a
+2-D projection of a higher-dimensional object. Consecutive rows do not have to
+be contiguous; Tensor load/store instructions carry a row stride.
+
+Matrix multiply model:
+
+```text
+A: M x K
+B: K x N
+C: M x N
+M <= 16, N <= 16, K <= 64 / element_size(A,B)
+C elements are 4 bytes
+```
+
+For FP32, `element_size=4`, so the natural maximum tile is `16 x 16`, and one
+row is exactly 64 bytes. The operation is:
+
+```text
+for k in 0..K-1
+  for m in 0..M-1
+    for n in 0..N-1
+      C[m][n] += A[m][k] * B[k][n]
+```
+
+For FP16 and INT8, the PRM describes interleaved B layouts so the innermost
+vectorized dot products consume 4-byte groups efficiently. Do not reuse an FP32
+B layout for FP16/INT8 TensorFMA.
+
+Tensor state locations:
+
+- **L1SCP**: L1 scratchpad lines used by Tensor loads and TensorFMA operands.
+  The local simulator defines 48 logical scratchpad entries, each 64 bytes.
+- **TenB**: logical 16 registers of 64 bytes for B-streaming. It is not a normal
+  software-visible register file. A `TensorLoadB` must be paired with a
+  consuming TensorFMA or behavior becomes undefined.
+- **TenC**: logical 16 registers of 64 bytes used by integer Tensor matrix
+  multiplication. Current FP32 examples write results to the vector register
+  file, not TenC.
+- **Vector register file**: TensorFMA32 and Tensor store paths use `f0..f31` as
+  rows of result data. A 16-column FP32 row uses two FP registers.
+
+Tensor instructions are part of the hart instruction stream, but their effects
+do not follow ordinary scalar program order. Tensor memory access exceptions do
+not trap in the usual way; many are recorded in `tensor_error`. Software must
+wait explicitly before consuming results or reading error state.
+
+## 7. Tensor CSRs
+
+All Tensor instructions are encoded as CSR writes. Current local wrappers in
+`<etsoc/isa/tensors.h>` map directly to those CSR numbers.
+
+| CSR | Number | Role |
+| --- | ---: | --- |
+| `tensor_reduce` | `0x800` | `TensorSend`, `TensorRecv`, `TensorBroadcast`, `TensorReduce` selected by bits `1:0`. |
+| `tensor_fma` | `0x801` | `TensorFMA32`, `TensorFMA16A32`, `TensorIMA8A32` selected by bits `3:1`. |
+| `tensor_conv_size` | `0x802` | Array dimensions and row/column steps; writing updates `tensor_mask`. |
+| `tensor_conv_ctrl` | `0x803` | Tensor start row/column inside a larger array; writing updates `tensor_mask`. |
+| `tensor_coop` | `0x804` | Cooperative TensorLoad neighborhoods, minions, and group id. |
+| `tensor_mask` | `0x805` | Sixteen row-mask bits for TensorLoad, TensorFMA, and optional cacheop masking. |
+| `tensor_quant` | `0x806` | Up to ten TensorQuant transformations. |
+| `tensor_error` | `0x808` | Sticky software-cleared error accumulation for Tensor and cache management. |
+| `tensor_wait` | `0x830` | Wait/fence events for Tensor/cache completion. |
+| `tensor_load` | `0x83f` | TensorLoad, TensorLoadB, interleave, and transpose variants. |
+| `tensor_load_l2` | `0x85f` | TensorLoadL2Scp. |
+| `tensor_store` | `0x87f` | TensorStore and TensorStoreFromScp. |
+
+### `tensor_mask`
+
+`tensor_mask` has 16 meaningful low bits. When bit `n` is zero, a masked Tensor
+load/FMA/cacheop skips row `n`. The row mask can be written directly or computed
+by writing `tensor_conv_size` and `tensor_conv_ctrl`.
+
+Use a direct all-rows mask for dense 16-row tiles. Use the convolution CSRs when
+boundary handling is naturally expressed as a start coordinate plus array shape.
+Remember that writing either convolution CSR can update `tensor_mask` as a side
+effect.
+
+### `tensor_coop`
+
+`tensor_coop` fields are:
+
+```text
+bits 19:16  NEIGHS   neighborhood mask
+bits 15:8   MINIONS  minion mask inside selected neighborhoods
+bits 4:0    GROUP    cooperation id
+```
+
+All harts in a cooperation group must specify the same `NEIGHS`, `MINIONS`, and
+`GROUP`, execute the same TensorLoad variant, and name the same physical
+addresses. The PRM says mismatches are undefined. Reusing a group id before all
+previous cooperative loads for that group have completed also requires external
+synchronization.
+
+Do not use cooperative Tensor operations as a local optimization afterthought.
+They are graph-level coordination operations even though the CSR is local.
+
+### `tensor_error`
+
+`tensor_error` is sticky and software-cleared. Hardware never clears it for you.
+Clear it before a Tensor/cache sequence, wait for relevant operations, then read
+it. Reading before the wait can miss the error for the operation you care about.
+
+Meaningful current bits:
+
+| Bit | Name in PRM/local headers | Meaning |
+| ---: | --- | --- |
+| 1 | `IV` / `TENSOR_ERROR_LOAD_TRANSFORM` | Illegal `tensor_load` command or TenB field. |
+| 3 | `FCCO` / `TENSOR_ERROR_FCC_OVERFLOW` | Fast credit counter overflow. |
+| 4 | `L1SCPDIS` / `TENSOR_ERROR_SCP_DISABLED` | Tensor instruction issued while L1 scratchpad is disabled. |
+| 5 | `LF` / `TENSOR_ERROR_LOCKSW` | `LockSW` failed to lock the cache line. |
+| 6 | `ILLTP` / `TENSOR_ERROR_TL1_FMA` | Illegal TensorLoadB and TensorFMA pairing. |
+| 7 | `TMF` / `TENSOR_ERROR_MEM_FAULT` | Tensor/cache memory-related exception such as page or access fault. |
+| 8 | `IVNT` / `TENSOR_ERROR_STORE_COOP` | Illegal TensorStore size/cooperation combination. |
+| 9 | `ILLT` / `TENSOR_ERROR_REDUCE` | Illegal TensorReduce target or function field. |
+
+The PRM notes that some interrupts, such as bus errors due to Tensor or cache
+management instructions, are not captured in `tensor_error` and are not
+suppressed. Treat `tensor_error == 0` as necessary, not as the only possible
+runtime health signal.
+
+## 8. Cache control and L1 scratchpad setup
+
+PRM chapter 8 defines cache control. Tensor work depends on L1 data cache mode.
+
+`mcache_control` bit layout:
+
+```text
+bit 1  ScpEnable  1 enables L1 scratchpad
+bit 0  D1Split    1 hard-partitions L1D between harts
+```
+
+Modes:
+
+| D1Split | ScpEnable | Mode | Consequence |
+| ---: | ---: | --- | --- |
+| 0 | x | Shared | L1D dynamically shared; scratchpad disabled. |
+| 1 | 0 | Split | Harts have hard-partitioned L1D sets; scratchpad disabled. |
+| 1 | 1 | Scratchpad | H0 has cache sets 12-13, H1 has sets 14-15, sets 0-11 become H0-only Tensor scratchpad. |
+
+Transition hazards:
+
+- Leaving or returning to shared mode invalidates the entire L1 and clears locks.
+- Toggling `ScpEnable` while split invalidates and zeroes sets 0-13.
+- The `{ScpEnable,D1Split} == {1,0}` state is illegal and ignored by the PRM.
+- User-mode `ucache_control` can set `ScpEnable` only from thread 0 when
+  `D1Split` is already set; thread 1 writes to `ScpEnable` are ignored.
+
+Current project setup pattern from tensor matmul and attention:
+
+```c
+static inline void enable_tensor_scratchpad_once(void)
+{
+    uint64_t pmask = 0xffu;
+
+    excl_mode(1);
+    et_cache_evict_l1d_to_l2();
+    asm volatile("fence rw, rw" ::: "memory");
+    mcache_control(1, 0, 0, 0);  /* split */
+    mcache_control(1, 1, 0, 0);  /* split + scratchpad */
+    asm volatile("csrwi tensor_mask, 0\n"
+                 "csrwi tensor_coop, 0\n"
+                 "mova.m.x %0\n"
+                 :
+                 : "r"(pmask)
+                 : "memory");
+    asm volatile("csrwi tensor_error, 0" ::: "memory");
+    excl_mode(0);
+}
+```
+
+Do not cargo-cult this sequence without understanding it:
+
+- `et_cache_evict_l1d_to_l2()` plus `fence rw,rw` protects dirty cache state
+  before a mode transition that invalidates/zeroes sets.
+- Two `mcache_control` writes follow a valid transition path: shared/split to
+  split, then split to scratchpad.
+- `mova.m.x` seeds all mask registers from one 64-bit value. With the current
+  `0xff` value, only `m0` becomes all-lanes active. This is not a Tensor row
+  mask write.
+- `tensor_error` is cleared after setup because setup and cacheops can also
+  report errors there.
+
+PRM cacheop ordering rule: execute a `fence` before cacheops when previous
+memory operations touch the same cache lines, and use `TensorWait 6` before
+subsequent memory operations that read or write lines affected by cacheops.
+
+## 9. Tensor load, transpose, interleave, and TenB
+
+`TensorLoad` variants are writes to CSR `0x83f`. The instruction variant is
+encoded in bits `[61:59,52]`; illegal encodings set `tensor_error[1]` and perform
+no operation.
+
+The `x31` implicit source register carries row stride and load id:
+
+```text
+x31[47:6]  STRIDE bits for 64-byte row stride
+x31[0]     ID used by TensorWait 0 or 1
+```
+
+The current wrapper constructs it as:
+
+```c
+register uint64_t x31_enc asm("x31") = (stride & 0xFFFFFFFFFFC0ULL) | (id & 1);
+```
+
+Normal FP32 tile load:
+
+- rows = `ROWS + 1`, up to 16;
+- each row is 64 consecutive bytes;
+- base address omits low 6 bits, so effective row addresses are 64-byte aligned;
+- destination is consecutive L1SCP lines starting at `START`, modulo the logical
+  scratchpad line count;
+- if `MSK` is set, zero bits in `tensor_mask` suppress memory access and
+  scratchpad write for the corresponding row.
+
+`TensorLoadTranspose32` is the usual B-transpose tool for 16-by-16 FP32 `A * B^T`
+patterns. It loads a 16-row, FP32 matrix, transposes while loading, and writes
+transposed rows to L1SCP lines. It still uses 64-byte aligned row addresses.
+
+Interleave variants prepare lower-precision B layouts:
+
+| Variant | Source element size | Alignment consequence | Consumer |
+| --- | ---: | --- | --- |
+| `TensorLoadInterleave8` | 8-bit | base uses 16-byte alignment; stride still encoded in 64-byte units | `TensorIMA8A32` |
+| `TensorLoadInterleave16` | 16-bit | base uses 32-byte alignment; stride still encoded in 64-byte units | `TensorFMA16A32` |
+| `TensorLoadTranspose8/16/32` | 8/16/32-bit | transposes during load; FP32 form uses 64-byte rows | Transposed B or layout transforms |
+
+`TensorLoadB` is special:
+
+- it loads a B matrix into TenB, not regular L1SCP lines;
+- it must be paired with a subsequent TensorFMA that consumes TenB;
+- multiple unpaired `TensorLoadB` operations may cancel/replace earlier ones,
+  but an unpaired TenB load can leave the Tensor co-processor in undefined state;
+- cooperative `TensorLoadB` must also be paired correctly;
+- wrong TenB pairing sets `tensor_error[6]` in the documented cases.
+
+Current repository examples avoid TenB and load A/B into L1SCP. That is the
+right first pattern when teaching and debugging.
+
+## 10. TensorFMA32 and result paths
+
+`TensorFMA32` is a write to CSR `0x801` with type bits `3:1 == 000`.
+
+Important fields for FP32:
+
+```text
+bit 63      MSK: use tensor_mask row mask
+bits 56:55  BCOLS: result columns encoded as groups of 4 columns
+bits 54:51  AROWS: A rows minus 1
+bits 50:47  ACOLS: A columns minus 1
+bits 46:43  AOFFSET: starting FP32 column offset inside each A scratchpad row
+bit 20      TENB: 0 means B in L1SCP, 1 means B in TenB
+bits 17:12  BSTART: L1SCP line for B when TENB=0
+bits 9:4    ASTART: L1SCP line for A
+bit 0       MUL: 1 means product only, 0 means add to existing C
+```
+
+FP32 result layout:
+
+- `bcols = (BCOLS + 1) * 4` result columns;
+- row `i` of C is stored in `f2*i` and `f2*i+1` when `bcols > 8`;
+- for a 16-column FP32 result, rows occupy `f0/f1`, `f2/f3`, ..., `f30/f31`;
+- `MUL=1` starts from zero product; `MUL=0` accumulates into existing C.
+
+Current examples use this sequence:
+
+1. Store the current accumulator matrix into the vector register file using
+   `flw.ps` pairs.
+2. Load A into L1SCP id 0 and B into L1SCP id 1.
+3. Wait for the loads that the following TensorFMA consumes.
+4. Issue `tensor_fma(..., opcode=0, first_pass=0 or 1)`.
+5. Wait for `TENSOR_FMA_WAIT`.
+6. Store the vector register file result back with `fsw.ps` pairs.
+7. Read `tensor_error` and fail the process if nonzero.
+
+In `kernels/tpa_tensor_matmul.c`, the inner loop waits for load id 0 but not id
+1 before FMA. That is current validated source behavior. A conservative new
+kernel should wait for every load it depends on unless PRM source/destination
+rules and reviewed evidence justify omitting a wait.
+
+## 11. TensorQuant, TensorStore, Reduce, and Broadcast
+
+### TensorQuant
+
+`TensorQuant` is a write to CSR `0x806`. It applies up to ten transformations to
+matrix A in the vector register file, stopping at transform `0` (`LAST`). The
+local header names transforms such as:
+
+```text
+INT32_TO_FP32, FP32_TO_INT32, RELU,
+INT32_ADD_ROW, INT32_ADD_COL,
+FP32_MUL_ROW, FP32_MUL_COL,
+SATINT8, SATUINT8, PACK_128B
+```
+
+Some transforms read L1SCP lines. If L1SCP is disabled and such a transform is
+requested, the operation sets `tensor_error[4]`. If `frm` is invalid for a
+floating transform, the PRM allows an illegal instruction trap.
+
+### TensorStore
+
+`TensorStore` writes vector-register rows to memory through CSR `0x87f` and
+bypasses L1D/L2 caches. Row byte count is encoded as `16*(SIZE+1)` for valid
+sizes 16, 32, or 64 bytes. The base address omits low 4 bits; individual row
+stores are aligned to row size. Cooperation modes are tightly constrained:
+
+| COOP | SIZE | Meaning |
+| ---: | ---: | --- |
+| 0 | 0,1,3 | one hart stores 16, 32, or 64 bytes/row |
+| 1 | 0 | two harts cooperate as 2x16 |
+| 1 | 1 | two harts cooperate as 2x32 |
+| 3 | 0 | four harts cooperate as 4x16 |
+
+Invalid `COOP/SIZE` combinations set `tensor_error[8]`. Cooperative stores do
+not use `tensor_coop`; they depend on `mhartid` address relationships. Treat
+cooperative store as a placement contract, not as a local store flag.
+
+`TensorStoreFromScp` writes 64-byte rows from L1SCP to memory. It requires L1SCP
+enabled and uses 64-byte aligned base addresses.
+
+### TensorReduce and TensorBroadcast
+
+`TensorSend`, `TensorRecv`, `TensorBroadcast`, and `TensorReduce` are writes to
+CSR `0x800` with action bits `1:0`. They transfer vector-register values between
+harts and optionally combine them with FADD/FMAX/FMIN/integer ADD/MAX/MIN/MOVE.
+
+Key hazards:
+
+- Send and receive sides must match counts and partner relationships.
+- Tree reductions use increasing heights; broadcasts use decreasing heights.
+- Only harts participating at a given height need to issue that step.
+- Invalid function or target fields set `tensor_error[9]`.
+- FADD with invalid `frm` can trap even when count is zero.
+- The PRM describes stalls on vector-register access while a send/receive graph
+  waits for its counterpart.
+
+Use reduction/broadcast only when the TPA graph and placement make cross-hart
+coordination explicit. A local per-process matrix multiply does not need these
+instructions.
+
+## 12. TensorWait and ordering hazards
+
+`TensorWait` is a write to CSR `0x830`. It is a fence for Tensor and cache
+management effects. One write waits for one event only; wait for multiple events
+with multiple writes.
+
+Event ids from the PRM and local headers:
+
+| ID | Event | Local name if present |
+| ---: | --- | --- |
+| 0 | TensorLoad id 0 complete | `TENSOR_LOAD_WAIT_0` |
+| 1 | TensorLoad id 1 complete | `TENSOR_LOAD_WAIT_1` |
+| 2 | TensorLoadL2 id 0 complete | not currently used by local examples |
+| 3 | TensorLoadL2 id 1 complete | not currently used by local examples |
+| 4 | Prefetch id 0 complete | cacheop event |
+| 5 | Prefetch id 1 complete | cacheop event |
+| 6 | Previous cacheops complete | cacheop wait |
+| 7 | Previous Tensor matrix multiplications complete | `TENSOR_FMA_WAIT` |
+| 8 | Previous Tensor stores complete | `TENSOR_STORE_WAIT` |
+| 9 | Previous Tensor reductions complete | `TENSOR_REDUCE_WAIT` |
+| 10 | TensorQuant complete | `TENSOR_QUANT_WAIT` |
+| 11-15 | no event / no stall | none |
+
+PRM hazard classes:
+
+1. **Producer -> consumer:** wait after TensorLoad before reading L1SCP; wait
+   after TensorFMA/Reduce/Quant before scalar or SIMD FP consumes vector-register
+   results; wait after TensorStore before memory reads the written line.
+2. **Consumer -> overwrite:** wait before overwriting L1SCP lines or memory that
+   an older Tensor/cache instruction still reads.
+3. **Write -> write:** wait when two operations may write the same cache line or
+   L1SCP line.
+4. **Shared resources:** wait between TensorStoreFromScp and TensorFMA/Quant,
+   between TensorFMA/Quant and TensorStoreFromScp, and between TensorFMA with B
+   in L1SCP and a following TensorLoadB.
+5. **Error visibility:** wait for the operation before reading `tensor_error`.
+
+If a bug disappears when an extra `tensor_wait` is added, assume the original
+sequence was missing an architectural ordering edge until proven otherwise.
+
+## 13. Alignment, packet layout, and static assertions
+
+Tensor alignment is not a local micro-optimization; it is often an edge-payload
+contract.
+
+For FP32 TensorLoad/TensorLoadB/TensorLoadTranspose32:
+
+- base row address is 64-byte aligned;
+- row stride is encoded with low six bits clear;
+- one 16-float row is exactly one 64-byte cache line;
+- a 16-by-16 tile is exactly 1024 bytes;
+- if the tile is inside a packet, the matrix field offset must also be 64-byte
+  aligned, not only the beginning of the containing struct.
+
+For packed-single row helpers:
+
+- one `flw.ps` / `fsw.ps` covers 32 bytes;
+- a 16-float row uses two operations at offsets `0` and `32`;
+- using 64-byte row alignment lets the same row serve both Tensor and SIMD code;
+- a temporary scalar broadcast array should be at least 32-byte aligned and is
+  usually declared 64-byte aligned to preserve the Tensor row invariant.
+
+Current packet-layout pattern:
+
+```c
+#define ROW_BYTES (16u * sizeof(float))
+#define HEADER_BYTES 64u
+
+struct packet {
+    uint32_t id;
+    uint8_t header_pad[HEADER_BYTES - sizeof(uint32_t)];
+    float a[16][16];
+    float b[16][16];
 } __attribute__((aligned(64)));
+
+TPA_STATIC_ASSERT(ROW_BYTES == TPA_CACHELINE_BYTES,
+                  "rows must be one cacheline");
+TPA_STATIC_ASSERT(offsetof(struct packet, a) == HEADER_BYTES,
+                  "matrix a must start after aligned header");
+TPA_STATIC_ASSERT(offsetof(struct packet, b) % TPA_CACHELINE_BYTES == 0,
+                  "matrix b must be cacheline aligned");
 ```
 
-`attention/attention_common.h` statically checks that:
+This mirrors the assertions in `attention/attention_common.h`: fixed packet
+headers are padded to one cache line, matrix fields begin on cache-line
+boundaries, and payload sizes are asserted so graph-channel capacity does not
+silently drift away from C layout.
 
-- `q`, `score`, and `weight` begin at offset 64;
-- `k`, `v`, and subsequent matrices are cacheline aligned;
-- each 16-float row is one `TPA_CACHELINE_BYTES` row;
-- packet sizes match the `.tpp` capacities.
+## 14. TPA process integration
 
-The resulting edge capacities in `attention/attention.tpp` are:
-
-- `3136` bytes for `attention_head_input` packets;
-- `2112` bytes for score packets;
-- `2112` bytes for softmax packets.
-
-When adding a Tensor-ready layout to another kernel, choose one of two policies:
-
-1. **Make the edge payload Tensor-ready.** Reserve aligned headers/padding in the
-   packet contract and update all capacities and static asserts. This is best
-   when multiple processes can benefit from the layout and the extra bytes are
-   acceptable edge memory.
-2. **Copy into aligned scratch.** Leave the external packet compact and copy the
-   matrix into process-local aligned scratch before Tensor loads. This is best
-   when the layout is a private optimization, when changing the edge ABI is too
-   costly, or when only one process needs the alignment.
-
-Do not hide edge payload bytes in process-owned mutable globals to avoid a
-`.tpp` capacity change. That makes memory accounting and mapper review harder.
-
-## 7. Canonical examples
-
-### `kernels/tpa_packed_single_row.c`
-
-`kernels/tpa_packed_single_row.c` is the minimal structured packed-single row
-micro-example. It keeps the normal TPA process/graph/image boundaries while
-using ET `.ps` operations inside one compute continuation:
+Vector/Tensor code belongs inside a process continuation's compute phase:
 
 ```text
-packed_single_row_source -> packed_single_row_compute -> packed_single_row_check
+receive edge payload -> local scalar/SIMD/Tensor compute -> send edge payload
 ```
 
-It demonstrates:
+Do not blur these storage classes:
 
-- a 16-float row represented as one 64-byte edge payload;
-- explicit 64-byte static assertions for the row packet;
-- channel-backed edge storage obtained with `tpa_send_buf()` and fabric channel
-  overrides in the hand `.place` file so source and output rows are aligned
-  edge/channel payloads rather than hidden process-owned globals;
-- an all-lane `m0` mask;
-- `flw.ps` loads for the low and high halves of the row;
-- `fmul.ps` followed by `fadd.ps` for the deterministic formula
-  `output = input * 2 + 1`;
-- `fsw.ps` stores for the low and high halves of the row;
-- scalar checker validation of all 16 lanes and normal TEST_PASS/TEST_FAIL
-  marker behavior.
+| Storage class | Lifetime | Vector/Tensor consequence |
+| --- | --- | --- |
+| Process state | persistent across continuations | Keep high-level counters, phases, and durable state. Do not treat L1SCP or FP registers as persistent process state. |
+| Scratch workspace | per process instance, mapper-budgeted | Use for local aligned staging when it must survive a continuation yield. Declare sizes in manifests and metadata. |
+| Immutable model/data image | static image payload | May feed Tensor loads if layout/alignment is declared and generated artifacts are validated. |
+| Edge/channel buffers | communication payload | Must satisfy packet layout and capacity contracts; not persistent process state. |
+| L1SCP, TenB, vector registers | transient hart-local compute state | Initialize, load, wait, consume, store, and validate within the continuation that owns the compute step. |
 
-What it proves:
+A Tensor-capable process kind may require H0-only placement. Express that through
+machine descriptions, placement, or mapper metadata; do not assume every context
+in every platform accepts Tensor instructions.
 
-- Packed-single row operations can be used inside a continuation-style TPA
-  process built through `.c + .tpm + .tpp + .place` and `add_tpa_program()`.
-- The ET objdump currently used for validation decodes this target's
-  packed-single instructions as `flw.ps`, `fmul.ps`, `fadd.ps`, and `fsw.ps`
-  mnemonics.
-- The target is a correctness/tooling micro-example, not a performance
-  benchmark.
+Build integration remains the normal TPA path:
 
-What it does not prove:
+1. Write continuation-style C process code.
+2. Declare process kinds and ports in `.tpm`.
+3. Instantiate/connect in `.tpp`.
+4. Use hand `.place` for small examples or mapper output for larger graphs.
+5. Integrate with `add_tpa_process()` and `add_tpa_program()`.
+6. Build through the top-level ET superbuild.
+7. Validate on `erbium_emu` or the target launcher mode required by the job.
 
-- It does not prove a speedup over scalar code.
-- It does not validate horizontal reductions, transcendental approximations,
-  Tensor operations, attention softmax, YOLOv8n kernels, ET-SoC-1 behavior, or
-  silicon/PCIe behavior.
+Host smoke-test doubles are syntax/unit checks, not ET platform validation. A
+host compiler will not execute ET `.ps` or Tensor CSR semantics.
 
-### `kernels/tpa_tensor_matmul.c`
+## 15. Case study: Tensor matrix multiply process
 
-`kernels/tpa_tensor_matmul.c` is the current in-repository Tensor matmul example.
-It demonstrates:
+`kernels/tpa_tensor_matmul.c` demonstrates a compact TensorFMA process.
+Important constants:
 
-- process-continuation integration through `tensor_matmul_*` continuations;
-- generated `.tpp` and `.place` artifacts from
-  `kernels/gen_tpa_tensor_matmul.cmake`;
-- `.tpm` workspace contracts for feed, cell, and checker process kinds;
-- aligned workspace arrays for tiles and accumulators;
-- Tensor scratchpad setup with cache operations and `mcache_control`;
-- explicit `tensor_mask`, `tensor_coop`, `m0`, and `tensor_error` setup;
-- `tensor_load()` and `tensor_fma()` inside `tm_tensor_matmul_acc()`;
-- `tensor_wait()` before consuming loads or FMA results;
-- packed-single helpers that move a 16-by-16 FP32 block between memory and the
-  FP register file with `flw.ps`/`fsw.ps`;
-- PASS/FAIL marker behavior through the normal TPA test path.
+```c
+#define TM_TENSOR_N 16u
+#define TM_TENSOR_TL0_START 0u
+#define TM_TENSOR_TL1_START 32u
+#define TM_TENSOR_ROWS (TM_TENSOR_N - 1u)
+#define TM_TENSOR_COLS (TM_TENSOR_N - 1u)
+#define TM_TENSOR_BCOLS ((TM_TENSOR_N / 4u) - 1u)
+```
 
-What it proves:
+The source establishes three useful patterns:
 
-- ET Tensor instructions can be used inside continuation-style TPA process code.
-- The structured build can generate graph artifacts and build
-  `tpa_tensor_matmul.elf` through the ET superbuild.
-- Current status docs record Erbium PASS-marker validation for this target.
+1. **Workspace and status storage are explicit.** Aligned input/accumulator
+   buffers live in process workspace or static aligned words. Static assertions
+   cap workspace size.
+2. **Tensor setup is once-per-hart.** A static `tm_tensor_ready[ARCH_NR_HARTS]`
+   array guards scratchpad setup. The code uses `arch_hart_id()` only to index
+   readiness state, not to decide graph placement.
+3. **TensorFMA lives inside an ordinary continuation.** Feed/check processes
+   still use TPA receive/send operations. Tensor instructions are only a local
+   compute implementation.
 
-What it does not prove:
+Representative inner loop shape:
 
-- It is not a generic Tensor abstraction layer.
-- It does not validate every Tensor instruction.
-- It does not by itself prove attention, YOLO, or ET-SoC-1 performance.
+```c
+tensor_load(0, 0, TM_TENSOR_TL0_START, 0, 0,
+            (uint64_t)a_tile, 0, TM_TENSOR_ROWS, row_bytes, 0);
+tensor_load(0, 0, TM_TENSOR_TL1_START, 0, 1,
+            (uint64_t)b_tile, 0, TM_TENSOR_ROWS, row_bytes, 1);
+tensor_wait(TENSOR_LOAD_WAIT_0);
+tensor_fma(0, TM_TENSOR_BCOLS, TM_TENSOR_ROWS, TM_TENSOR_COLS,
+           0, 0, 0, 0, 1,
+           TM_TENSOR_TL1_START, TM_TENSOR_TL0_START,
+           TM_TENSOR_FP32, 0);
+tensor_wait(TENSOR_FMA_WAIT);
+```
 
-### `attention/`
+Read this as a pattern source, not as proof of a globally optimal wait schedule.
+If new code consumes both load ids, wait for both ids unless the PRM and local
+validation packet justify otherwise.
 
-`attention/` is the current fixed-size structured fast-attention demo:
+## 16. Case study: fixed 16-by-16 attention helpers
+
+`attention/attention_et.h` is useful because it packages ET-specific helpers in
+one file while leaving process graph semantics in the `.tpm/.tpp` path.
+
+Key helper roles:
+
+- `attention_et_tensor_setup()` performs the cache/scratchpad/mask/error setup.
+- `attention_et_load_vector_regs()` loads sixteen 16-float rows into `f0..f31`
+  with `flw.ps` pairs.
+- `attention_et_store_vector_regs()` stores `f0..f31` back to memory with
+  `fsw.ps` pairs.
+- `attention_et_matmul_16x16()` loads A and B into L1SCP, waits for both load
+  ids, issues TensorFMA32, waits for FMA, stores the result, and checks
+  `tensor_error`.
+- `attention_scale_scores_ps()` applies a row-wise scalar scale with
+  packed-single multiply after the TensorFMA product.
+
+This shows a good separation of concerns:
 
 ```text
-QKV generator
-  -> score(head 0) -> softmax(head 0) -> output/check
-  -> score(head 1) -> softmax(head 1) -> output/check
-  -> score(head 2) -> softmax(head 2) -> output/check
-  -> score(head 3) -> softmax(head 3) -> output/check
+process source:
+  receive packet, call helper, validate/fail/send
+
+ET helper:
+  masks, L1SCP, TensorLoad/FMA/Wait, vector-register store,
+  packed-single row transform, tensor_error check
+
+common header:
+  layout sizes, alignment assertions, trace tags, scalar reference math
 ```
 
-The dimensions are sequence length 16, embedding dimension 64, four heads, and
-head dimension 16. Each per-head Q, K, V, score, and weight matrix is 16-by-16
-FP32, which is the natural FP32 Tensor tile shape.
+The evidence packet shows extension use in disassembly and trace markers, but it
+also documents that speedup is not claimed. Use the source as an instruction
+pattern and validation example, not as a performance conclusion.
 
-Current ET helper status:
+## 17. Writing inline assembly that survives review
 
-- `attention/attention_et.h` defines the shared Tensor scratchpad setup helper.
-- `attention_compute_scores_tensor()` computes `Q * K^T` with
-  `attention_et_matmul_16x16()` and uses a `TensorLoadTranspose32` transform for
-  K. It then scales the score matrix with packed-single row scaling.
-- `attention_compute_softmax_ps()` uses scalar loops for max, exponent
-  approximation, and sum, plus packed-single row copy and row-scaling helpers.
-- `attention_compute_output_packet()` computes `softmax * V` with the same
-  TensorFMA helper.
-- `attention/README.md` documents trace tags for score, softmax, output product,
-  and validation spans.
+Rules for inline packed-single assembly:
 
-What it proves:
+1. Set `m0` in the same helper or establish a documented caller contract.
+2. List every FP register clobbered by explicit register names.
+3. Add `memory` when loads/stores or CSRs must not move across C memory
+   operations.
+4. Keep the assembly block small enough that objdump and code review can match
+   it to source intent.
+5. Avoid silently mixing scalar FP and packed FP on the same register live range.
+6. Prefer static alignment assertions over comments.
+7. Provide a scalar reference path for validation when numerical behavior is not
+   bit-identical.
 
-- The current attention code uses ET TensorFMA for score and output products.
-- It uses packed-single helpers for row copies and row scaling.
-- The packet layout reserves a 64-byte header and statically verifies Tensor-ready
-  row alignment.
-- Current repository status documents Erbium PASS-marker validation for
-  `tpa_fast_attention.elf` and `tpa_fast_attention_serial.elf`.
+Tensor wrapper calls are already inline assembly. Still review them as CSR
+writes. For example, `tensor_fma()` has no `memory` clobber in the current local
+header, so caller-side fences/waits and surrounding memory clobbers matter when
+C memory and Tensor state interact.
 
-What it does not prove:
+Objdump caveat: ET binutils support may lag mnemonics. Some packed-single
+instructions can appear as `.insn` or raw encodings while Tensor wrappers appear
+as CSR writes such as `csrw 0x83f`, `csrw 0x801`, and `csrw 0x830`. Absence of a
+pretty mnemonic is not absence of the instruction.
 
-- It does not prove a measured speedup over the serial baseline.
-- It does not prove that softmax is fully vectorized.
-- It does not prove that mapper placement alone creates performance.
-- It does not prove ET-SoC-1 attention behavior.
+## 18. Error-handling template
 
-### YOLO references
+A minimal Tensor sequence should look like this in structure:
 
-`yolov5n/` has the current downstream planner/map/device path and Erbium
-PASS-marker validation. `yolov8n/` has opt-in external-header milestones for
-Detect/DFL, C2f, dense C2f summaries, combined graph composition, and the first
-P4-to-P5 neck-tail Conv+Concat boundary. These paths are scalar/deterministic
-plumbing and graph-validation milestones unless a future reviewed job adds ET
-vector/tensor kernels and the evidence gates in `docs/yolo-demo.md` are met.
+```c
+static int run_tensor_tile(float out[16][16],
+                           const float a[16][16],
+                           const float b[16][16])
+{
+    asm volatile("csrwi tensor_error, 0" ::: "memory");
 
-Use YOLO code as a source of realistic edge sizes, immutable model data policy,
-and graph/mapping constraints. Do not use it as current evidence for optimized
-packed-single or Tensor YOLO kernels.
+    tensor_load(0, 0, A_START, 0, 0,
+                (uint64_t)a, 0, 15, 64, 0);
+    tensor_load(0, 0, B_START, 0, 0,
+                (uint64_t)b, 0, 15, 64, 1);
+    tensor_wait(TENSOR_LOAD_WAIT_0);
+    tensor_wait(TENSOR_LOAD_WAIT_1);
 
-### Archived/reference-only material
+    tensor_fma(0, 3, 15, 15, 0, 0, 0, 0, 0,
+               B_START, A_START, 0, 1);
+    tensor_wait(TENSOR_FMA_WAIT);
 
-`docs/archive/` preserves original DNN demos, LTFarm, and historical generated
-YOLO analysis. These documents can inform future experiments, but archived
-sources are not active build targets and should not be cited as current
-validation.
+    store_vector_regs(out);
 
-## 8. Validation methodology
-
-Validation must prove the claim being made. A source-level observation that a
-file contains inline assembly is not enough to claim an optimized Erbium path.
-A host smoke test is not ET platform validation. Mapper placement is not a
-performance measurement.
-
-### Reviewed Erbium evidence packet: tensor matmul and attention
-
-Reviewed evidence from AgentWS jobs `et-vector-tensor-attention-evidence` and
-`et-vector-tensor-attention-evidence-review` records the current Erbium ET
-superbuild behavior for `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`, and
-`tpa_fast_attention_serial.elf`. The evidence packet is under:
-
-```text
-/home/glguida/think/new-tpa-structured/agentws/jobs/et-vector-tensor-attention-evidence/workspace/
+    tensor_wait(TENSOR_FMA_WAIT);
+    unsigned long err = get_tensor_error();
+    if (err != 0)
+        return -1;
+    return 0;
+}
 ```
 
-Primary files:
+Notes:
 
-- `evidence-summary.md` — narrative summary of build, runtime, disassembly,
-  trace, mapper, and unsupported-claim findings.
-- `evidence-artifact-sha256.txt` — checksum list; review verified it with
-  `sha256sum -c`.
-- `attention-trace-summary.md` and `attention-mapper-summary.md` — compact trace
-  and mapper summaries used by the tables below.
+- The second FMA wait before reading `tensor_error` is redundant if no operation
+  intervened after the first FMA wait. It is shown to stress that the error read
+  belongs after the event wait, not before it.
+- Use symbolic constants for `A_START`, `B_START`, and wait ids. Raw numbers are
+  acceptable in wrappers but poor review targets in process code.
+- On TPA failure paths, emit a trace or PASS/FAIL marker consistent with nearby
+  tests before invoking the project failure macro.
 
-The evidence build used the top-level ET superbuild and current structured TPA
-process/program/mapper path:
+## 19. Disassembly and evidence workflow
+
+A reviewable ET vector/Tensor change needs more than a successful compile.
+Collect the smallest evidence appropriate for the change.
+
+Recommended commands on an Erbium ET build:
 
 ```sh
-cmake -S . -B /tmp/et-vector-tensor-evidence-build \
-  -DET_ROOT=/opt/et \
-  -DTPA_PLATFORM=erbium \
-  -DPYTHON=$(command -v python3)
-cmake --build /tmp/et-vector-tensor-evidence-build --target tpa_tensor_matmul.elf
-cmake --build /tmp/et-vector-tensor-evidence-build --target tpa_fast_attention_map_mapped_program
-cmake --build /tmp/et-vector-tensor-evidence-build --target tpa_fast_attention.elf
-cmake --build /tmp/et-vector-tensor-evidence-build --target tpa_fast_attention_serial.elf
+cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium
+cmake --build build-et-erbium --target tpa_tensor_matmul.elf
+/opt/et/bin/erbium_emu \
+  -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_tensor_matmul.elf \
+  -max_cycles 1000000
 ```
 
-All three direct `erbium_emu` runs reported application PASS markers and then
-returned raw process exit code `1` because the emulator reported sleeping harts
-after PASS. Treat this as application PASS-marker evidence plus a post-PASS raw
-emulator condition, matching the repository's PASS-marker wrapper caveat. Do not
-report the raw exit code as a clean process success, and do not use it by itself
-to overturn the observed PASS marker.
+For a new process target, substitute its ELF path and target. A PASS marker or
+explicit process-level validation is required for runtime claims.
 
-| Target | PASS marker cycle | Raw emulator exit | Evidence files |
-| --- | ---: | ---: | --- |
-| `tpa_tensor_matmul.elf` | `1,182,859` | `1` | `run-tpa_tensor_matmul.log`, `run-tpa_tensor_matmul.exitcode` |
-| `tpa_fast_attention.elf` | `4,579,357` | `1` | `run-tpa_fast_attention.log`, `run-tpa_fast_attention.exitcode` |
-| `tpa_fast_attention_serial.elf` | `4,474,439` | `1` | `run-tpa_fast_attention_serial.log`, `run-tpa_fast_attention_serial.exitcode` |
-
-Tensor instruction evidence is disassembly-backed for the expected paths. The
-RISC-V objdump used by the experiment was
-`/opt/et/bin/riscv64-unknown-elf-objdump`; snippets and full objdumps are in the
-evidence workspace.
-
-| ELF | Evidence-backed Tensor CSR writes |
-| --- | --- |
-| `tpa_tensor_matmul.elf` | `csrw 0x83f` (`TensorLoad`), `csrw 0x801` (`TensorFMA`), and `csrw 0x830` (`TensorWait`) appear in the matmul compute path, with setup CSR writes for `tensor_mask`, `tensor_coop`, and `tensor_error`. |
-| `tpa_fast_attention.elf` | The score path and output path both show Tensor setup plus `csrw 0x83f`, `csrw 0x801`, and `csrw 0x830` in the expected regions. |
-
-Packed-single evidence is source-backed and build-backed, not mnemonic-decoded by
-that objdump. `kernels/tpa_tensor_matmul.c` and `attention/attention_et.h`
-contain inline assembly with `flw.ps`, `fsw.ps`, and `fmul.ps`; the ET build and
-Erbium PASS runs prove those sources compiled and executed in these targets. The
-available objdump printed the corresponding encodings as custom `.insn` words,
-not as decoded `flw.ps`/`fsw.ps`/`fmul.ps` mnemonics. Therefore the honest claim
-is: packed-single inline assembly is present in source and compiled successfully,
-while this evidence packet does not provide decoded packed-single objdump
-mnemonics.
-
-Attention DEBUG trace extraction also worked. The trace command used
-`erbium_emu -l` with `-lt 0 -lt 2 -lt 4 -lt 6 -lt 8`, filtered `validation0`
-writes and PASS/FAIL markers, and parsed the filtered log with
-`tools/trace/parse_attention_trace.py`. These are trace checkpoints for the
-current target, not speedup claims.
-
-| Aggregate metric | Cycles |
-| --- | ---: |
-| `program_begin→pass_tag` | `4,570,356` |
-| `program_begin→PASS marker` | `4,570,360` |
-| `output_begin→all_received` | `207,361` |
-| `all_received→output_end` | `4,364,029` |
-| `output_begin→output_end` | `4,571,390` |
-| product sum | `513` |
-| scalar validation sum | `4,363,296` |
-| residual output overhead | `220` |
-
-| Head | Score | Softmax | Product | Scalar validation |
-| ---: | ---: | ---: | ---: | ---: |
-| 0 | `560` | `9,984` | `165` | `1,090,848` |
-| 1 | `560` | `9,980` | `116` | `1,090,784` |
-| 2 | `560` | `9,980` | `116` | `1,090,784` |
-| 3 | `560` | `9,986` | `116` | `1,090,880` |
-
-Interpretation limits:
-
-- The trace spans are from one current Erbium emulator run and one current
-  mapping; they are not stable production performance numbers.
-- No controlled baseline-vs-optimized comparison was measured, so this packet
-  does **not** support a speedup claim.
-- The output process performs scalar reference validation after production output
-  work, and the trace shows scalar validation dominates the output-to-PASS span.
-- The output process can start and wait before the QKV generator emits
-  `program_begin`; do not read every aggregate span as strict serial phase
-  ordering.
-
-Attention mapper evidence shows Tensor-using work on H0 contexts and separates
-memory categories in the mapped-program summary:
-
-| Mapper value | Evidence |
-| --- | --- |
-| Placement | QKV plus head 0 score/softmax on `m0:h0`; heads 1, 2, and 3 score/softmax on `m1:h0`, `m2:h0`, and `m3:h0`; output/check on `m4:h0`. Hart ids are `0`, `2`, `4`, `6`, and `8`. |
-| Edge buffer bytes | `20,992` |
-| Immutable bytes | `248` |
-| Process data bytes | `128` |
-| Scratch total bytes | `10,240` |
-| Total bytes | `31,608`, `fits=true` |
-
-This packet supports statements about the current Erbium build/run path, Tensor
-CSR use, source-backed packed-single inline assembly, trace extraction, and
-H0-only attention placement. It does not support claims about decoded
-packed-single objdump mnemonics, baseline-vs-optimized speedup, ET-SoC-1,
-silicon/PCIe, host demo behavior, production performance, or cross-machine
-stability. No host smoke-test-double evidence was used.
-
-### Packed-single row micro-example evidence
-
-The `tpa_packed_single_row.elf` target is the micro-example for decoded
-packed-single row instruction evidence. The validation used the top-level ET
-superbuild and the normal structured process/program path:
+Disassembly checks:
 
 ```sh
-cmake -S . -B build-et-erbium \
-  -DET_ROOT=/opt/et \
-  -DTPA_PLATFORM=erbium \
-  -DPYTHON=$(command -v python3)
-cmake --build build-et-erbium --target tpa_packed_single_row.elf
-ctest --test-dir build-et-erbium/tpa-device-prefix/src/tpa-device-build \
-  -R '^tpa_packed_single_row$' --output-on-failure
+riscv64-unknown-elf-objdump -d path/to/program.elf > /tmp/program.dis
+rg -n 'flw\.ps|fsw\.ps|fmul\.ps|fadd\.ps|frcp\.ps|\.insn' /tmp/program.dis
+rg -n 'csrw\s+0x83f|csrw\s+0x801|csrw\s+0x830|csrw\s+0x808' /tmp/program.dis
 ```
 
-The registered CTest passed by observing the application PASS marker from
-`cmake/run_erbium_test_fast.cmake`. A direct emulator run with
-`-minions 0x7 -max_cycles 1000000` reported PASS at cycle `10,888` and then
-returned raw process exit code `1` because the emulator reported sleeping harts
-after PASS. Treat that as application PASS-marker evidence plus the normal
-post-PASS direct-emulator caveat, not as a clean raw process exit.
+Interpretation:
 
-Unlike the earlier tensor/attention evidence packet, the available ET objdump
-decoded this target's packed-single instructions directly. The compute section
-contains the expected row-local sequence:
+- `flw.ps` / `fsw.ps` evidence proves packed-single load/store selection when
+  decoded by the toolchain.
+- `.insn` evidence may still be valid if the source inline assembly and opcode
+  encoding are reviewed.
+- `csrw 0x83f` is TensorLoad family.
+- `csrw 0x801` is TensorFMA family.
+- `csrw 0x830` is TensorWait.
+- `csrw 0x808` or `csrwi tensor_error, 0` shows error clear; `csrr 0x808` shows
+  error read.
+
+Validated packed-single row micro-example:
+
+- `tpa_packed_single_row.elf` is the current minimal structured row-local
+  packed-single target. It is built through the top-level ET superbuild and the
+  `.c + .tpm + .tpp + .place` TPA path.
+- The device-subbuild CTest `tpa_packed_single_row` passes by observing the
+  application PASS marker. A direct Erbium run reports PASS at cycle `10888` and
+  then returns raw exit `1` because the emulator reports sleeping harts after
+  PASS; treat that as PASS-marker evidence with the normal direct-emulator
+  caveat.
+- Current objdump output for that target decodes the expected row sequence:
 
 ```text
 flw.ps   ft0,0(a1)
@@ -624,200 +934,164 @@ fsw.ps   ft0,0(a5)
 fsw.ps   ft1,32(a5)
 ```
 
-This supports a narrow claim: the packed-single row micro-example builds,
-executes, validates its deterministic scalar oracle, and has decoded `.ps`
-mnemonic disassembly under the current ET Erbium toolchain. It does not support
-performance, YOLOv8n, ET-SoC-1, silicon/PCIe, or host-demo claims.
+That target proves a narrow fact: the current Erbium toolchain can build, run,
+and decode this one packed-single row transform. It does not prove a speedup,
+platform portability, or any broader kernel optimization.
 
-### Claim-to-evidence checklist
+Trace checks should prove that the optimized path actually ran. Trace tags are
+application-specific; the pattern is not:
 
-| Claim | Minimum evidence |
+```text
+begin tag -> Tensor/SIMD region begin -> Tensor/SIMD region end -> validate -> PASS
+```
+
+Do not claim speedup unless the evidence includes all of:
+
+1. ET build and target identity.
+2. Runtime PASS/FAIL or equivalent correctness result.
+3. Disassembly or trace evidence that extension instructions executed.
+4. Comparable baseline and optimized measurements under the same conditions.
+5. Explanation of measurement source, cycles, warmup, and noise.
+
+## 20. Debugging playbook
+
+| Symptom | Likely causes | First checks |
+| --- | --- | --- |
+| Illegal instruction on target | H1 placement; unsupported mnemonic; invalid Tensor round mode; toolchain mismatch | Check machine context name, `mhartid`, objdump, and wrapper encoding. |
+| `tensor_error[4]` | L1SCP disabled | Confirm cache-control transition and H0 execution. |
+| `tensor_error[1]` | Illegal TensorLoad transform or TenB command | Decode `tensor_load` transformation and `use_tenb` fields. |
+| `tensor_error[6]` | TensorLoadB/FMA pairing error | Remove TenB first; use L1SCP B; then reintroduce paired TenB. |
+| `tensor_error[7]` | Tensor/cache memory fault | Check row alignment, page mapping, row count, stride, and masked rows. |
+| `tensor_error[8]` | Invalid cooperative TensorStore size | Decode `COOP/SIZE`; avoid cooperative store until placement is explicit. |
+| Wrong inactive SIMD lanes | `m0` partial mask left stale destination lanes | Initialize destination or force all-lanes mask. |
+| All-zero upper SIMD lanes | Scalar FP instruction wrote the same FP register | Separate scalar and packed register lifetimes. |
+| First tile correct, later tiles wrong | Missing wait before overwriting L1SCP or memory | Add waits on load/store/FMA/cacheop events. |
+| Works with scalar reference only | Packet layout or row stride mismatch | Assert offsets, sizes, and `row_bytes == 64`. |
+| Error read is zero but result stale | Read before event completion or missing result store | Place `tensor_wait` before `get_tensor_error()` and before scalar/SIMD readback. |
+| Disassembly lacks pretty `.ps` mnemonic | Binutils decoder gap | Compare source inline assembly and raw `.insn`; do not assume compile removed it. |
+| Cooperative load hangs or corrupts data | Group mismatch or reused group id | Verify every participating hart executes same variant/address/group and has external synchronization. |
+
+When in doubt, reduce to:
+
+1. one H0 process;
+2. one aligned 16-by-16 tile;
+3. non-cooperative TensorLoad to L1SCP;
+4. wait both load ids;
+5. TensorFMA32 product-only;
+6. wait FMA;
+7. store vector registers;
+8. compare against scalar reference;
+9. read `tensor_error` after waits.
+
+## 21. Code review checklist
+
+Before approving vector/Tensor code, ask:
+
+- Does the process kind have a placement story compatible with Tensor H0 rules?
+- Are row bases, field offsets, and strides asserted for Tensor alignment?
+- Are edge/channel payload sizes updated when structs change?
+- Is `m0` initialized before every packed-single helper that depends on it?
+- Are inactive packed lanes either irrelevant or initialized?
+- Are scalar FP instructions kept away from live packed registers?
+- Are Tensor loads, FMA, stores, quant, reductions, broadcasts, and cacheops
+  followed by the needed `tensor_wait` events?
+- Is `tensor_error` cleared before the sequence and read after waits?
+- Are L1 scratchpad mode transitions guarded by cache eviction/fence rules?
+- Are TenB and cooperative operations avoided unless the pairing/group contract
+  is documented and tested?
+- Does disassembly show expected `.ps`, `.insn`, or Tensor CSR writes?
+- Does runtime validation include PASS/FAIL evidence on an ET target when ET
+  behavior is claimed?
+- Does documentation state exactly what was measured, and avoid speedup claims
+  without comparable baseline data?
+
+## 22. Common design patterns
+
+### Pattern A: SIMD row transform
+
+Use when each row is 8- or 16-lane independent and no cross-row operation is
+needed.
+
+```text
+set m0 -> flw.ps low/high -> compute .ps -> fsw.ps low/high
+```
+
+Good for row scale, clamp, elementwise add/multiply, and copy/convert kernels.
+
+`kernels/tpa_packed_single_row.c` is the smallest current structured example of this pattern. It uses a source -> compute -> check graph, channel-backed 64-byte row payloads, all-lane `m0`, two `flw.ps` loads, row-local `fmul.ps` plus `fadd.ps`, two `fsw.ps` stores, and scalar validation of every lane. Treat it as correctness and tooling evidence, not as a benchmark.
+
+### Pattern B: Tensor local tile product
+
+Use when each process owns an aligned MxK and KxN tile and writes a local MxN
+result.
+
+```text
+setup scratchpad -> clear error -> load A -> load B -> wait loads ->
+TensorFMA32 -> wait FMA -> store vector regs -> read error -> send
+```
+
+Good for fixed 16-by-16 FP32 products and as the baseline for lower-precision
+experiments.
+
+### Pattern C: Tensor plus SIMD post-process
+
+Use when Tensor computes a tile and a lane-wise transform follows.
+
+```text
+TensorFMA -> wait FMA -> fsw.ps to aligned matrix ->
+for rows: flw.ps -> lane transform -> fsw.ps -> scalar/reference validation
+```
+
+Do not run packed-single instructions against vector-register rows still owned
+by an in-flight TensorFMA.
+
+### Pattern D: Cross-hart reduction or broadcast
+
+Use only when the dataflow graph actually wants a cross-hart collective.
+
+```text
+explicit placement/grouping -> matching send/recv or tree actions -> wait 9 ->
+error check -> continue
+```
+
+This is not a replacement for local accumulation unless placement and
+synchronization are part of the design.
+
+## 23. Open questions and evidence gaps
+
+These are not blockers for current documented examples, but they should be
+answered before turning patterns into a reusable ET math library:
+
+- Which packed-single mnemonics are fully decoded by the currently pinned ET
+  binutils, and which still appear as `.insn`?
+- Which PMU events are stable enough in the current runtime to use for published
+  per-kernel measurements?
+- What is the preferred project-level abstraction for H0-only process-kind
+  requirements when future machine descriptions expose H1 contexts?
+- Should conservative new TensorFMA helpers always wait for both load ids even
+  when older source waited for one id in a validated example?
+- Which cooperative TensorLoad/TensorStore patterns are worth validating first,
+  and what graph-level synchronization should they require?
+- Which TensorQuant transformations are needed by current kernels, and what
+  scalar references should define their tolerance?
+
+Document answers in source-adjacent comments, tests, or this guide when they are
+validated.
+
+## 24. Minimal glossary
+
+| Term | Meaning in this guide |
 | --- | --- |
-| Documentation describes existing source accurately | Source inspection and grep showing no contradictory docs. |
-| A process uses packed-single instructions | Source or decoded disassembly showing `.ps` mnemonics such as `flw.ps`, `fsw.ps`, `fmul.ps`, `fmadd.ps`, `fmax.ps`, `fexp.ps`, or `frcp.ps`; if objdump emits custom `.insn` words instead, state that decoding gap and keep the claim source-backed/build-backed. |
-| A process uses Tensor instructions | Source or disassembly showing Tensor CSR writes such as `tensor_load`/CSR `0x83f`, `tensor_fma`/CSR `0x801`, and `tensor_wait`/CSR `0x830`. |
-| A generated ELF works on Erbium | Top-level ET superbuild plus `erbium_emu` or registered CTest showing the application PASS marker and no explicit FAIL. |
-| A Tensor process is legally placed | Placement or mapped-program JSON showing H0-capable contexts; for current Erbium, even runtime hart ids from `machines/erbium.json`. |
-| A performance speedup exists | Baseline and optimized builds, same input, PASS markers, extension-use evidence, trace/cycle data or counters, and a documented comparison method. |
-| YOLOv8n accuracy or production quantization | The policy gates in `docs/yolo-demo.md`, including approved artifacts, representative calibration/evaluation data, checksums, commands, and metrics. |
-
-### Build path
-
-Use the top-level ET superbuild and the TPA process/program path:
-
-```sh
-cmake -S . -B build-et-erbium -DET_ROOT=/opt/et -DTPA_PLATFORM=erbium -DPYTHON=$(command -v python)
-cmake --build build-et-erbium --target tpa_tensor_matmul.elf
-cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
-cmake --build build-et-erbium --target tpa_fast_attention.elf
-cmake --build build-et-erbium --target tpa_fast_attention_serial.elf
-```
-
-Do not bypass `.tpm`, `.tpp`, `.place` or mapper output, `add_tpa_process()`,
-`add_tpa_program()`, or `cmake/gen_tpa_image.cmake` for graph programs.
-
-### Runtime PASS/FAIL markers
-
-Generated graph tests signal application status with emulator markers such as:
-
-```text
-Signal end test with PASS
-Signal end test with FAIL
-```
-
-Prefer registered CTests or `cmake/run_erbium_test_fast.cmake` where available.
-The wrapper rejects explicit FAIL or missing PASS runs and accepts an
-application PASS marker before considering raw emulator return-code quirks from
-sleeping/waiting harts. A missing PASS marker, explicit FAIL marker, or non-zero
-raw emulator result without a PASS marker is still a validation failure.
-
-### Disassembly checks
-
-Use disassembly to confirm the optimized instructions survived compilation.
-Record the exact ELF and objdump command in review evidence. Useful search
-terms include:
-
-```text
-flw.ps fsw.ps fmul.ps fmadd.ps fmax.ps fexp.ps frcp.ps
-tensor_load tensor_fma tensor_wait
-csrw 0x83f csrw 0x801 csrw 0x830
-```
-
-The local toolchain path depends on the ET platform installation. Some ET
-objdump versions may not decode packed-single mnemonics and may print custom
-`.insn` words instead. In that case, do not claim mnemonic-decoded packed-single
-disassembly; record the source-backed inline assembly, successful ET build/run,
-and objdump decoding gap. Do not replace missing ET binutils with a host-only
-claim; log the validation gap.
-
-### Attention trace tags
-
-`attention/README.md` documents stable `arch_trace()` tags. Use them to compare
-score, softmax, output-product, and validation spans. For attention performance
-claims, capture both the mapped target and the serial baseline under comparable
-conditions, preserve the filtered logs or parsed timing table, and state exactly
-which spans are being compared.
-
-### Mapper placement review
-
-When placement matters, inspect the generated mapped-program JSON, not only the
-ELF result. Check:
-
-- runtime hart ids and labels;
-- H0 legality for Tensor processes;
-- edge capacities and edge pools;
-- scratch domains and scratch peaks;
-- warnings about memory or metadata.
-
-Current `machines/erbium.json` exposes H0 contexts only; a future machine JSON
-with H1 contexts must add a clear policy for Tensor process kinds.
-
-### Documentation and local checks
-
-For docs-only changes, run:
-
-```sh
-git diff --check
-```
-
-Then search changed and adjacent docs for contradictions. For this guide, at
-least search `docs/et-simd-tensor-kernel-notes.md`, `attention/README.md`,
-`docs/yolo-demo.md`, and `README.md` for stale claims about attention being only
-hypothetical, YOLOv8n vector/tensor status, or unsupported performance claims.
-
-## 9. Experiment ladder
-
-Use small experiments to retire one risk at a time.
-
-1. **Tensor matmul evidence refresh.** Build `tpa_tensor_matmul.elf`, run under
-   Erbium, confirm the PASS marker, disassemble for Tensor CSR writes, and
-   verify packed-single RF load/store helpers through decoded disassembly or an
-   explicit source-backed/objdump-decoding-gap note.
-2. **Packed-single micro-example.** Use `tpa_packed_single_row.elf` as the
-   baseline row-local packed-single evidence target: it scales/biases a
-   16-float row with `.ps` helpers, validates output deterministically, and
-   currently disassembles to decoded `.ps` mnemonics under the Erbium toolchain.
-3. **Tensor alignment success/failure tests.** Prove that a 64-byte-header
-   payload succeeds and that an intentionally misaligned staging experiment fails
-   or reports `tensor_error` as expected. Keep expected-failure behavior explicit.
-4. **Attention trace/disassembly pass.** For `tpa_fast_attention.elf` and
-   `tpa_fast_attention_serial.elf`, preserve PASS logs, extension-use
-   disassembly, mapper placement, and trace spans for score/softmax/output.
-5. **Attention softmax vectorization.** Replace one scalar substep at a time:
-   row subtract/scale, exponent approximation, reciprocal, then row reduction.
-   Keep tolerance and PASS behavior deterministic at each step.
-6. **YOLOv8n prototype preconditions.** Before changing YOLOv8n kernels, choose a
-   small candidate (for example a 1x1 Conv or a C2f inner product), document its
-   edge/model/scratch contract, keep generated model-derived artifacts external,
-   and define scalar-vs-optimized evidence before writing ET-specific code.
-
-## 10. YOLOv8n optimization roadmap
-
-YOLOv8n is a future consumer of this guide, not current vector/tensor evidence.
-A realistic roadmap is:
-
-1. Preserve the existing external-artifact policy in `docs/yolo-demo.md`.
-2. Pick one small kernel boundary whose inputs and outputs are already validated
-   by deterministic hashes.
-3. Classify every byte:
-   - generated weights, fused BN parameters, DFL weights, and quantization tables
-     are immutable model data;
-   - input/output feature maps, summaries, and activations between process
-     instances are edge/channel payloads;
-   - convolution accumulators, C2f temporaries, DFL temporaries, Tensor staging,
-     and packed-single row buffers are scratch;
-   - process workspace stores only continuation state.
-4. Choose packed-single or Tensor based on the actual data shape, not on the name
-   of the layer.
-5. Keep scalar reference coverage active and compare optimized output against the
-   existing deterministic oracle.
-6. Require Erbium PASS, extension-use disassembly, and trace/cycle evidence
-   before claiming speedup.
-7. Do not claim production quantization, model accuracy, full graph validation,
-   host demo support, or ET-SoC-1 validation without the evidence gates listed in
-   `docs/yolo-demo.md`.
-
-Likely first candidates are dense local operations with stable layouts, such as
-1x1 Conv-like inner products, small row/feature transforms, or selected C2f
-substeps. DFL softmax/decode may benefit from packed-single row work, but it
-also has layout and numerical tolerance risks. Large feature-map convolutions
-need a mapper/scratch/edge-memory review before instruction selection.
-
-## 11. Open questions and literature map
-
-The planning environment that requested this guide did not have web browsing.
-Future workers with explicit internet or library access should fetch and cite
-primary sources rather than infer from secondary summaries.
-
-Primary sources to fetch or confirm:
-
-- the current official ET Programmer's Reference Manual version and errata;
-- ET compiler/binutils documentation for packed-single and Tensor mnemonics;
-- ET C header documentation for `<etsoc/isa/cacheops.h>` and
-  `<etsoc/isa/tensors.h>` wrappers;
-- emulator trace/logging documentation for `arch_trace()` and Tensor events;
-- performance-counter documentation and examples for TensorFMA, mask, and
-  packed-single events;
-- any official cooperative Tensor load/store, TensorReduce, and TensorBroadcast
-  programming examples;
-- ET-SoC-1 platform notes that affect L1/L2 scratchpad setup, H0/H1 exposure,
-  and user-mode cache-control legality.
-
-Open technical questions:
-
-- Which Tensor and cache-control wrapper sequences are the recommended stable
-  ABI for current ET platform headers?
-- What is the smallest reliable performance-counter setup for generated TPA
-  ELFs under `erbium_emu` and silicon?
-- How should the mapper express Tensor-required contexts if future machine JSONs
-  expose both H0 and H1?
-- What is the right reusable abstraction level for Tensor scratchpad setup
-  without hiding required waits, errors, and alignment checks?
-- Which packed-single softmax approximation is acceptable for attention and
-  YOLO DFL tolerances?
-- What ET-SoC-1-specific validation is required beyond current one-shire
-  `tpa_core` before claiming vector/tensor behavior there?
-
-Until those questions are answered by reviewed evidence, keep documentation
-explicit: state what is implemented, what was validated, what was only inspected,
-and what remains a follow-up experiment.
+| H0/H1 | The two harts in one ET Minion. Most Tensor instructions are H0-only. |
+| `.ps` | Packed-single SIMD instruction operating on eight FP32 lanes in one widened FP register under `m0`. |
+| `.pi` | Packed-integer instruction using the widened FP register file as int lanes. |
+| `m0` | Mask register that predicates packed-single and packed-integer lanes. |
+| `tensor_mask` | CSR `0x805`; row mask for TensorLoad/TensorFMA/cacheop masking. |
+| L1SCP | L1 scratchpad mode storage used by Tensor load/FMA/store operations. |
+| TenB | Tensor B operand storage loaded by TensorLoadB and consumed by TensorFMA. |
+| TenC | Tensor C storage used by integer Tensor matrix operations. |
+| TensorFMA32 | FP32 Tensor matrix multiply/accumulate instruction encoded by CSR `0x801`. |
+| TensorWait | CSR `0x830` write that waits for one Tensor/cache event. |
+| `tensor_error` | Sticky software-cleared Tensor/cache error CSR `0x808`. |
+| Edge buffer | TPA communication payload storage; not the same as process state or Tensor scratchpad. |
+| Scratch workspace | Mapper-budgeted per-process storage declared in process metadata; not the same as L1SCP. |
