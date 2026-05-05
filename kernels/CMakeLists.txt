@@ -52,6 +52,24 @@ add_tpa_program(
         "${CMAKE_CURRENT_SOURCE_DIR}/tpa_packed_single_row.place"
 )
 
+add_tpa_process(
+    NAME tpa_tensor_alignment_proc
+    MANIFEST
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_tensor_alignment.tpm"
+    SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_tensor_alignment.c"
+)
+
+add_tpa_program(
+    NAME tpa_tensor_alignment
+    PROCESSES
+        tpa_tensor_alignment_proc
+    PROGRAM
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_tensor_alignment.tpp"
+    PLACEMENT
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_tensor_alignment.place"
+)
+
 if (TPA_PLATFORM_ID STREQUAL "erbium")
     find_program(TPA_ERBIUM_EMU
         NAMES erbium_emu
@@ -72,6 +90,16 @@ if (TPA_PLATFORM_ID STREQUAL "erbium")
                 -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_packed_single_row.log
                 -DMAX_CYCLES=1000000
                 -DMINIONS=0x7
+                -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
+        )
+        add_test(
+            NAME tpa_tensor_alignment
+            COMMAND "${CMAKE_COMMAND}"
+                -DEMU=${TPA_ERBIUM_EMU}
+                -DELF=$<TARGET_FILE:tpa_tensor_alignment.elf>
+                -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_tensor_alignment.log
+                -DMAX_CYCLES=1000000
+                -DMINIONS=0x3
                 -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
         )
     endif()

@@ -64,6 +64,7 @@ cmake --build build-et-erbium --target tpa_host_tools
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_empty.elf
 cmake --build build-et-erbium --target tpa_packed_single_row.elf
+cmake --build build-et-erbium --target tpa_tensor_alignment.elf
 cmake --build build-et-erbium --target tpa_tensor_matmul.elf
 cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
 cmake --build build-et-erbium --target tpa_fast_attention.elf
@@ -102,6 +103,7 @@ cmake --build build-et-erbium --target tpa_msg_same_send_first.elf tpa_msg_cross
 cmake --build build-et-erbium --target tpa_negative_expected_fail.elf
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf -max_cycles 10000
 /opt/et/bin/erbium_emu -minions 0x7 -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_packed_single_row.elf -max_cycles 1000000
+/opt/et/bin/erbium_emu -minions 0x3 -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_tensor_alignment.elf -max_cycles 1000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_tensor_matmul.elf -max_cycles 2000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention.elf -max_cycles 5000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention_serial.elf -max_cycles 5000000
@@ -121,7 +123,8 @@ The top-level CMake discovers `ProjectFunctions.cmake`, calls
 ET RISC-V toolchain or required ET CMake packages are unavailable. The
 `tpa_host_tools` target builds `tpa_launcher` in the host subproject. The
 `tpa_pipe_demo.elf`, `tpa_empty.elf`, `tpa_packed_single_row.elf`,
-`tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
+`tpa_tensor_alignment.elf`, `tpa_tensor_matmul.elf`,
+`tpa_fast_attention.elf`,
 `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`,
 `tpa_stereo_sad_mapped.elf`, and representative runtime-regression ELF targets
 are generated through the TPA process/program flow, not as handcrafted
@@ -301,6 +304,10 @@ targets, not archived generated JSON.
 - `kernels/tpa_pipe_demo.*` is the original pipe demo process/program path, built via `add_tpa_process()` / `add_tpa_program()` into `tpa_pipe_demo.elf`.
 - `kernels/tpa_packed_single_row.*` is the packed-single row micro-example,
   built through the same process/program path into `tpa_packed_single_row.elf`.
+- `kernels/tpa_tensor_alignment.*` is the Tensor alignment/error micro-example:
+  it sends a 64-byte-header Tensor-ready packet, validates a 16x16 FP32
+  TensorLoad/TensorFMA result, and treats the PRM-defined scratchpad-disabled
+  `tensor_error[4]` path as an expected negative subtest.
 - `attention/` contains the structured fixed-size fast-attention demo and builds
   `tpa_fast_attention.elf` plus the serial baseline `tpa_fast_attention_serial.elf`.
 - `yolov5n/` contains the original YOLOv5n process sources/assets plus downstream planner/map targets and `tpa_yolov5n_downstream.elf`.
@@ -326,15 +333,18 @@ targets, not archived generated JSON.
   for loading generated ELFs through ET runtime device layers.
 - Generated graph-program ELFs now link the cooperative runtime scheduler
   instead of the former PASS-only demo harness. `tpa_empty.elf`,
-  `tpa_pipe_demo.elf`, and `tpa_packed_single_row.elf` execute continuations
-  and report PASS under Erbium emulator validation.
+  `tpa_pipe_demo.elf`, `tpa_packed_single_row.elf`, and
+  `tpa_tensor_alignment.elf` execute continuations and report PASS under
+  Erbium emulator validation.
 - Representative message/channel and queue regression ELFs report PASS under
   Erbium emulator validation; `tpa_negative_expected_fail.elf` reports the
   intended FAIL marker.
 - `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
   `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`, and
   `tpa_stereo_sad_mapped.elf` build and report PASS markers under Erbium
-  emulator validation.
+  emulator validation. `tpa_tensor_alignment.elf` additionally records the
+  controlled negative TensorLoad-with-L1-scratchpad-disabled warning while still
+  reporting PASS because `tensor_error[4]` is expected for that subtest.
 - YOLOv5n downstream planner/map artifact generation, device ELF link, and
   Erbium emulator PASS-marker validation are integrated. YOLOv8n has
   external-header mapper/device milestones with deterministic synthetic-calibration

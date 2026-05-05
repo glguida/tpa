@@ -20,6 +20,7 @@ Use this guide to remember what those rules imply for code review.
 | `docs/et-programmers-reference-manual.txt` | Primary local reference for SIMD state, mask instructions, packed-single instructions, cache-control CSRs, Tensor CSRs, Tensor instruction encodings, wait rules, and PMU event names. |
 | `docs/et-simd-tensor-kernel-notes.md` | Short project checklist. This guide is the deeper manual. |
 | `kernels/tpa_packed_single_row.c` | Minimal structured packed-single row micro-example: aligned 16-float edge rows, `flw.ps`/`fmul.ps`/`fadd.ps`/`fsw.ps`, scalar checking, and decoded objdump evidence. |
+| `kernels/tpa_tensor_alignment.c` | Small Tensor alignment/error evidence target: 64-byte-header packet contract, aligned 16-by-16 FP32 TensorLoad/TensorFMA success path, and controlled `tensor_error[4]` expected-error subtest with L1 scratchpad disabled. |
 | `kernels/tpa_tensor_matmul.c` | Current in-repository Tensor matrix multiply process: scratchpad setup, `tensor_load`, `tensor_fma`, waits, error handling, and packed-single register-file load/store helpers. |
 | `attention/attention_et.h` | Current reusable ET helper patterns for 16-by-16 FP32 TensorFMA and packed-single row copy/scale. |
 | `attention/attention_common.h` | Packet layout, 64-byte headers, static asserts, trace tags, and scalar reference helpers for a fixed 16-by-16 workload. |
@@ -688,6 +689,18 @@ headers are padded to one cache line, matrix fields begin on cache-line
 boundaries, and payload sizes are asserted so graph-channel capacity does not
 silently drift away from C layout.
 
+`kernels/tpa_tensor_alignment.c` is the current minimal target for this
+contract. It sends a 2112-byte edge packet with a 64-byte header/reserved region
+followed by two 16-by-16 FP32 matrices. The checker requires the received packet
+and both matrix bases to be 64-byte aligned before issuing Tensor instructions.
+
+That target deliberately does not claim a misaligned-address TensorLoad error.
+TensorLoad encodes row addresses with the low six bits omitted, and the PRM does
+not define a separate misalignment bit for that case. Its negative subtest uses
+the defined L1-scratchpad-disabled path instead: disable scratchpad, clear
+`tensor_error`, issue TensorLoad, wait, require `tensor_error == 0x10`
+(`tensor_error[4]`, `L1SCPDIS`), then restore scratchpad mode.
+
 ## 14. TPA process integration
 
 Vector/Tensor code belongs inside a process continuation's compute phase:
@@ -722,6 +735,26 @@ Build integration remains the normal TPA path:
 
 Host smoke-test doubles are syntax/unit checks, not ET platform validation. A
 host compiler will not execute ET `.ps` or Tensor CSR semantics.
+
+Tensor alignment/error evidence target:
+
+```text
+tensor_alignment_source -> tensor_alignment_check
+```
+
+`kernels/tpa_tensor_alignment.c` demonstrates a Tensor-ready edge payload and a
+controlled expected-error path in a structured TPA program. The source process
+fills A with `1.0f` and B with `2.0f`; the checker enables Tensor scratchpad,
+clears `tensor_error`, issues two aligned TensorLoad operations, waits for load
+ids 0 and 1, issues TensorFMA32, waits for FMA, requires `tensor_error == 0`,
+stores the FP register-file result, and validates every element as exactly
+`32.0f`. The same checker then runs the L1SCP-disabled negative subtest
+described above. Application PASS requires both the aligned success path and the
+expected error value.
+
+Memory categories remain separate: the packet is edge/channel payload, the
+checker workspace stores only receive pointer/length continuation state, and the
+advertised transient scratch peak is one 16-by-16 FP32 result matrix.
 
 ## 15. Case study: Tensor matrix multiply process
 
@@ -938,6 +971,28 @@ That target proves a narrow fact: the current Erbium toolchain can build, run,
 and decode this one packed-single row transform. It does not prove a speedup,
 platform portability, or any broader kernel optimization.
 
+Tensor alignment/error micro-example evidence:
+
+- `tpa_tensor_alignment.elf` is built through the top-level ET superbuild and
+  the `.c + .tpm + .tpp + .place` TPA path.
+- The device-subbuild CTest `tpa_tensor_alignment` passes by observing the
+  application PASS marker. A direct Erbium DEBUG run reports aligned begin/end
+  tags `0x7a100001`/`0x7a100002`, negative begin `0x7a100003`, the expected
+  `TensorLoad with L1SCP disabled!!` warning, negative error tag `0x7a100410`,
+  negative end `0x7a100005`, PASS tag `0x7a1000ff`, and application PASS at
+  cycle `11775`; raw exit is `1` afterward because of the normal post-PASS
+  sleeping-harts caveat.
+- Objdump for the target decodes Tensor CSR names and packed-single result
+  stores, including `csrw tensor_load` (CSR `0x83f`), `csrw tensor_fma` (CSR
+  `0x801`), `csrw tensor_wait` (CSR `0x830`), `csrwi`/`csrr tensor_error`, and
+  `fsw.ps` stores.
+
+This supports a narrow claim: a 64-byte-header Tensor-ready edge packet can feed
+an aligned TensorLoad/TensorFMA path, and a scratchpad-disabled TensorLoad can
+be treated as an expected PASS subcondition when it reports `tensor_error[4]`.
+It does not prove a misaligned-address TensorLoad error, performance speedup, or
+platform portability.
+
 Trace checks should prove that the optimized path actually ran. Trace tags are
 application-specific; the pattern is not:
 
@@ -1033,6 +1088,11 @@ TensorFMA32 -> wait FMA -> store vector regs -> read error -> send
 Good for fixed 16-by-16 FP32 products and as the baseline for lower-precision
 experiments.
 
+`tpa_tensor_alignment.elf` is the current smallest validated target for the
+layout/error side of this pattern: it proves one aligned FP32 TensorLoad/FMA
+packet path and one expected `tensor_error[4]` path, not a misaligned-address
+error.
+
 ### Pattern C: Tensor plus SIMD post-process
 
 Use when Tensor computes a tile and a lane-wise transform follows.
@@ -1070,6 +1130,8 @@ answered before turning patterns into a reusable ET math library:
   requirements when future machine descriptions expose H1 contexts?
 - Should conservative new TensorFMA helpers always wait for both load ids even
   when older source waited for one id in a validated example?
+- Is there any deterministic, documented way to observe a misaligned-address
+  TensorLoad failure, given that the row address encoding omits low six bits?
 - Which cooperative TensorLoad/TensorStore patterns are worth validating first,
   and what graph-level synchronization should they require?
 - Which TensorQuant transformations are needed by current kernels, and what

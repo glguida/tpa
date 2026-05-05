@@ -134,13 +134,13 @@ The current structured repo validates these paths:
 - Erbium ET configure and build through the ET superbuild;
 - `tpa_host_tools` builds `tpa_launcher`;
 - `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_packed_single_row.elf`,
-  `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
-  `tpa_fast_attention_serial.elf`, and `tpa_stereo_sad.elf` build through the
-  generated TPA process/program flow;
+  `tpa_tensor_alignment.elf`, `tpa_tensor_matmul.elf`,
+  `tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`, and
+  `tpa_stereo_sad.elf` build through the generated TPA process/program flow;
 - `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_packed_single_row.elf`,
-  `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
-  `tpa_fast_attention_serial.elf`, and `tpa_stereo_sad.elf` run under
-  `erbium_emu` and report PASS markers;
+  `tpa_tensor_alignment.elf`, `tpa_tensor_matmul.elf`,
+  `tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`, and
+  `tpa_stereo_sad.elf` run under `erbium_emu` and report PASS markers;
 - representative message/channel and queue regression ELFs build and report
   PASS markers under `erbium_emu`;
 - `tpa_negative_expected_fail.elf` builds and reports the expected FAIL marker

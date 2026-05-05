@@ -210,8 +210,9 @@ because the current YOLO mapping uses the full-card machine JSON.
 
 ## Current status notes
 
-Validated current paths include Erbium simple demo ELFs, the tensor matmul demo
-ELF, YOLO downstream planner/map/device ELF PASS-marker runtime path,
+Validated current paths include Erbium simple demo ELFs, the packed-single row
+and Tensor alignment/error micro-examples, the tensor matmul demo ELF, YOLO
+downstream planner/map/device ELF PASS-marker runtime path,
 representative message/channel and queue runtime regression ELFs, the negative
 expected-failure ELF's intentional FAIL marker, ET-SoC-1 default `tpa_core`, the
 host launcher target, planner tests, and host smoke-test doubles.

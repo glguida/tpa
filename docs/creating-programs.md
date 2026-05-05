@@ -280,6 +280,32 @@ Use it when you need a reviewable row-local packed-single example without Tensor
 scratchpad setup or YOLO model artifacts. It is correctness/tooling evidence,
 not a performance benchmark.
 
+## Tensor alignment/error micro-example: `tpa_tensor_alignment`
+
+`kernels/tpa_tensor_alignment.*` is the smallest current structured Tensor
+success/error target. It uses a source -> checker graph with one 2112-byte edge
+packet. The packet reserves a 64-byte header before two 16-by-16 FP32 matrices,
+so every Tensor row base is 64-byte aligned. The checker validates packet
+alignment, runs an aligned `TensorLoad`/`TensorFMA32` path with deterministic
+`32.0f` outputs, then runs a controlled expected-error subtest by disabling L1
+scratchpad and requiring `tensor_error[4]` after `TensorLoad` and `TensorWait`.
+
+Files:
+
+- `kernels/tpa_tensor_alignment.c` — source, aligned Tensor success, expected
+  Tensor error, and checker continuations;
+- `kernels/tpa_tensor_alignment.tpm` — process kinds and ports;
+- `kernels/tpa_tensor_alignment.tpp` — two-instance Tensor evidence graph;
+- `kernels/tpa_tensor_alignment.place` — hand Erbium H0 placement with a fabric
+  channel;
+- `kernels/CMakeLists.txt` — `tpa_tensor_alignment.elf` target and Erbium CTest
+  registration when `erbium_emu` is available.
+
+Use it when you need a small reviewable Tensor setup/wait/error-handling example.
+It proves the 64-byte-header success path and the PRM-defined
+scratchpad-disabled error path; it does not prove that a misaligned TensorLoad
+address reports an error.
+
 ## Intermediate example: `tpa_tensor_matmul`
 
 `kernels/tpa_tensor_matmul.*` is the intermediate original demo now ported to

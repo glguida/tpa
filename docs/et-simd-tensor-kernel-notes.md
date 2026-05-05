@@ -9,9 +9,10 @@ longer tutorial and validation roadmap, see
 `docs/et-vector-tensor-hackers-guide.md`.
 
 The current in-repository packed-single micro-example is
-`kernels/tpa_packed_single_row.c`, and the current Tensor example is
-`kernels/tpa_tensor_matmul.c`. The fixed attention demo under `attention/` now
-uses ET helpers in current source:
+`kernels/tpa_packed_single_row.c`. The Tensor examples are
+`kernels/tpa_tensor_alignment.c` for a small alignment/error-handling evidence
+path and `kernels/tpa_tensor_matmul.c` for a larger matmul graph. The fixed
+attention demo under `attention/` now uses ET helpers in current source:
 `attention/attention_et.h` provides TensorFMA-based 16-by-16 products for the
 score and output paths plus packed-single row copy/scaling helpers for softmax
 and matrix scaling. That implementation still must not be described as a
@@ -114,12 +115,15 @@ Practical consequences for TPA kernels:
   results with scalar/SIMD FP instructions, before reusing L1 scratchpad lines or
   Tensor resources where the manual requires ordering, and before checking
   `tensor_error` for an operation.
-- Tensor setup is part of the kernel contract. `kernels/tpa_tensor_matmul.c`
-  shows the current project pattern: include `<etsoc/isa/cacheops.h>` and
-  `<etsoc/isa/tensors.h>`, evict/fence L1D state, put L1D into scratchpad mode,
-  initialize `tensor_mask` and `tensor_coop`, set `m0`, clear `tensor_error`,
-  issue `tensor_load()`/`tensor_fma()`, wait with `tensor_wait()`, and fail the
-  TPA process path if `get_tensor_error()` reports an error.
+- Tensor setup is part of the kernel contract. `kernels/tpa_tensor_alignment.c`
+  and `kernels/tpa_tensor_matmul.c` show the current project pattern: include
+  `<etsoc/isa/cacheops.h>` and `<etsoc/isa/tensors.h>`, evict/fence L1D state,
+  put L1D into scratchpad mode, initialize `tensor_mask` and `tensor_coop`, set
+  `m0`, clear `tensor_error`, issue `tensor_load()`/`tensor_fma()`, wait with
+  `tensor_wait()`, and fail the TPA process path if `get_tensor_error()` reports
+  an unexpected error. `tpa_tensor_alignment.c` also has a controlled negative
+  subtest that disables L1 scratchpad, issues `TensorLoad`, waits, and requires
+  the PRM-defined `tensor_error[4]` (`L1SCPDIS`) value before reporting PASS.
 - Most Tensor instructions are legal only on H0 of each Minion. On current
   Erbium TPA targets the HAL/machine model uses H0 runtime lane ids; future
   targets that expose H1 or mixed contexts must keep Tensor kernels off illegal
