@@ -104,7 +104,8 @@ Current structured pieces are:
 - `cmake/gen_tpa_image.cmake` — parses `.tpm`, `.tpp`, and `.place` inputs and
   generates image C.
 - `kernels/` — currently ported TPA programs: `tpa_empty`,
-  `tpa_pipe_demo`, and the generated tensor matmul demo.
+  `tpa_pipe_demo`, the packed-single row micro-example, and the generated
+  tensor matmul demo.
 - `attention/` — fixed-size structured fast-attention demo with parallel and
   serial Erbium placements.
 - `depth/` — no-weights stereo SAD depth demo for deterministic 96x64
@@ -132,12 +133,14 @@ The current structured repo validates these paths:
 
 - Erbium ET configure and build through the ET superbuild;
 - `tpa_host_tools` builds `tpa_launcher`;
-- `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_tensor_matmul.elf`,
-  `tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`, and
-  `tpa_stereo_sad.elf` build through the generated TPA process/program flow;
-- `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_tensor_matmul.elf`,
-  `tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`, and
-  `tpa_stereo_sad.elf` run under `erbium_emu` and report PASS markers;
+- `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_packed_single_row.elf`,
+  `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
+  `tpa_fast_attention_serial.elf`, and `tpa_stereo_sad.elf` build through the
+  generated TPA process/program flow;
+- `tpa_empty.elf`, `tpa_pipe_demo.elf`, `tpa_packed_single_row.elf`,
+  `tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
+  `tpa_fast_attention_serial.elf`, and `tpa_stereo_sad.elf` run under
+  `erbium_emu` and report PASS markers;
 - representative message/channel and queue regression ELFs build and report
   PASS markers under `erbium_emu`;
 - `tpa_negative_expected_fail.elf` builds and reports the expected FAIL marker
@@ -169,7 +172,8 @@ maintenance, wake/wait operations, lifecycle hooks, tracing, and diagnostics.
 
 Generated graph-program ELFs now link the cooperative runtime scheduler and
 execute continuations. The current validated Erbium PASS set covers the empty,
-pipe, tensor matmul, fast-attention, and no-weights stereo SAD demos plus
+pipe, packed-single row, tensor matmul, fast-attention, and no-weights stereo
+SAD demos plus
 representative message/channel and queue regression tests. The stereo SAD demo
 uses deterministic synthetic input and does not depend on external images,
 datasets, model weights, or third-party stereo code. It uses hand placement;

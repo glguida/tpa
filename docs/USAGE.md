@@ -63,6 +63,7 @@ cmake -S . -B build-et-erbium -DET_ROOT=/path/to/et-platform -DTPA_PLATFORM=erbi
 cmake --build build-et-erbium --target tpa_host_tools
 cmake --build build-et-erbium --target tpa_pipe_demo.elf
 cmake --build build-et-erbium --target tpa_empty.elf
+cmake --build build-et-erbium --target tpa_packed_single_row.elf
 cmake --build build-et-erbium --target tpa_tensor_matmul.elf
 cmake --build build-et-erbium --target tpa_fast_attention_map_mapped_program
 cmake --build build-et-erbium --target tpa_fast_attention.elf
@@ -100,6 +101,7 @@ cmake --build build-et-erbium --target tpa_queue_basic.elf tpa_queue_yield.elf t
 cmake --build build-et-erbium --target tpa_msg_same_send_first.elf tpa_msg_cross_send_first.elf tpa_msg_fabric_send_first.elf
 cmake --build build-et-erbium --target tpa_negative_expected_fail.elf
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_pipe_demo.elf -max_cycles 10000
+/opt/et/bin/erbium_emu -minions 0x7 -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_packed_single_row.elf -max_cycles 1000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/kernels/tpa_tensor_matmul.elf -max_cycles 2000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention.elf -max_cycles 5000000
 /opt/et/bin/erbium_emu -minions 0x1f -elf_load build-et-erbium/tpa-device-prefix/src/tpa-device-build/attention/tpa_fast_attention_serial.elf -max_cycles 5000000
@@ -118,8 +120,9 @@ The top-level CMake discovers `ProjectFunctions.cmake`, calls
 `HostProjectNoInstall(tpa-host ...)`. `tpa-device` fails during configure if the
 ET RISC-V toolchain or required ET CMake packages are unavailable. The
 `tpa_host_tools` target builds `tpa_launcher` in the host subproject. The
-`tpa_pipe_demo.elf`, `tpa_empty.elf`, `tpa_tensor_matmul.elf`,
-`tpa_fast_attention.elf`, `tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`,
+`tpa_pipe_demo.elf`, `tpa_empty.elf`, `tpa_packed_single_row.elf`,
+`tpa_tensor_matmul.elf`, `tpa_fast_attention.elf`,
+`tpa_fast_attention_serial.elf`, `tpa_stereo_sad.elf`,
 `tpa_stereo_sad_mapped.elf`, and representative runtime-regression ELF targets
 are generated through the TPA process/program flow, not as handcrafted
 standalone executables. The stereo SAD hand-placed and mapped ELFs are distinct
@@ -296,6 +299,8 @@ targets, not archived generated JSON.
   compile-time channel policy.
 - `kernels/tpa_empty.*` is the original empty TPA process/program demo path.
 - `kernels/tpa_pipe_demo.*` is the original pipe demo process/program path, built via `add_tpa_process()` / `add_tpa_program()` into `tpa_pipe_demo.elf`.
+- `kernels/tpa_packed_single_row.*` is the packed-single row micro-example,
+  built through the same process/program path into `tpa_packed_single_row.elf`.
 - `attention/` contains the structured fixed-size fast-attention demo and builds
   `tpa_fast_attention.elf` plus the serial baseline `tpa_fast_attention_serial.elf`.
 - `yolov5n/` contains the original YOLOv5n process sources/assets plus downstream planner/map targets and `tpa_yolov5n_downstream.elf`.
@@ -320,9 +325,9 @@ targets, not archived generated JSON.
 - The structured host project ports the original `tpa_launcher` implementation
   for loading generated ELFs through ET runtime device layers.
 - Generated graph-program ELFs now link the cooperative runtime scheduler
-  instead of the former PASS-only demo harness. `tpa_empty.elf` and
-  `tpa_pipe_demo.elf` execute continuations and report PASS under Erbium
-  emulator validation.
+  instead of the former PASS-only demo harness. `tpa_empty.elf`,
+  `tpa_pipe_demo.elf`, and `tpa_packed_single_row.elf` execute continuations
+  and report PASS under Erbium emulator validation.
 - Representative message/channel and queue regression ELFs report PASS under
   Erbium emulator validation; `tpa_negative_expected_fail.elf` reports the
   intended FAIL marker.

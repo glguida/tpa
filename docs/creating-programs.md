@@ -256,6 +256,30 @@ The important authoring lessons are:
 - placement is separate from the graph;
 - the CMake target is `tpa_pipe_demo.elf`, generated from the TPA artifacts.
 
+## Packed-single micro-example: `tpa_packed_single_row`
+
+`kernels/tpa_packed_single_row.*` is the smallest current ET packed-single SIMD
+process/graph example. It uses a source -> compute -> checker graph with two
+64-byte row edges. The compute process obtains channel-backed row storage,
+loads a 16-float row as two packed-single registers, applies `fmul.ps` and
+`fadd.ps` under all-lane mask `m0`, stores the row, and the checker validates
+every lane against the scalar formula `input * 2 + 1`.
+
+Files:
+
+- `kernels/tpa_packed_single_row.c` — source, packed-single compute, and checker
+  continuations;
+- `kernels/tpa_packed_single_row.tpm` — process kinds and ports;
+- `kernels/tpa_packed_single_row.tpp` — three-instance row dataflow graph;
+- `kernels/tpa_packed_single_row.place` — hand Erbium H0 placement with fabric
+  channel overrides so the 64-byte row payloads live in aligned edge storage;
+- `kernels/CMakeLists.txt` — `tpa_packed_single_row.elf` target and Erbium CTest
+  registration when `erbium_emu` is available.
+
+Use it when you need a reviewable row-local packed-single example without Tensor
+scratchpad setup or YOLO model artifacts. It is correctness/tooling evidence,
+not a performance benchmark.
+
 ## Intermediate example: `tpa_tensor_matmul`
 
 `kernels/tpa_tensor_matmul.*` is the intermediate original demo now ported to

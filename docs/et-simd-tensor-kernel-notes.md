@@ -8,8 +8,10 @@ for the TPA consequences that matter when writing or reviewing kernels. For a
 longer tutorial and validation roadmap, see
 `docs/et-vector-tensor-hackers-guide.md`.
 
-The current in-repository Tensor example is `kernels/tpa_tensor_matmul.c`. The
-fixed attention demo under `attention/` now uses ET helpers in current source:
+The current in-repository packed-single micro-example is
+`kernels/tpa_packed_single_row.c`, and the current Tensor example is
+`kernels/tpa_tensor_matmul.c`. The fixed attention demo under `attention/` now
+uses ET helpers in current source:
 `attention/attention_et.h` provides TensorFMA-based 16-by-16 products for the
 score and output paths plus packed-single row copy/scaling helpers for softmax
 and matrix scaling. That implementation still must not be described as a
@@ -72,7 +74,10 @@ Practical consequences for TPA kernels:
   `mova.m.x` pattern used by `kernels/tpa_tensor_matmul.c` when all eight lanes
   should be active.
 - A 16-float row is two packed-single registers: bytes `0..31` and `32..63`.
-  This makes packed-single SIMD a natural fit for row-local attention work such
+  `kernels/tpa_packed_single_row.c` is the minimal structured example of this
+  layout: it loads one row as two `.ps` registers, applies `fmul.ps` and
+  `fadd.ps`, stores the row, and validates every lane deterministically. This
+  makes packed-single SIMD a natural fit for row-local attention work such
   as scaling, subtracting a row maximum, elementwise exponent approximation,
   reciprocal/normalization, row copies, and row stores.
 - `FEXP.PS` computes `2^x`, not `e^x`. A softmax implementation that uses it for

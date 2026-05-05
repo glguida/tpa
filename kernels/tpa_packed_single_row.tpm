@@ -1,0 +1,7 @@
+pdef packed_single_row_source_pdef user 701 packed_single_row_source_start 0
+port packed_single_row_source_pdef 0 out
+pdef packed_single_row_compute_pdef user 702 packed_single_row_compute_recv 16
+port packed_single_row_compute_pdef 0 in
+port packed_single_row_compute_pdef 1 out
+pdef packed_single_row_check_pdef user 703 packed_single_row_check_recv 16
+port packed_single_row_check_pdef 0 in

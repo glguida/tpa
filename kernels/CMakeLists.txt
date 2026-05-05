@@ -34,6 +34,49 @@ add_tpa_program(
         "${CMAKE_CURRENT_SOURCE_DIR}/tpa_pipe_demo.place"
 )
 
+add_tpa_process(
+    NAME tpa_packed_single_row_proc
+    MANIFEST
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_packed_single_row.tpm"
+    SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_packed_single_row.c"
+)
+
+add_tpa_program(
+    NAME tpa_packed_single_row
+    PROCESSES
+        tpa_packed_single_row_proc
+    PROGRAM
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_packed_single_row.tpp"
+    PLACEMENT
+        "${CMAKE_CURRENT_SOURCE_DIR}/tpa_packed_single_row.place"
+)
+
+if (TPA_PLATFORM_ID STREQUAL "erbium")
+    find_program(TPA_ERBIUM_EMU
+        NAMES erbium_emu
+        HINTS
+            "${ET_ROOT}/bin"
+            "${ET_PLATFORM_PATH}/bin"
+            "/opt/et/bin"
+        PATH_SUFFIXES bin
+    )
+
+    if (TPA_ERBIUM_EMU)
+        enable_testing()
+        add_test(
+            NAME tpa_packed_single_row
+            COMMAND "${CMAKE_COMMAND}"
+                -DEMU=${TPA_ERBIUM_EMU}
+                -DELF=$<TARGET_FILE:tpa_packed_single_row.elf>
+                -DLOG=${CMAKE_CURRENT_BINARY_DIR}/tpa_packed_single_row.log
+                -DMAX_CYCLES=1000000
+                -DMINIONS=0x7
+                -P "${TPA_ROOT_DIR}/cmake/run_erbium_test_fast.cmake"
+        )
+    endif()
+endif()
+
 set(tpa_tensor_matmul_rows 8)
 set(tpa_tensor_matmul_cols 8)
 set(tpa_tensor_matmul_rounds 4)

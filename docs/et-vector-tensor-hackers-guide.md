@@ -106,6 +106,7 @@ Read these sources before changing ET vector/tensor kernels or documentation:
 | `docs/creating-programs.md` | Required `.c + .tpm + .tpp + .place` or mapper-generated build path. |
 | `docs/mapper-planner.md` | Mapper inputs/outputs, machine JSON contexts, generated placement, scratch, and edge artifacts. |
 | `docs/memory-and-edge-buffers.md` | Memory taxonomy: process workspace, scratch, immutable model data, edge payloads. |
+| `kernels/tpa_packed_single_row.c` | Minimal packed-single row micro-example: source/compute/check graph, aligned 16-float edge rows, `flw.ps`/`fmul.ps`/`fadd.ps`/`fsw.ps`, and deterministic scalar validation. |
 | `kernels/tpa_tensor_matmul.c` | Current Tensor matmul example: scratchpad setup, `tensor_load`, `tensor_fma`, `tensor_wait`, error checks, packed-single RF load/store helpers. |
 | `attention/attention_common.h` | Attention dimensions, 64-byte header layout, packet sizes, trace tags, scalar reference helpers. |
 | `attention/attention_et.h` | Current attention ET helpers: TensorFMA-based 16-by-16 products and packed-single row copy/scaling helpers. |
@@ -315,6 +316,48 @@ Do not hide edge payload bytes in process-owned mutable globals to avoid a
 `.tpp` capacity change. That makes memory accounting and mapper review harder.
 
 ## 7. Canonical examples
+
+### `kernels/tpa_packed_single_row.c`
+
+`kernels/tpa_packed_single_row.c` is the minimal structured packed-single row
+micro-example. It keeps the normal TPA process/graph/image boundaries while
+using ET `.ps` operations inside one compute continuation:
+
+```text
+packed_single_row_source -> packed_single_row_compute -> packed_single_row_check
+```
+
+It demonstrates:
+
+- a 16-float row represented as one 64-byte edge payload;
+- explicit 64-byte static assertions for the row packet;
+- channel-backed edge storage obtained with `tpa_send_buf()` and fabric channel
+  overrides in the hand `.place` file so source and output rows are aligned
+  edge/channel payloads rather than hidden process-owned globals;
+- an all-lane `m0` mask;
+- `flw.ps` loads for the low and high halves of the row;
+- `fmul.ps` followed by `fadd.ps` for the deterministic formula
+  `output = input * 2 + 1`;
+- `fsw.ps` stores for the low and high halves of the row;
+- scalar checker validation of all 16 lanes and normal TEST_PASS/TEST_FAIL
+  marker behavior.
+
+What it proves:
+
+- Packed-single row operations can be used inside a continuation-style TPA
+  process built through `.c + .tpm + .tpp + .place` and `add_tpa_program()`.
+- The ET objdump currently used for validation decodes this target's
+  packed-single instructions as `flw.ps`, `fmul.ps`, `fadd.ps`, and `fsw.ps`
+  mnemonics.
+- The target is a correctness/tooling micro-example, not a performance
+  benchmark.
+
+What it does not prove:
+
+- It does not prove a speedup over scalar code.
+- It does not validate horizontal reductions, transcendental approximations,
+  Tensor operations, attention softmax, YOLOv8n kernels, ET-SoC-1 behavior, or
+  silicon/PCIe behavior.
 
 ### `kernels/tpa_tensor_matmul.c`
 
@@ -541,6 +584,51 @@ packed-single objdump mnemonics, baseline-vs-optimized speedup, ET-SoC-1,
 silicon/PCIe, host demo behavior, production performance, or cross-machine
 stability. No host smoke-test-double evidence was used.
 
+### Packed-single row micro-example evidence
+
+The `tpa_packed_single_row.elf` target is the micro-example for decoded
+packed-single row instruction evidence. The validation used the top-level ET
+superbuild and the normal structured process/program path:
+
+```sh
+cmake -S . -B build-et-erbium \
+  -DET_ROOT=/opt/et \
+  -DTPA_PLATFORM=erbium \
+  -DPYTHON=$(command -v python3)
+cmake --build build-et-erbium --target tpa_packed_single_row.elf
+ctest --test-dir build-et-erbium/tpa-device-prefix/src/tpa-device-build \
+  -R '^tpa_packed_single_row$' --output-on-failure
+```
+
+The registered CTest passed by observing the application PASS marker from
+`cmake/run_erbium_test_fast.cmake`. A direct emulator run with
+`-minions 0x7 -max_cycles 1000000` reported PASS at cycle `10,888` and then
+returned raw process exit code `1` because the emulator reported sleeping harts
+after PASS. Treat that as application PASS-marker evidence plus the normal
+post-PASS direct-emulator caveat, not as a clean raw process exit.
+
+Unlike the earlier tensor/attention evidence packet, the available ET objdump
+decoded this target's packed-single instructions directly. The compute section
+contains the expected row-local sequence:
+
+```text
+flw.ps   ft0,0(a1)
+flw.ps   ft1,32(a1)
+flw.ps   ft2,0(a0)
+flw.ps   ft3,0(a6)
+fmul.ps  ft0,ft0,ft2
+fmul.ps  ft1,ft1,ft2
+fadd.ps  ft0,ft0,ft3
+fadd.ps  ft1,ft1,ft3
+fsw.ps   ft0,0(a5)
+fsw.ps   ft1,32(a5)
+```
+
+This supports a narrow claim: the packed-single row micro-example builds,
+executes, validates its deterministic scalar oracle, and has decoded `.ps`
+mnemonic disassembly under the current ET Erbium toolchain. It does not support
+performance, YOLOv8n, ET-SoC-1, silicon/PCIe, or host-demo claims.
+
 ### Claim-to-evidence checklist
 
 | Claim | Minimum evidence |
@@ -645,9 +733,10 @@ Use small experiments to retire one risk at a time.
    Erbium, confirm the PASS marker, disassemble for Tensor CSR writes, and
    verify packed-single RF load/store helpers through decoded disassembly or an
    explicit source-backed/objdump-decoding-gap note.
-2. **Packed-single micro-example.** Add or adapt a small row-local process that
-   copies/scales a 16-float row with packed-single helpers, validates output
-   deterministically, and disassembles to `.ps` mnemonics.
+2. **Packed-single micro-example.** Use `tpa_packed_single_row.elf` as the
+   baseline row-local packed-single evidence target: it scales/biases a
+   16-float row with `.ps` helpers, validates output deterministically, and
+   currently disassembles to decoded `.ps` mnemonics under the Erbium toolchain.
 3. **Tensor alignment success/failure tests.** Prove that a 64-byte-header
    payload succeeds and that an intentionally misaligned staging experiment fails
    or reports `tensor_error` as expected. Keep expected-failure behavior explicit.

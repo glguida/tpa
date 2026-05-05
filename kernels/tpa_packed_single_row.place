@@ -1,0 +1,5 @@
+701 0
+702 2
+703 4
+chan 701 0 702 0 fabric
+chan 702 1 703 0 fabric
